@@ -68,7 +68,7 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) an
 ## [0.4.1] — 2026-05-04
 
 ### Changed
-- SKILL.md R7 (WAF 조기 감지 시 API-first 병행 분기) — 분기 결정은 자동이지만 사용자가 결과 metadata에서 확인 가능. 어떤 우회 경로로 성공/실패했는지 명시
+- SKILL.md R7 (WAF 조기 감지 시 API-first 병행 분기) — 분기 결정은 자동이지만 사용자가 결과 metadata에서 확인 가능. 어떤 접근 경로로 성공/실패했는지 명시
 
 ### Preserved (R1-R7 모두 보존)
 - R1: WebFetch / 즉흥 curl 금지
