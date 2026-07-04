@@ -49,7 +49,7 @@ Only special endpoints that the generic chain can't discover on its own. Everyth
 
 ## Reference files
 
-The skill is organized as a set of reference files (`skills/insane-search/references/`), each covering one class of techniques.
+The skill is organized as a set of reference files (`skills/aioffice-searchpro/references/`), each covering one class of techniques.
 
 | File | Covers |
 |------|--------|
@@ -92,7 +92,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1   # local Chro
 
 If a dependency is missing, the wrapper installs the locked runtime dependency set and then tries the route.
 
-## What insane-search is not
+## What AIOFFICE-SearchPro is not
 
 - **Not a scraper** — It's a method-selection layer. It uses public APIs and standard techniques.
 - **Not API-key based** — Everything uses no-auth public endpoints or URL transformations.
@@ -119,7 +119,7 @@ There are no commands. Just talk normally — the skill triggers when a URL is b
 "Check what people are saying about Claude Code on Reddit"
 → Reddit .rss feed (curl_cffi) → posts
 
-"Search X for insane-search"
+"Search X for AIOFFICE-SearchPro"
 → Intent routing: keyword → WebSearch(site:x.com) → tweet-result → full tweets
 
 "네이버에서 클로드코드 뉴스 찾아줘"

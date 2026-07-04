@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# First-run setup for insane-search. Idempotent, non-blocking.
-#   setup.sh            -> env checks + legacy update-notifier hook when applicable.
+# First-run setup for aioffice-searchpro. Idempotent, non-blocking.
+#   setup.sh            -> first-run marker setup.
 #                          SILENT: no star prompt.
 #                          Used by skill / auto-trigger Step 0 (output is discarded).
 #   setup.sh ask        -> same first-run setup. Star prompts are silent by default
-#                          for classroom/team installs. If INSANE_SEARCH_STAR_PROMPT=1
+#                          for classroom/team installs. If AIOFFICE_SEARCHPRO_STAR_PROMPT=1
 #                          and no star decision is on record, atomically records an
 #                          "asked" marker AND prints "STAR_ASK <lang>".
 #                          Recording the marker HERE (not via a model follow-up) guarantees
@@ -18,13 +18,13 @@
 # cannot be issued from bash); this script never stars without an explicit "star yes".
 set -uo pipefail
 
-PLUGIN="insane-search"
-OWN_REPO="aidenlim-dev/insane-search"
+PLUGIN="aioffice-searchpro"
+OWN_REPO="aidenlim-dev/AIOFFICE-SearchPro"
 HUB_REPO=""
 
 CONFIG_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
-MARKER_DIR="$HOME/.gptaku-setup"
+MARKER_DIR="$HOME/.aioffice-searchpro-setup"
 SETUP_MARKER="$MARKER_DIR/$PLUGIN.json"
 STAR_MARKER="$MARKER_DIR/$PLUGIN.star.json"
 mkdir -p "$MARKER_DIR"
@@ -104,30 +104,8 @@ if [ "${1:-}" = "star" ]; then
   exit 0
 fi
 
-# --- first-run env checks + legacy update-notifier hook (silent, once per machine) ---
+# --- first-run env checks (silent, once per machine) ---
 if [ ! -f "$SETUP_MARKER" ]; then
-  HAVE_NODE=0; command -v node >/dev/null 2>&1 && HAVE_NODE=1
-  # Direct repository installs update through Claude Code's plugin marketplace.
-  # Only install the old shared gptaku hook when that marketplace is present.
-  if [ "$HAVE_NODE" = "1" ] && [ -d "$CONFIG_DIR/plugins/marketplaces/gptaku-plugins/.git" ]; then
-    SCRIPTS_DIR="$CONFIG_DIR/scripts"
-    mkdir -p "$SCRIPTS_DIR"
-    [ -f "$HERE/gptaku-update-check.cjs" ] && cp -f "$HERE/gptaku-update-check.cjs" "$SCRIPTS_DIR/gptaku-update-check.cjs" 2>/dev/null
-    CLAUDE_CONFIG_DIR="$CONFIG_DIR" node -e '
-      const fs=require("fs"),path=require("path"),os=require("os");
-      const cfg=process.env.CLAUDE_CONFIG_DIR||path.join(os.homedir(),".claude");
-      const p=path.join(cfg,"settings.json");
-      let d={}; try{d=JSON.parse(fs.readFileSync(p,"utf8"))}catch{}
-      d.hooks=d.hooks||{};
-      const ss=d.hooks.SessionStart=Array.isArray(d.hooks.SessionStart)?d.hooks.SessionStart:[];
-      const has=ss.some(e=>((e&&e.hooks)||[]).some(h=>String((h&&h.command)||"").includes("gptaku-update-check")));
-      if(!has){
-        const cmd="node "+JSON.stringify(path.join(cfg,"scripts","gptaku-update-check.cjs"));
-        ss.push({matcher:"*",hooks:[{type:"command",command:cmd,timeout:5}]});
-        try{fs.writeFileSync(p,JSON.stringify(d,null,2))}catch{}
-      }
-    ' >/dev/null 2>&1 || true
-  fi
   ts=$(date +%s 2>/dev/null || echo 0)
   printf '{"setup":true,"plugin":"%s","ts":%s}\n' "$PLUGIN" "$ts" > "$SETUP_MARKER"
 fi
@@ -136,7 +114,7 @@ fi
 # Only the command flow passes "ask". Bare / silent skill invocations never reach here,
 # so they neither prompt nor record — the prompt is shown at most once, by a command,
 # and the "asked" marker is written by bash regardless of any model follow-up.
-if [ "${1:-}" = "ask" ] && [ ! -f "$STAR_MARKER" ] && [ "${INSANE_SEARCH_STAR_PROMPT:-0}" = "1" ]; then
+if [ "${1:-}" = "ask" ] && [ ! -f "$STAR_MARKER" ] && [ "${AIOFFICE_SEARCHPRO_STAR_PROMPT:-0}" = "1" ]; then
   write_star "asked"
   echo "STAR_ASK $(detect_lang)"
 fi

@@ -1,21 +1,21 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "insane-search-marketplace",
-  "description": "Marketplace for installing the insane-search Claude Code plugin directly from this repository.",
+  "name": "aioffice-searchpro-marketplace",
+  "description": "Marketplace for installing the AIOFFICE-SearchPro Claude Code plugin directly from this repository.",
   "owner": {
     "name": "Aiden Lim"
   },
   "plugins": [
     {
-      "name": "insane-search",
+      "name": "aioffice-searchpro",
       "source": "./",
-      "description": "Adaptive public-page reader for blocked sites using public APIs, curl_cffi TLS impersonation, Jina, yt-dlp, and Playwright fallbacks.",
-      "version": "0.9.5",
+      "description": "AIOFFICE-SearchPro adaptive public-page reader for blocked sites using public APIs, curl_cffi TLS impersonation, Jina, yt-dlp, and Playwright fallbacks.",
+      "version": "1.0.0",
       "author": {
-        "name": "fivetaku / Aiden Lim"
+        "name": "Aiden Lim"
       },
-      "homepage": "https://github.com/aidenlim-dev/insane-search",
-      "repository": "https://github.com/aidenlim-dev/insane-search",
+      "homepage": "https://github.com/aidenlim-dev/AIOFFICE-SearchPro",
+      "repository": "https://github.com/aidenlim-dev/AIOFFICE-SearchPro",
       "license": "MIT",
       "category": "development",
       "tags": [
@@ -23,7 +23,9 @@
         "search",
         "waf",
         "curl-cffi",
-        "playwright"
+        "playwright",
+        "aioffice",
+        "searchpro"
       ]
     }
   ]

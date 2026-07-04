@@ -7,7 +7,7 @@ param()
 $ErrorActionPreference = "Stop"
 
 $Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$Templates = Join-Path $Root "skills/insane-search/engine/templates"
+$Templates = Join-Path $Root "skills/aioffice-searchpro/engine/templates"
 
 function Ok($Message) { Write-Host "ok  $Message" }
 function Warn($Message) { Write-Host "warn $Message" }

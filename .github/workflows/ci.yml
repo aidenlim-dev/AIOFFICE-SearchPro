@@ -34,34 +34,34 @@ jobs:
           .venv/bin/python -m pip install -r requirements.lock
 
       - name: Validate Node lockfile
-        run: npm ci --prefix skills/insane-search/engine/templates --ignore-scripts
+        run: npm ci --prefix skills/aioffice-searchpro/engine/templates --ignore-scripts
 
       - name: Python compile
-        run: .venv/bin/python -m compileall -q skills/insane-search/engine
+        run: .venv/bin/python -m compileall -q skills/aioffice-searchpro/engine
 
       - name: Unit and regression tests
         run: |
-          .venv/bin/python skills/insane-search/engine/tests/test_u1.py
-          .venv/bin/python skills/insane-search/engine/tests/test_u4.py
-          PYTHONPATH="$PWD/skills/insane-search" .venv/bin/python skills/insane-search/engine/tests/test_u5.py
-          .venv/bin/python skills/insane-search/engine/tests/test_u7.py
-          .venv/bin/python skills/insane-search/engine/tests/test_u8.py
-          .venv/bin/python skills/insane-search/engine/tests/test_u9.py
+          .venv/bin/python skills/aioffice-searchpro/engine/tests/test_u1.py
+          .venv/bin/python skills/aioffice-searchpro/engine/tests/test_u4.py
+          PYTHONPATH="$PWD/skills/aioffice-searchpro" .venv/bin/python skills/aioffice-searchpro/engine/tests/test_u5.py
+          .venv/bin/python skills/aioffice-searchpro/engine/tests/test_u7.py
+          .venv/bin/python skills/aioffice-searchpro/engine/tests/test_u8.py
+          .venv/bin/python skills/aioffice-searchpro/engine/tests/test_u9.py
 
       - name: Bias check
-        run: .venv/bin/python skills/insane-search/engine/bias_check.py
+        run: .venv/bin/python skills/aioffice-searchpro/engine/bias_check.py
 
       - name: Engine smoke
         run: |
-          INSANE_SEARCH_VENV="$PWD/.run-engine-venv" \
+          AIOFFICE_SEARCHPRO_VENV="$PWD/.run-engine-venv" \
             bash setup/run-engine.sh https://example.com/ --selector h1 --no-playwright --max-attempts 1 \
-              --json --output /tmp/insane-search-example.html --metadata /tmp/insane-search-example.json
-          test -s /tmp/insane-search-example.html
+              --json --output /tmp/aioffice-searchpro-example.html --metadata /tmp/aioffice-searchpro-example.json
+          test -s /tmp/aioffice-searchpro-example.html
           python - <<'PY'
           import json
-          data = json.load(open("/tmp/insane-search-example.json"))
+          data = json.load(open("/tmp/aioffice-searchpro-example.json"))
           assert data["ok"] is True
-          assert data["content_path"] == "/tmp/insane-search-example.html"
+          assert data["content_path"] == "/tmp/aioffice-searchpro-example.html"
           assert data["content_saved_bytes"] > 0
           assert "content" not in data
           PY
@@ -69,18 +69,18 @@ jobs:
       - name: PowerShell wrapper smoke
         shell: pwsh
         run: |
-          $env:INSANE_SEARCH_VENV = "$PWD/.run-engine-ps-venv"
+          $env:AIOFFICE_SEARCHPRO_VENV = "$PWD/.run-engine-ps-venv"
           ./setup/run-engine.ps1 https://example.com/ --selector h1 --no-playwright --max-attempts 1 `
-            --json --output /tmp/insane-search-ps.html --metadata /tmp/insane-search-ps.json `
-            > /tmp/insane-search-ps.stdout
-          if (-not (Test-Path /tmp/insane-search-ps.html)) {
+            --json --output /tmp/aioffice-searchpro-ps.html --metadata /tmp/aioffice-searchpro-ps.json `
+            > /tmp/aioffice-searchpro-ps.stdout
+          if (-not (Test-Path /tmp/aioffice-searchpro-ps.html)) {
             throw "missing saved html"
           }
-          $data = Get-Content /tmp/insane-search-ps.json -Raw | ConvertFrom-Json
+          $data = Get-Content /tmp/aioffice-searchpro-ps.json -Raw | ConvertFrom-Json
           if (-not $data.ok) {
             throw "PowerShell smoke ok=false"
           }
-          if ($data.content_path -ne "/tmp/insane-search-ps.html") {
+          if ($data.content_path -ne "/tmp/aioffice-searchpro-ps.html") {
             throw "unexpected content_path: $($data.content_path)"
           }
           if ($data.content_saved_bytes -le 0) {
@@ -91,7 +91,7 @@ jobs:
           }
 
       - name: Online smoke tests
-        run: .venv/bin/python skills/insane-search/engine/tests/test_smoke.py
+        run: .venv/bin/python skills/aioffice-searchpro/engine/tests/test_smoke.py
 
   windows-wrapper:
     runs-on: windows-latest
@@ -118,10 +118,10 @@ jobs:
       - name: PowerShell engine smoke on Windows
         shell: pwsh
         run: |
-          $env:INSANE_SEARCH_VENV = Join-Path $env:RUNNER_TEMP "insane-search-venv"
-          $html = Join-Path $env:RUNNER_TEMP "insane-search-win.html"
-          $metadata = Join-Path $env:RUNNER_TEMP "insane-search-win.json"
-          $stdout = Join-Path $env:RUNNER_TEMP "insane-search-win.stdout"
+          $env:AIOFFICE_SEARCHPRO_VENV = Join-Path $env:RUNNER_TEMP "aioffice-searchpro-venv"
+          $html = Join-Path $env:RUNNER_TEMP "aioffice-searchpro-win.html"
+          $metadata = Join-Path $env:RUNNER_TEMP "aioffice-searchpro-win.json"
+          $stdout = Join-Path $env:RUNNER_TEMP "aioffice-searchpro-win.stdout"
           ./setup/run-engine.ps1 https://example.com/ --selector h1 --no-playwright --max-attempts 1 `
             --json --output $html --metadata $metadata > $stdout
           if ($LASTEXITCODE -ne 0) {

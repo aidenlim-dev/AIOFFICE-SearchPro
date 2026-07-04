@@ -5,8 +5,8 @@
 Claude Code 안에서 실행합니다.
 
 ```bash
-/plugin marketplace add aidenlim-dev/insane-search
-/plugin install insane-search@insane-search-marketplace
+/plugin marketplace add aidenlim-dev/AIOFFICE-SearchPro
+/plugin install aioffice-searchpro@aioffice-searchpro-marketplace
 /reload-plugins
 ```
 
@@ -25,16 +25,16 @@ https://example.com/ 읽어줘
 문제가 있으면 터미널에서 아래를 실행합니다.
 
 ```bash
-git clone https://github.com/aidenlim-dev/insane-search.git
-cd insane-search
+git clone https://github.com/aidenlim-dev/AIOFFICE-SearchPro.git
+cd AIOFFICE-SearchPro
 bash setup/doctor.sh
 ```
 
 Windows PowerShell:
 
 ```powershell
-git clone https://github.com/aidenlim-dev/insane-search.git
-cd insane-search
+git clone https://github.com/aidenlim-dev/AIOFFICE-SearchPro.git
+cd AIOFFICE-SearchPro
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\doctor.ps1
 ```
 
@@ -55,13 +55,13 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\live-check.ps1
 조금 더 넓게 확인하고 싶을 때:
 
 ```bash
-INSANE_SEARCH_LIVE_EXTENDED=1 bash setup/live-check.sh
+AIOFFICE_SEARCHPRO_LIVE_EXTENDED=1 bash setup/live-check.sh
 ```
 
 Windows PowerShell:
 
 ```powershell
-$env:INSANE_SEARCH_LIVE_EXTENDED="1"
+$env:AIOFFICE_SEARCHPRO_LIVE_EXTENDED="1"
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\live-check.ps1
 ```
 
@@ -104,7 +104,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
 ## 6. 설치 명령 다시
 
 ```bash
-/plugin marketplace add aidenlim-dev/insane-search
-/plugin install insane-search@insane-search-marketplace
+/plugin marketplace add aidenlim-dev/AIOFFICE-SearchPro
+/plugin install aioffice-searchpro@aioffice-searchpro-marketplace
 /reload-plugins
 ```

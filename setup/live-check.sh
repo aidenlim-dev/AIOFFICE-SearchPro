@@ -29,17 +29,17 @@ PY
   fi
 }
 
-VENV_DIR="${INSANE_SEARCH_VENV:-${XDG_CACHE_HOME:-$HOME/.cache}/insane-search/venv}"
+VENV_DIR="${AIOFFICE_SEARCHPRO_VENV:-${XDG_CACHE_HOME:-$HOME/.cache}/aioffice-searchpro/venv}"
 
 check_url "html" "https://example.com/" --selector h1 --no-playwright --max-attempts 1
 
-if [ "${INSANE_SEARCH_LIVE_EXTENDED:-0}" = "1" ]; then
+if [ "${AIOFFICE_SEARCHPRO_LIVE_EXTENDED:-0}" = "1" ]; then
   platforms=(x hn arxiv)
-  [ "${INSANE_SEARCH_LIVE_REDDIT:-0}" = "1" ] && platforms+=(reddit)
-  [ "${INSANE_SEARCH_LIVE_MEDIA:-0}" = "1" ] && platforms+=(youtube)
+  [ "${AIOFFICE_SEARCHPRO_LIVE_REDDIT:-0}" = "1" ] && platforms+=(reddit)
+  [ "${AIOFFICE_SEARCHPRO_LIVE_MEDIA:-0}" = "1" ] && platforms+=(youtube)
   echo "[platform battery] ${platforms[*]}"
-  PYTHONPATH="$ROOT/skills/insane-search${PYTHONPATH:+:$PYTHONPATH}" \
-    "$VENV_DIR/bin/python" "$ROOT/skills/insane-search/tests/coverage_battery.py" "${platforms[@]}"
+  PYTHONPATH="$ROOT/skills/aioffice-searchpro${PYTHONPATH:+:$PYTHONPATH}" \
+    "$VENV_DIR/bin/python" "$ROOT/skills/aioffice-searchpro/tests/coverage_battery.py" "${platforms[@]}"
 fi
 
 echo "live-check complete"

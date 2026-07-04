@@ -1,4 +1,4 @@
-"""insane-search engine — generic WAF-profile-based fetch chain.
+"""aioffice-searchpro engine — generic WAF-profile-based fetch chain.
 
 No site-specific logic lives here. Site specifics belong to runtime hints or
 observations, never to code. See `../SKILL.md` for the No-Site-Name Rule.

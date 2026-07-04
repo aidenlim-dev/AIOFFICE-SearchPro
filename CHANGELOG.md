@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.0 — 2026-07-04
+
+Project rename to AIOFFICE-SearchPro.
+
+- **Repository identity**: renamed the public-facing project from the old name to `AIOFFICE-SearchPro`, with repository links updated to `aidenlim-dev/AIOFFICE-SearchPro`.
+- **Plugin slug**: moved the Claude plugin and skill internals to the stable slug `aioffice-searchpro`, including CI paths, setup wrappers, cache directories, and Node template package names.
+- **Legacy cleanup**: removed the old marketplace update hook and legacy install instructions so new installs use this repository directly.
+
 ## 0.9.5 — 2026-07-04
 
 Windows wrapper follow-up.
@@ -12,7 +20,7 @@ Windows wrapper follow-up.
 Windows-native setup and verification.
 
 - **PowerShell wrappers**: added Windows companions for first-run setup, isolated engine execution, browser fallback setup, doctor checks, and live checks (`setup/*.ps1`). Windows users no longer need Git Bash just to run the plugin support scripts.
-- **Windows venv defaults**: `setup/run-engine.ps1` creates the plugin runtime under `%LOCALAPPDATA%\insane-search\venv` by default, still honoring `INSANE_SEARCH_VENV`, and keeps system Python untouched.
+- **Windows venv defaults**: `setup/run-engine.ps1` creates the plugin runtime under `%LOCALAPPDATA%\aioffice-searchpro\venv` by default, still honoring `AIOFFICE_SEARCHPRO_VENV`, and keeps system Python untouched.
 - **Cross-platform docs**: README, course install docs, platform reference, and Playwright notes now show both bash and PowerShell paths.
 - **CI coverage**: added a `pwsh` smoke test for the PowerShell engine wrapper, including `--json --output --metadata` behavior.
 
@@ -22,14 +30,14 @@ One-shot content capture for probabilistic WAF wins.
 
 - **Raw content output**: added `--output` / `--save-content` to the engine CLI so the exact winning fetch result can be written to disk while `--json` still emits metadata only. This avoids the AliExpress-style failure mode where the first call succeeds, the agent re-runs to get HTML, and the second call lands on a challenge page.
 - **Metadata sidecar**: added `--metadata` to write the same content-omitting JSON payload to a file, including `content_path` and `content_saved_bytes` when raw content was saved.
-- **Direct-install cleanup**: first-run setup now stars the current `aidenlim-dev/insane-search` repo when explicitly opted in and only installs the legacy `gptaku-plugins` update hook when that marketplace exists.
+- **Direct-install cleanup**: first-run setup now stars the current `aidenlim-dev/AIOFFICE-SearchPro` repo when explicitly opted in.
 - **Regression coverage**: added a network-free CLI test proving `--json --output --metadata` performs one fetch, saves raw content exactly, and keeps raw content out of JSON.
 
 ## 0.9.2 — 2026-07-04
 
 Course-install hardening and release hygiene.
 
-- **Direct GitHub marketplace**: added `.claude-plugin/marketplace.json` so students can install directly with `/plugin marketplace add aidenlim-dev/insane-search` and `/plugin install insane-search@insane-search-marketplace`.
+- **Direct GitHub marketplace**: added `.claude-plugin/marketplace.json` so students can install directly with `/plugin marketplace add aidenlim-dev/AIOFFICE-SearchPro` and `/plugin install aioffice-searchpro@aioffice-searchpro-marketplace`.
 - **Isolated Python runtime**: `setup/run-engine.sh` now creates a plugin-owned venv and installs from `requirements.lock`, avoiding macOS/Homebrew global-pip failures.
 - **Browser setup path**: added `setup/browser.sh` to install local Patchright/Playwright Chrome dependencies and register Playwright MCP when available.
 - **Student support scripts/docs**: added `setup/doctor.sh`, `setup/live-check.sh`, and `COURSE_INSTALL.ko.md`.
@@ -62,28 +70,28 @@ Validator false-positive fix — a small but complete page is no longer mislabel
 
 ## 0.8.0 — 2026-06-22
 
-Per-host self-learning (U5) — the engine now remembers which route got through and tries it first next time. Lab-built (`insane-search-lab`), effect-tested before shipping.
+Per-host self-learning (U5) — the engine now remembers which route got through and tries it first next time. Lab-built (`aioffice-searchpro-lab`), effect-tested before shipping.
 
-- **`engine/learning.py` (new)** — a bounded, self-pruning JSON store (`~/.insane_search/learned.json`, override with `INSANE_LEARNED_PATH`). For each host it records the route that last succeeded (`transform × impersonate × referer × phase`), keyed by `host::{desktop|mobile}`.
+- **`engine/learning.py` (new)** — a bounded, self-pruning JSON store (`~/.aioffice_searchpro/learned.json`, override with `AIOFFICE_SEARCHPRO_LEARNED_PATH`). For each host it records the route that last succeeded (`transform × impersonate × referer × phase`), keyed by `host::{desktop|mobile}`.
 - **Promotion in the first phase** — `fetch()` is now a learning wrapper around the grid (`_fetch_core`): before fetching it looks up the host and promotes the learned route to *both* the probe identity and the front of the grid (`_build_plan` priority). On a 2nd visit the known-good route is retried first instead of being rediscovered.
-- **Eviction so the store can't bloat or rot**: (1) a learned route that hits a REAL block (`exhausted`/`challenge`/`blocked`) is struck and deleted after 2 consecutive strikes — transient outcomes (429, network/unknown error, budget cut) and URL-level outcomes (404/401) never strike; (2) entries unused for 30 days are pruned on load (`INSANE_LEARN_TTL_DAYS`); (3) a 500-entry LRU cap (`INSANE_LEARN_MAX`). Disable entirely with `INSANE_LEARN=0`.
+- **Eviction so the store can't bloat or rot**: (1) a learned route that hits a REAL block (`exhausted`/`challenge`/`blocked`) is struck and deleted after 2 consecutive strikes — transient outcomes (429, network/unknown error, budget cut) and URL-level outcomes (404/401) never strike; (2) entries unused for 30 days are pruned on load (`AIOFFICE_SEARCHPRO_LEARN_TTL_DAYS`); (3) a 500-entry LRU cap (`AIOFFICE_SEARCHPRO_LEARN_MAX`). Disable entirely with `AIOFFICE_SEARCHPRO_LEARN=0`.
 - **Safe by construction** — every learning operation is best-effort and swallows its own errors, so it can never break a fetch. It is a DATA file only, so the No-Site-Name Rule (R3) still holds (`bias_check` clean).
 - **Measured** (`experiments/effect_e8.py`, offline A/B): 2nd-visit curl attempts drop (3 → 1 on a small grid; scales with grid depth), and a learning-off control matches the cold run — confirming the win comes from learning. Adds `tests/test_u5.py` (14 cases); full engine regression 45/45.
 
 ## 0.7.3 — 2026-06-22
 
 - **5-language README** (matches the marketplace root): added `README.zh.md`, `README.ja.md`, `README.es.md` (full translations) and a 5-language switcher header across all files (en · ko · zh · ja · es). The "Impossible is nothing." slogan stays in English in zh/ja/es with a localized second line.
-- EN tagline gains a grounding second line: **"Impossible is nothing. If it's public, insane-search gets in."**
+- EN tagline gains a grounding second line: **"Impossible is nothing. If it's public, aioffice-searchpro gets in."**
 
 ## 0.7.2 — 2026-06-22
 
-- Stronger hero tagline. EN: **"Impossible is nothing."** · KO: **"포기는 배추 셀 때나 쓰는 말. 공개된 페이지라면, insane-search는 결국 뚫어낸다."** — the descriptive sub-line still grounds what the plugin is.
+- Stronger hero tagline. EN: **"Impossible is nothing."** · KO: **"포기는 배추 셀 때나 쓰는 말. 공개된 페이지라면, aioffice-searchpro는 결국 뚫어낸다."** — the descriptive sub-line still grounds what the plugin is.
 
 ## 0.7.1 — 2026-06-22
 
 README overhaul — image-first landing that shows what the plugin does in one glance.
 
-- **New README (en + ko)**: replaces the 234-line manual with a ~110-line sales landing. Two cinematic hero images (a 403/CAPTCHA/WAF wall shattering as `insane-search GETS IN`, and the Phase 0→3 escalation pipeline as an energy rail) under `assets/`. Sections: Install · Try it · Works on · Why it gets through · Default vs `+ insane-search` · How it works · Boundaries.
+- **New README (en + ko)**: replaces the 234-line manual with a ~110-line sales landing. Two cinematic hero images (a 403/CAPTCHA/WAF wall shattering as `aioffice-searchpro GETS IN`, and the Phase 0→3 escalation pipeline as an energy rail) under `assets/`. Sections: Install · Try it · Works on · Why it gets through · Default vs `+ aioffice-searchpro` · How it works · Boundaries.
 - **Content preserved, not dropped**: the full platform tables, reference-file map, dependencies, and example prompts moved to `PLATFORMS.md` (linked from the README) — nothing lost, the landing just stops carrying the manual.
 - Hero demo uses real, verified data (a public `@claudeai` post via WebSearch → oEmbed, no API key); the "before" reflects the actual default-fetch failure on X (HTTP 402 / a JavaScript-only shell), not a fictional login wall.
 
@@ -113,7 +121,7 @@ Engine overhaul — multi-AI reviewed (GPT-5.5 Pro + council) and effect-tested 
 ## 0.5.2 — 2026-06-21
 
 - The GitHub-star prompt is shown in the user's current language; on a fresh session with no language signal yet, it falls back to the language detected from your recent Claude sessions (else English).
-- GitHub star is now **opt-in** — on first run the command asks once via AskUserQuestion (`네, ⭐ 눌러주기` / `아니요`) instead of auto-starring. The star logic moved into `setup.sh` and records the choice (`~/.gptaku-setup/<plugin>.star.json`) so it never re-asks. `setup.sh` no longer stars anything automatically.
+- GitHub star is now **opt-in** — on first run the command asks once via AskUserQuestion (`네, ⭐ 눌러주기` / `아니요`) instead of auto-starring. The star logic moved into `setup.sh` and records the choice (`~/.aioffice-searchpro-setup/<plugin>.star.json`) so it never re-asks. `setup.sh` no longer stars anything automatically.
 
 This project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
@@ -131,7 +139,7 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) an
 - R6: 격자 모두 돌린 뒤 "뚫을 수 없음" 결론
 - R7: 병행 분기
 
-→ insane-search는 4 진단 대상 중 fossil 의문이 가장 적게 검증된 케이스. R3 + bias_check.py는 다른 fossil-위험 플러그인에 차용 가능한 메타-패턴.
+→ aioffice-searchpro는 4 진단 대상 중 fossil 의문이 가장 적게 검증된 케이스. R3 + bias_check.py는 다른 fossil-위험 플러그인에 차용 가능한 메타-패턴.
 
 ## [0.4.0] — 2026-04-22
 

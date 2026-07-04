@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TEMPLATES="$ROOT/skills/insane-search/engine/templates"
+TEMPLATES="$ROOT/skills/aioffice-searchpro/engine/templates"
 
 ok() { printf 'ok  %s\n' "$1"; }
 warn() { printf 'warn %s\n' "$1"; }

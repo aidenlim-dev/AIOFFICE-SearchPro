@@ -1,5 +1,5 @@
 {
-  "name": "insane-search-templates",
+  "name": "aioffice-searchpro-templates",
   "version": "0.1.0",
   "private": true,
   "description": "Local deps for Playwright real-Chrome templates. npm install && npx patchright install chrome",

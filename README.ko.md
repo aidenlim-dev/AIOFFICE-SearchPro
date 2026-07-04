@@ -2,22 +2,22 @@
 
 <div align="center">
 
-# insane-search
+# AIOFFICE-SearchPro
 
-**포기는 배추 셀 때나 쓰는 말. 공개된 페이지라면, insane-search는 결국 뚫어낸다.**
+**포기는 배추 셀 때나 쓰는 말. 공개된 페이지라면, AIOFFICE-SearchPro는 결국 뚫어낸다.**
 
 차단에 강한 공개 페이지 리더 — Claude Code용. API 키도, 프록시 설정도 없다.
 
 <p>
   <a href="https://docs.anthropic.com/en/docs/claude-code"><img src="https://img.shields.io/badge/platform-Claude_Code-D97757?logo=claude" alt="Claude Code"></a>
   <img src="https://img.shields.io/badge/API_key-not_required-3FB950" alt="No API key">
-  <a href="https://github.com/aidenlim-dev/insane-search"><img src="https://img.shields.io/badge/install-direct_GitHub-6E56CF" alt="direct GitHub install"></a>
-  <a href="https://github.com/aidenlim-dev/insane-search/stargazers"><img src="https://img.shields.io/github/stars/aidenlim-dev/insane-search?style=flat&color=F0B72F" alt="stars"></a>
+  <a href="https://github.com/aidenlim-dev/AIOFFICE-SearchPro"><img src="https://img.shields.io/badge/install-direct_GitHub-6E56CF" alt="direct GitHub install"></a>
+  <a href="https://github.com/aidenlim-dev/AIOFFICE-SearchPro/stargazers"><img src="https://img.shields.io/github/stars/aidenlim-dev/AIOFFICE-SearchPro?style=flat&color=F0B72F" alt="stars"></a>
 </p>
 
 <!-- Hero — cinematic key-art: a blocked site (403 / CAPTCHA / WAF) shatters as
-     insane-search breaks through and returns real public content with its source. -->
-<img src="assets/hero.png" width="860" alt="시네마틱 분할: 왼쪽은 403 Forbidden·CAPTCHA·WAF로 막힌 사이트, 가운데가 부서지며 오른쪽에서 insane-search가 뚫고 들어가 @claudeai(Claude Code Plugins)의 실제 공개 포스트를 출처와 함께 가져온다 — API 키 없이.">
+     AIOFFICE-SearchPro breaks through and returns real public content with its source. -->
+<img src="assets/hero.png" width="860" alt="시네마틱 분할: 왼쪽은 403 Forbidden·CAPTCHA·WAF로 막힌 사이트, 가운데가 부서지며 오른쪽에서 AIOFFICE-SearchPro가 뚫고 들어가 @claudeai(Claude Code Plugins)의 실제 공개 포스트를 출처와 함께 가져온다 — API 키 없이.">
 
 </div>
 
@@ -28,24 +28,24 @@
 강의용 / 이 GitHub 저장소 직접 설치:
 
 ```bash
-/plugin marketplace add aidenlim-dev/insane-search
-/plugin install insane-search@insane-search-marketplace
+/plugin marketplace add aidenlim-dev/AIOFFICE-SearchPro
+/plugin install aioffice-searchpro@aioffice-searchpro-marketplace
 /reload-plugins
 ```
 
 터미널에서 설치 상태 확인:
 
 ```bash
-git clone https://github.com/aidenlim-dev/insane-search.git
-cd insane-search
+git clone https://github.com/aidenlim-dev/AIOFFICE-SearchPro.git
+cd AIOFFICE-SearchPro
 bash setup/doctor.sh
 ```
 
 Windows PowerShell:
 
 ```powershell
-git clone https://github.com/aidenlim-dev/insane-search.git
-cd insane-search
+git clone https://github.com/aidenlim-dev/AIOFFICE-SearchPro.git
+cd AIOFFICE-SearchPro
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\doctor.ps1
 ```
 
@@ -75,22 +75,14 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://ex
 
 수강생에게 짧게 배포할 문서는 [COURSE_INSTALL.ko.md](COURSE_INSTALL.ko.md)를 쓰면 됩니다.
 
-기존 `gptaku-plugins` 마켓플레이스 설치:
-
-```bash
-/plugin marketplace add https://github.com/fivetaku/gptaku_plugins.git
-/plugin install insane-search@gptaku-plugins
-/reload-plugins
-```
-
-설치 뒤에는 외울 명령어가 없다. 평소처럼 Claude Code에게 말하면, fetch가 막히는 순간 insane-search가 알아서 끼어든다.
+설치 뒤에는 외울 명령어가 없다. 평소처럼 Claude Code에게 말하면, fetch가 막히는 순간 AIOFFICE-SearchPro가 알아서 끼어든다.
 
 ## 💬 이렇게 써보세요
 
-그냥 평소처럼 부탁하면 됩니다 — 막히는 순간 insane-search가 작동합니다:
+그냥 평소처럼 부탁하면 됩니다 — 막히는 순간 AIOFFICE-SearchPro가 작동합니다:
 
 > *"레딧에서 Claude Code 관련 반응 찾아서 인기 글들 요약해줘."*
-> *"X에서 insane-search 관련 포스트 검색해줘."*
+> *"X에서 AIOFFICE-SearchPro 관련 포스트 검색해줘."*
 > *"이 유튜브 영상 요약해줘."*
 
 **예상 동작:** Claude가 각 사이트의 공개 경로 — 레딧 피드, X oEmbed, 유튜브 자막 — 로 로그인·API 키 없이 도달해 쓸 수 있는 텍스트를 돌려준다. 플러그인이 없으면 같은 요청에 *"접근할 수 없습니다"* 가 돌아오던 그 자리에서.
@@ -106,9 +98,9 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://ex
 - **숨은 API를 찾는다** — 진짜 브라우저의 네트워크 트래픽을 보고 사이트가 내부적으로 쓰는 JSON을 그대로 재활용한다.
 - **시스템 Python 셋업 제로** — 첫 실행 때 플러그인 전용 venv를 만들고 `curl_cffi`, `yt-dlp`, 파서 의존성을 설치한다. API 키도, 가입도 없다.
 
-## 🆚 기본 Claude Code vs `+ insane-search`
+## 🆚 기본 Claude Code vs `+ AIOFFICE-SearchPro`
 
-| 이런 상황에서… | Claude Code 단독 | `+ insane-search` |
+| 이런 상황에서… | Claude Code 단독 | `+ AIOFFICE-SearchPro` |
 | :--- | :--- | :--- |
 | `403` / WAF로 막힌 페이지 | ✖ 포기 | ✓ 하나 뚫릴 때까지 단계 상승 |
 | 플랫폼 콘텐츠 (X, 레딧, HN) | ✖ 자주 막히거나 빈 응답 | ✓ 공개 API 리더 + 신디케이션 |
@@ -122,7 +114,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://ex
 
 ## ✨ 무슨 일이 일어난 건가
 
-| 없을 때 | insane-search와 함께 |
+| 없을 때 | AIOFFICE-SearchPro와 함께 |
 | :--- | :--- |
 | 평범한 fetch가 `403`을 맞고 Claude가 못 읽는다고 한다 | 플러그인이 공개 접근 경로를 골라 쓸 수 있는 텍스트를 돌려준다 |
 | 미러·아카이브·모바일 URL을 직접 시도해야 한다 | 폴백이 자동으로 단계 상승 — 전부 공개 경로만 |
@@ -148,7 +140,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://ex
 
 ## 🔒 경계 (Boundaries)
 
-insane-search는 **공개 콘텐츠를 위한 리더**지, 인증을 건너뛰는 도구가 아니다.
+AIOFFICE-SearchPro는 **공개 콘텐츠를 위한 리더**지, 인증을 건너뛰는 도구가 아니다.
 
 - 공개 페이지·공개 API·피드·아카이브·브라우저의 공개 응답으로 닿을 수 있는 것에 도달한다.
 - **로그인과 페이월에서 멈춘다** — 뚫으려 하지 않고 `authentication required`라고 보고한다.
@@ -163,6 +155,6 @@ MIT
 
 <div align="center">
 
-**GitHub 직접 설치:** [aidenlim-dev/insane-search](https://github.com/aidenlim-dev/insane-search)
+**GitHub 직접 설치:** [aidenlim-dev/AIOFFICE-SearchPro](https://github.com/aidenlim-dev/AIOFFICE-SearchPro)
 
 </div>

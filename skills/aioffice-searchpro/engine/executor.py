@@ -88,7 +88,7 @@ process.exit(1);
         return f"local Playwright dependency probe failed: {type(e).__name__}:{e}"
     if proc.returncode == 0:
         return None
-    hint = "run `cd skills/insane-search/engine/templates && npm install && npx patchright install chrome`"
+    hint = "run `cd skills/aioffice-searchpro/engine/templates && npm install && npx patchright install chrome`"
     detail = (proc.stderr or proc.stdout or "missing local Playwright dependency").strip()
     return f"{detail}; {hint}"
 

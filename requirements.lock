@@ -1,9 +1,9 @@
 # Locked Python runtime dependencies for setup/run-engine.sh and setup/run-engine.ps1.
 # Regenerate with:
-#   python3 -m venv /tmp/insane-search-lock-venv
-#   /tmp/insane-search-lock-venv/bin/python -m pip install -U pip
-#   /tmp/insane-search-lock-venv/bin/python -m pip install -U "curl_cffi>=0.15.0" beautifulsoup4 pyyaml yt-dlp
-#   /tmp/insane-search-lock-venv/bin/python -m pip freeze | sort
+#   python3 -m venv /tmp/aioffice-searchpro-lock-venv
+#   /tmp/aioffice-searchpro-lock-venv/bin/python -m pip install -U pip
+#   /tmp/aioffice-searchpro-lock-venv/bin/python -m pip install -U "curl_cffi>=0.15.0" beautifulsoup4 pyyaml yt-dlp
+#   /tmp/aioffice-searchpro-lock-venv/bin/python -m pip freeze | sort
 PyYAML==6.0.3
 Pygments==2.20.0
 beautifulsoup4==4.15.0

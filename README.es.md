@@ -2,22 +2,22 @@
 
 <div align="center">
 
-# insane-search
+# AIOFFICE-SearchPro
 
-**Impossible is nothing. Si es público, insane-search acaba entrando.**
+**Impossible is nothing. Si es público, AIOFFICE-SearchPro acaba entrando.**
 
 Un lector de páginas públicas resistente al bloqueo, para Claude Code. Sin claves de API, sin configurar proxies.
 
 <p>
   <a href="https://docs.anthropic.com/en/docs/claude-code"><img src="https://img.shields.io/badge/platform-Claude_Code-D97757?logo=claude" alt="Claude Code"></a>
   <img src="https://img.shields.io/badge/API_key-not_required-3FB950" alt="No API key">
-  <a href="https://github.com/aidenlim-dev/insane-search"><img src="https://img.shields.io/badge/install-direct_GitHub-6E56CF" alt="direct GitHub install"></a>
-  <a href="https://github.com/aidenlim-dev/insane-search/stargazers"><img src="https://img.shields.io/github/stars/aidenlim-dev/insane-search?style=flat&color=F0B72F" alt="stars"></a>
+  <a href="https://github.com/aidenlim-dev/AIOFFICE-SearchPro"><img src="https://img.shields.io/badge/install-direct_GitHub-6E56CF" alt="direct GitHub install"></a>
+  <a href="https://github.com/aidenlim-dev/AIOFFICE-SearchPro/stargazers"><img src="https://img.shields.io/github/stars/aidenlim-dev/AIOFFICE-SearchPro?style=flat&color=F0B72F" alt="stars"></a>
 </p>
 
 <!-- Hero — cinematic key-art: a blocked site (403 / CAPTCHA / WAF) shatters as
-     insane-search breaks through and returns real public content with its source. -->
-<img src="assets/hero.png" width="860" alt="División cinematográfica: a la izquierda un sitio bloqueado muestra 403 Forbidden, un CAPTCHA y un muro WAF; se rompe por el centro mientras insane-search atraviesa por la derecha y devuelve una publicación pública real de @claudeai (Claude Code Plugins) con su fuente, sin clave de API.">
+     AIOFFICE-SearchPro breaks through and returns real public content with its source. -->
+<img src="assets/hero.png" width="860" alt="División cinematográfica: a la izquierda un sitio bloqueado muestra 403 Forbidden, un CAPTCHA y un muro WAF; se rompe por el centro mientras AIOFFICE-SearchPro atraviesa por la derecha y devuelve una publicación pública real de @claudeai (Claude Code Plugins) con su fuente, sin clave de API.">
 
 </div>
 
@@ -28,8 +28,8 @@ Un lector de páginas públicas resistente al bloqueo, para Claude Code. Sin cla
 Para el curso / instalación directa desde este repositorio de GitHub:
 
 ```bash
-/plugin marketplace add aidenlim-dev/insane-search
-/plugin install insane-search@insane-search-marketplace
+/plugin marketplace add aidenlim-dev/AIOFFICE-SearchPro
+/plugin install aioffice-searchpro@aioffice-searchpro-marketplace
 /reload-plugins
 ```
 
@@ -57,22 +57,14 @@ Windows PowerShell:
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://example.com/" --json --output page.html --metadata page.fetch.json
 ```
 
-Instalación legacy desde `gptaku-plugins`:
-
-```bash
-/plugin marketplace add https://github.com/fivetaku/gptaku_plugins.git
-/plugin install insane-search@gptaku-plugins
-/reload-plugins
-```
-
-No hay comandos que aprender. Habla con Claude Code como siempre: insane-search entra en acción en cuanto una petición se bloquea.
+No hay comandos que aprender. Habla con Claude Code como siempre: AIOFFICE-SearchPro entra en acción en cuanto una petición se bloquea.
 
 ## 💬 Pruébalo
 
-Solo pídelo con normalidad: insane-search se activa cuando algo se bloquea:
+Solo pídelo con normalidad: AIOFFICE-SearchPro se activa cuando algo se bloquea:
 
 > *"Busca qué dice la gente sobre Claude Code en Reddit y resume los hilos más populares."*
-> *"Busca en X publicaciones sobre insane-search."*
+> *"Busca en X publicaciones sobre AIOFFICE-SearchPro."*
 > *"Resume este vídeo de YouTube."*
 
 **Resultado esperado:** Claude llega a la ruta pública de cada sitio —el feed de Reddit, X vía oEmbed, los subtítulos de YouTube— sin inicio de sesión ni clave de API, y devuelve texto utilizable, allí donde la misma petición respondería *"no puedo acceder a eso"* sin el plugin.
@@ -88,9 +80,9 @@ Solo pídelo con normalidad: insane-search se activa cuando algo se bloquea:
 - **Encuentra APIs ocultas** —observa el tráfico de red del navegador real y reutiliza el JSON interno del propio sitio.
 - **Sin tocar el Python del sistema** —en el primer uso crea un venv propio del plugin para `curl_cffi`, `yt-dlp` y dependencias de parsing. Sin claves de API, sin registro.
 
-## 🆚 Claude Code por defecto vs `+ insane-search`
+## 🆚 Claude Code por defecto vs `+ AIOFFICE-SearchPro`
 
-| Cuando te topas con… | Claude Code solo | `+ insane-search` |
+| Cuando te topas con… | Claude Code solo | `+ AIOFFICE-SearchPro` |
 | :--- | :--- | :--- |
 | Una página con `403` / bloqueada por WAF | ✖ se rinde | ✓ escala hasta que una ruta entra |
 | Contenido de plataformas (X, Reddit, HN) | ✖ a menudo bloqueado o vacío | ✓ lectores de API públicas + sindicación |
@@ -104,7 +96,7 @@ La fila que marca la diferencia es lo único que el fetch por defecto no puede h
 
 ## ✨ Qué acaba de pasar
 
-| Sin él | Con insane-search |
+| Sin él | Con AIOFFICE-SearchPro |
 | :--- | :--- |
 | Un fetch normal choca con `403` y Claude dice que no puede leer la página | El plugin elige una ruta de acceso público y devuelve texto utilizable |
 | Pruebas a mano espejos, archivos, URLs móviles | Los fallbacks escalan solos, siempre por rutas públicas |
@@ -130,7 +122,7 @@ Cada respuesta también se escanea en busca de OGP / JSON-LD, así que incluso l
 
 ## 🔒 Límites (Boundaries)
 
-insane-search es un **lector de contenido público**, no una forma de saltarse la autenticación.
+AIOFFICE-SearchPro es un **lector de contenido público**, no una forma de saltarse la autenticación.
 
 - Alcanza lo disponible a través de páginas públicas, APIs públicas, feeds, archivos y las respuestas públicas de un navegador.
 - **Se detiene en logins y muros de pago** —informa `authentication required` en vez de intentar vencerlos.
@@ -145,6 +137,6 @@ MIT
 
 <div align="center">
 
-**Instalación directa desde GitHub:** [aidenlim-dev/insane-search](https://github.com/aidenlim-dev/insane-search)
+**Instalación directa desde GitHub:** [aidenlim-dev/AIOFFICE-SearchPro](https://github.com/aidenlim-dev/AIOFFICE-SearchPro)
 
 </div>

@@ -1,13 +1,13 @@
 {
-  "name": "insane-search",
-  "version": "0.9.5",
-  "description": "Platform-specific access strategies for AI agents — adaptively accesses blocked sites (X/Twitter, Reddit, Stack Overflow, Naver, Coupang, LinkedIn) without API keys. Phase 0→3 adaptive scheduler with curl_cffi TLS impersonation and auto dependency install.",
+  "name": "aioffice-searchpro",
+  "version": "1.0.0",
+  "description": "AIOFFICE-SearchPro: adaptive public-page access for AI agents. Reads blocked public pages through public APIs, TLS impersonation, Jina, yt-dlp, and Playwright fallbacks without API keys.",
   "author": {
-    "name": "fivetaku / Aiden Lim",
-    "url": "https://github.com/aidenlim-dev/insane-search"
+    "name": "Aiden Lim",
+    "url": "https://github.com/aidenlim-dev/AIOFFICE-SearchPro"
   },
-  "homepage": "https://github.com/aidenlim-dev/insane-search",
-  "repository": "https://github.com/aidenlim-dev/insane-search",
+  "homepage": "https://github.com/aidenlim-dev/AIOFFICE-SearchPro",
+  "repository": "https://github.com/aidenlim-dev/AIOFFICE-SearchPro",
   "license": "MIT",
   "keywords": [
     "web-access",
@@ -37,6 +37,8 @@
     "tls-impersonation",
     "playwright",
     "amp-cache",
-    "archive"
+    "archive",
+    "aioffice",
+    "searchpro"
   ]
 }

@@ -1,8 +1,7 @@
-# Disclaimer & Acceptable Use — insane-search
+# Disclaimer & Acceptable Use — AIOFFICE-SearchPro
 
-`insane-search` is part of the [gptaku-plugins](https://github.com/fivetaku/gptaku_plugins)
-collection and is distributed under the [MIT License](./LICENSE).
-Copyright (c) 2026 fivetaku.
+`AIOFFICE-SearchPro` is distributed under the [MIT License](./LICENSE).
+Copyright (c) 2026 Aiden Lim.
 
 This document does not modify the MIT License; it clarifies the author's intent
 and the responsibilities of anyone who uses, integrates, or redistributes this
@@ -28,7 +27,7 @@ software entirely at your own risk.
 
 ## 3. Intended use and dual-use nature
 
-`insane-search` is a general-purpose developer tool. Like most general-purpose tools, it
+`AIOFFICE-SearchPro` is a general-purpose developer tool. Like most general-purpose tools, it
 is inherently dual-use: it is published for legitimate, lawful, and authorized
 purposes, and the author has no ability to monitor, approve, or control how
 third parties actually use it.
@@ -54,9 +53,9 @@ interacting with any system you do not own or are not explicitly permitted to
 use. Misuse — including any unlawful or unauthorized activity — is solely your
 responsibility.
 
-## 6. Scope of access (specific to insane-search)
+## 6. Scope of access (specific to AIOFFICE-SearchPro)
 
-`insane-search` is a reader for **publicly available content only**. By design it stops
+`AIOFFICE-SearchPro` is a reader for **publicly available content only**. By design it stops
 at logins and paywalls — reporting `authentication required` rather than
 attempting to defeat them — and it never logs in on your behalf and never stores
 or transmits credentials. It is **not** a tool for overriding authentication,

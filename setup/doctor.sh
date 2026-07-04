@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Course/student readiness check for insane-search.
+# Course/student readiness check for aioffice-searchpro.
 set -u
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -37,17 +37,17 @@ else
   bad "requirements.lock is missing"
 fi
 
-if [ -f "$ROOT/skills/insane-search/engine/templates/package-lock.json" ]; then
+if [ -f "$ROOT/skills/aioffice-searchpro/engine/templates/package-lock.json" ]; then
   ok "Node dependency lockfile present"
 else
   warn "Node dependency lockfile missing; optional browser setup may drift"
 fi
 
-if "$RUN_ENGINE" "https://example.com/" --selector h1 --no-playwright --max-attempts 1 --json >/tmp/insane-search-doctor.json 2>/tmp/insane-search-doctor.err; then
+if "$RUN_ENGINE" "https://example.com/" --selector h1 --no-playwright --max-attempts 1 --json >/tmp/aioffice-searchpro-doctor.json 2>/tmp/aioffice-searchpro-doctor.err; then
   ok "engine smoke test passed"
 else
   bad "engine smoke test failed"
-  sed -n '1,20p' /tmp/insane-search-doctor.err >&2
+  sed -n '1,20p' /tmp/aioffice-searchpro-doctor.err >&2
 fi
 
 if command -v node >/dev/null 2>&1; then
@@ -56,7 +56,7 @@ else
   warn "Node.js not found; local real-Chrome Playwright fallback will be unavailable"
 fi
 
-if [ -d "$ROOT/skills/insane-search/engine/templates/node_modules" ]; then
+if [ -d "$ROOT/skills/aioffice-searchpro/engine/templates/node_modules" ]; then
   ok "local Playwright template dependencies installed"
 else
   warn "optional browser fallback not fully installed: run 'bash setup/browser.sh'"

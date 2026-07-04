@@ -73,7 +73,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
 ### 호출 (engine 내부)
 
 ```python
-from insane_search.engine.executor import run_playwright_fallback
+from engine.executor import run_playwright_fallback
 
 attempt, html = run_playwright_fallback(
     "https://example.com/path",

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CLI entrypoint for the insane-search engine.
+"""CLI entrypoint for the aioffice-searchpro engine.
 
 Usage:
     python3 -m engine URL [--selector CSS] [--device auto|desktop|mobile]

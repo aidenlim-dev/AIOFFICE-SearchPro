@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Course/student readiness check for insane-search.
+# Course/student readiness check for aioffice-searchpro.
 # Windows-native companion to setup/doctor.sh.
 [CmdletBinding()]
 param()
@@ -51,15 +51,15 @@ if (Test-Path (Join-Path $Root "requirements.lock")) {
   Bad "requirements.lock is missing"
 }
 
-if (Test-Path (Join-Path $Root "skills/insane-search/engine/templates/package-lock.json")) {
+if (Test-Path (Join-Path $Root "skills/aioffice-searchpro/engine/templates/package-lock.json")) {
   Ok "Node dependency lockfile present"
 } else {
   Warn "Node dependency lockfile missing; optional browser setup may drift"
 }
 
 $Temp = [IO.Path]::GetTempPath()
-$SmokeOut = Join-Path $Temp "insane-search-doctor.json"
-$SmokeErr = Join-Path $Temp "insane-search-doctor.err"
+$SmokeOut = Join-Path $Temp "aioffice-searchpro-doctor.json"
+$SmokeErr = Join-Path $Temp "aioffice-searchpro-doctor.err"
 & $RunEngine "https://example.com/" --selector h1 --no-playwright --max-attempts 1 --json > $SmokeOut 2> $SmokeErr
 if ($LASTEXITCODE -eq 0) {
   Ok "engine smoke test passed"
@@ -74,7 +74,7 @@ if (Get-Command node -ErrorAction SilentlyContinue) {
   Warn "Node.js not found; local real-Chrome Playwright fallback will be unavailable"
 }
 
-if (Test-Path (Join-Path $Root "skills/insane-search/engine/templates/node_modules")) {
+if (Test-Path (Join-Path $Root "skills/aioffice-searchpro/engine/templates/node_modules")) {
   Ok "local Playwright template dependencies installed"
 } else {
   Warn "optional browser fallback not fully installed: run 'pwsh -NoProfile -ExecutionPolicy Bypass -File setup/browser.ps1'"

@@ -1,6 +1,6 @@
-"""Single entrypoint: insane-search generic fetch chain.
+"""Single entrypoint: aioffice-searchpro generic fetch chain.
 
-    from insane_search.engine import fetch
+    from engine import fetch
     result = fetch("https://example.com/path", success_selectors=["article"])
 
 Public contract:
@@ -368,7 +368,7 @@ def fetch(
 
     The store is a bounded, self-pruning JSON file; any error in it is swallowed
     so learning can never break a fetch. Disable per-call with
-    ``enable_learning=False`` or globally with ``INSANE_LEARN=0``."""
+    ``enable_learning=False`` or globally with ``AIOFFICE_SEARCHPRO_LEARN=0``."""
     priority: Optional[dict] = None
     learned_existed = False
     uh = dict(user_hint or {})

@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Run the insane-search engine through an isolated Python environment.
+# Run the aioffice-searchpro engine through an isolated Python environment.
 # Windows-native companion to setup/run-engine.sh.
 [CmdletBinding()]
 param(
@@ -10,7 +10,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$EngineRoot = Join-Path $Root "skills/insane-search"
+$EngineRoot = Join-Path $Root "skills/aioffice-searchpro"
 $LockFile = Join-Path $Root "requirements.lock"
 
 function Get-PythonExe {
@@ -33,18 +33,18 @@ function Get-PythonExe {
       continue
     }
   }
-  throw "insane-search: Python 3 is required but was not found"
+  throw "aioffice-searchpro: Python 3 is required but was not found"
 }
 
 function Get-DefaultVenvDir {
-  if ($env:INSANE_SEARCH_VENV) {
-    return $env:INSANE_SEARCH_VENV
+  if ($env:AIOFFICE_SEARCHPRO_VENV) {
+    return $env:AIOFFICE_SEARCHPRO_VENV
   }
   $localAppData = [Environment]::GetFolderPath("LocalApplicationData")
   if ($localAppData) {
-    return (Join-Path $localAppData "insane-search/venv")
+    return (Join-Path $localAppData "aioffice-searchpro/venv")
   }
-  return (Join-Path $HOME ".cache/insane-search/venv")
+  return (Join-Path $HOME ".cache/aioffice-searchpro/venv")
 }
 
 $Python = Get-PythonExe
@@ -53,7 +53,7 @@ $VenvPython = Join-Path $VenvDir "Scripts/python.exe"
 if (-not (Test-Path $VenvPython)) {
   $VenvPython = Join-Path $VenvDir "bin/python"
 }
-$Stamp = Join-Path $VenvDir ".insane-search-deps-v3"
+$Stamp = Join-Path $VenvDir ".aioffice-searchpro-deps-v3"
 
 if (-not (Test-Path $VenvPython)) {
   $parent = Split-Path -Parent $VenvDir
@@ -70,13 +70,22 @@ if (-not (Test-Path $VenvPython)) {
   }
 }
 
+$Log = Join-Path $VenvDir "install.log"
+& $VenvPython -m pip --version *> $null
+if ($LASTEXITCODE -ne 0) {
+  & $VenvPython -m ensurepip --upgrade *> $Log
+  if ($LASTEXITCODE -ne 0) {
+    Get-Content $Log -ErrorAction SilentlyContinue | Write-Error
+    exit 1
+  }
+}
+
 $OldPythonUtf8 = $env:PYTHONUTF8
 $OldPythonIoEncoding = $env:PYTHONIOENCODING
 $env:PYTHONUTF8 = "1"
 $env:PYTHONIOENCODING = "utf-8"
 
 if (-not (Test-Path $Stamp)) {
-  $Log = Join-Path $VenvDir "install.log"
   & $VenvPython -m pip install -U pip *> $Log
   if ($LASTEXITCODE -ne 0) {
     Get-Content $Log -ErrorAction SilentlyContinue | Write-Error

@@ -85,8 +85,8 @@ EXPLICIT_ALLOW_FILES = {
     # a bias toward one target. This is the ONLY engine/ file allowed to do so;
     # keeping it isolated is precisely why the rest of engine/ stays site-agnostic.
     # NOTE: rel paths are computed against skill_root.parent, so they include the
-    # skill dir name (e.g. "insane-search/engine/phase0.py").
-    "insane-search/engine/phase0.py",
+    # skill dir name (e.g. "aioffice-searchpro/engine/phase0.py").
+    "aioffice-searchpro/engine/phase0.py",
 }
 
 
