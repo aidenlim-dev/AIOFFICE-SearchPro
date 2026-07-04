@@ -11,8 +11,8 @@
 <p>
   <a href="https://docs.anthropic.com/en/docs/claude-code"><img src="https://img.shields.io/badge/platform-Claude_Code-D97757?logo=claude" alt="Claude Code"></a>
   <img src="https://img.shields.io/badge/API_key-not_required-3FB950" alt="No API key">
-  <a href="https://github.com/fivetaku/gptaku_plugins"><img src="https://img.shields.io/badge/part_of-gptaku--plugins-6E56CF" alt="part of gptaku-plugins"></a>
-  <a href="https://github.com/fivetaku/insane-search/stargazers"><img src="https://img.shields.io/github/stars/fivetaku/insane-search?style=flat&color=F0B72F" alt="stars"></a>
+  <a href="https://github.com/aidenlim-dev/insane-search"><img src="https://img.shields.io/badge/install-direct_GitHub-6E56CF" alt="direct GitHub install"></a>
+  <a href="https://github.com/aidenlim-dev/insane-search/stargazers"><img src="https://img.shields.io/github/stars/aidenlim-dev/insane-search?style=flat&color=F0B72F" alt="stars"></a>
 </p>
 
 <!-- Hero — cinematic key-art: a blocked site (403 / CAPTCHA / WAF) shatters as
@@ -24,6 +24,28 @@
 ---
 
 ## ⚡ 安装
+
+课程 / 直接从本 GitHub 仓库安装：
+
+```bash
+/plugin marketplace add aidenlim-dev/insane-search
+/plugin install insane-search@insane-search-marketplace
+/reload-plugins
+```
+
+可选：启用完整浏览器 fallback：
+
+```bash
+bash setup/browser.sh
+```
+
+需要解析命中的原始 HTML 时，请在同一次成功调用中保存：
+
+```bash
+bash setup/run-engine.sh "https://example.com/" --json --output page.html --metadata page.fetch.json
+```
+
+旧版 `gptaku-plugins` marketplace 安装：
 
 ```bash
 /plugin marketplace add https://github.com/fivetaku/gptaku_plugins.git
@@ -111,6 +133,6 @@ MIT
 
 <div align="center">
 
-**[gptaku-plugins](https://github.com/fivetaku/gptaku_plugins) 的一部分** —— 突破其他一切止步之墙的 Claude Code 插件集。
+**GitHub 直接安装：** [aidenlim-dev/insane-search](https://github.com/aidenlim-dev/insane-search)
 
 </div>

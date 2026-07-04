@@ -54,7 +54,17 @@ jobs:
       - name: Engine smoke
         run: |
           INSANE_SEARCH_VENV="$PWD/.run-engine-venv" \
-            bash setup/run-engine.sh https://example.com/ --selector h1 --no-playwright --max-attempts 1 --json
+            bash setup/run-engine.sh https://example.com/ --selector h1 --no-playwright --max-attempts 1 \
+              --json --output /tmp/insane-search-example.html --metadata /tmp/insane-search-example.json
+          test -s /tmp/insane-search-example.html
+          python - <<'PY'
+          import json
+          data = json.load(open("/tmp/insane-search-example.json"))
+          assert data["ok"] is True
+          assert data["content_path"] == "/tmp/insane-search-example.html"
+          assert data["content_saved_bytes"] > 0
+          assert "content" not in data
+          PY
 
       - name: Online smoke tests
         run: .venv/bin/python skills/insane-search/engine/tests/test_smoke.py

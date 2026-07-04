@@ -44,6 +44,12 @@ bash setup/live-check.sh
 INSANE_SEARCH_LIVE_EXTENDED=1 bash setup/live-check.sh
 ```
 
+원문 HTML을 파싱해야 하는 과제에서는 성공한 같은 호출에서 바로 저장하세요. `--json`은 본문을 JSON에 넣지 않으므로, 본문을 얻으려고 같은 URL을 다시 호출하면 WAF 사이트에서 성공 기회를 놓칠 수 있습니다.
+
+```bash
+bash setup/run-engine.sh "https://example.com/" --json --output page.html --metadata page.fetch.json
+```
+
 ## 4. 브라우저 폴백까지 켜기
 
 Cloudflare급 JS 렌더링, Akamai/DataDome류 강한 WAF 대응력을 높이고 싶을 때만 실행합니다.

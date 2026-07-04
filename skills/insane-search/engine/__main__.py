@@ -4,10 +4,12 @@
 Usage:
     python3 -m engine URL [--selector CSS] [--device auto|desktop|mobile]
                           [--timeout N] [--max-attempts N] [--json] [--trace]
+                          [--output PATH] [--metadata PATH]
 
 Examples:
     python3 -m engine "https://example.com/" --selector "h1"
     python3 -m engine "https://example.com/" --json
+    python3 -m engine "https://example.com/" --json --output page.html --metadata page.fetch.json
     python3 -m engine "https://example.com/" --device mobile --trace
 
 Exit codes:
@@ -19,9 +21,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
+from pathlib import Path
 
 from . import fetch
+from .fetch_chain import FetchResult
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -43,13 +48,60 @@ def build_parser() -> argparse.ArgumentParser:
                    help="Skip the Phase 0 official-API router (generic grid only).")
     p.add_argument("--json", action="store_true",
                    help="Emit FetchResult as JSON to stdout (content omitted).")
+    p.add_argument("--output", "--save-content", "-o", dest="output", metavar="PATH",
+                   help="Write the exact fetched raw content to PATH from this same fetch attempt.")
+    p.add_argument("--metadata", metavar="PATH",
+                   help="Write JSON metadata to PATH. Content is still omitted from metadata.")
     p.add_argument("--trace", action="store_true",
                    help="Print per-attempt trace to stderr.")
     return p
 
 
+def _write_text_atomic(path_str: str, text: str) -> tuple[str, int]:
+    if path_str == "-":
+        raise ValueError("'-' is not a valid file path for --output/--metadata")
+    path = Path(path_str).expanduser()
+    if path.exists() and path.is_dir():
+        raise ValueError(f"path is a directory: {path}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    data = text.encode("utf-8")
+    tmp = path.with_name(f".{path.name}.tmp-{os.getpid()}")
+    try:
+        with tmp.open("wb") as f:
+            f.write(data)
+        os.replace(tmp, path)
+    finally:
+        try:
+            if tmp.exists():
+                tmp.unlink()
+        except OSError:
+            pass
+    return str(path.resolve(strict=False)), len(data)
+
+
+def _metadata_payload(
+    result: FetchResult,
+    *,
+    content_path: str | None = None,
+    content_saved_bytes: int | None = None,
+) -> dict:
+    payload = result.to_dict()
+    if content_path is not None:
+        payload["content_path"] = content_path
+        payload["content_saved_bytes"] = content_saved_bytes or 0
+    return payload
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    if args.output and args.metadata:
+        output_path = Path(args.output).expanduser().resolve(strict=False)
+        metadata_path = Path(args.metadata).expanduser().resolve(strict=False)
+        if output_path == metadata_path:
+            print("engine output error: --output and --metadata must be different paths", file=sys.stderr)
+            return 2
+
     try:
         result = fetch(
             args.url,
@@ -109,9 +161,38 @@ def main(argv: list[str] | None = None) -> int:
             print("   ➜ must_invoke_playwright_mcp = TRUE — drive MCP Playwright from the agent session.", file=sys.stderr)
         print("════════════════════════════════════════════════════════════════", file=sys.stderr)
 
+    content_path = None
+    content_saved_bytes = None
+    try:
+        if args.output:
+            content_path, content_saved_bytes = _write_text_atomic(args.output, result.content)
+            print(
+                f"[engine] saved raw untrusted content to {content_path} "
+                f"({content_saved_bytes} bytes)",
+                file=sys.stderr,
+            )
+
+        metadata_text = None
+        if args.json or args.metadata:
+            payload = _metadata_payload(
+                result,
+                content_path=content_path,
+                content_saved_bytes=content_saved_bytes,
+            )
+            metadata_text = json.dumps(payload, ensure_ascii=False, indent=2)
+
+        if args.metadata:
+            metadata_path, metadata_bytes = _write_text_atomic(args.metadata, metadata_text or "{}")
+            print(
+                f"[engine] saved metadata to {metadata_path} ({metadata_bytes} bytes)",
+                file=sys.stderr,
+            )
+    except Exception as e:
+        print(f"engine output error: {type(e).__name__}: {e}", file=sys.stderr)
+        return 2
+
     if args.json:
-        payload = result.to_dict()
-        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        print(metadata_text)
     else:
         print(result.to_untrusted_text(), end="")
         if result.prompt_injection_risk in ("medium", "high"):

@@ -11,8 +11,13 @@ Run:  python3 engine/tests/test_u8.py
 """
 from __future__ import annotations
 
+import contextlib
+import json
 import os
+from pathlib import Path
 import sys
+import tempfile
+from io import StringIO
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
@@ -26,6 +31,7 @@ from engine.content_safety import (  # noqa: E402
     wrap_untrusted_content,
 )
 from engine.fetch_chain import FetchResult  # noqa: E402
+import engine.__main__ as cli  # noqa: E402
 
 
 def t_benign_content_reports_no_risk() -> None:
@@ -158,6 +164,88 @@ def t_fetchresult_empty_content_remains_constructible() -> None:
     print("  ✓ FetchResult() constructors without content still work")
 
 
+def t_cli_json_output_can_save_raw_content_without_refetch() -> None:
+    text = "<html><body>가격 ₩12,300</body></html>"
+    calls = []
+    old_fetch = cli.fetch
+
+    def fake_fetch(url, **kwargs):
+        calls.append((url, kwargs))
+        return FetchResult(
+            ok=True,
+            content=text,
+            final_url="https://example.test/products",
+            verdict="strong_ok",
+            summary="fake fetch succeeded",
+        )
+
+    try:
+        cli.fetch = fake_fetch
+        with tempfile.TemporaryDirectory() as td:
+            out_path = Path(td) / "page.html"
+            meta_path = Path(td) / "result.json"
+            stdout = StringIO()
+            stderr = StringIO()
+            with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                rc = cli.main([
+                    "https://example.test/products",
+                    "--json",
+                    "--output",
+                    str(out_path),
+                    "--metadata",
+                    str(meta_path),
+                ])
+
+            assert rc == 0
+            assert len(calls) == 1, calls
+            assert out_path.read_text(encoding="utf-8") == text
+
+            payload = json.loads(stdout.getvalue())
+            saved_meta = json.loads(meta_path.read_text(encoding="utf-8"))
+            assert "content" not in payload
+            assert payload["content_length"] == len(text)
+            assert payload["content_path"] == str(out_path.resolve())
+            assert payload["content_saved_bytes"] == len(text.encode("utf-8"))
+            assert saved_meta == payload
+            assert "saved raw untrusted content" in stderr.getvalue()
+            assert "saved metadata" in stderr.getvalue()
+    finally:
+        cli.fetch = old_fetch
+    print("  ✓ CLI --json --output saves raw content from the same fetch")
+
+
+def t_cli_rejects_same_output_and_metadata_path_before_fetch() -> None:
+    old_fetch = cli.fetch
+    calls = []
+
+    def fake_fetch(url, **kwargs):
+        calls.append((url, kwargs))
+        return FetchResult(ok=True, content="should not fetch")
+
+    try:
+        cli.fetch = fake_fetch
+        with tempfile.TemporaryDirectory() as td:
+            same_path = str(Path(td) / "same.dat")
+            stdout = StringIO()
+            stderr = StringIO()
+            with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                rc = cli.main([
+                    "https://example.test/products",
+                    "--json",
+                    "--output",
+                    same_path,
+                    "--metadata",
+                    same_path,
+                ])
+            assert rc == 2
+            assert calls == []
+            assert stdout.getvalue() == ""
+            assert "--output and --metadata must be different paths" in stderr.getvalue()
+    finally:
+        cli.fetch = old_fetch
+    print("  ✓ CLI rejects same --output/--metadata path before fetching")
+
+
 def t_lone_topical_keyword_stays_low() -> None:
     # A single sensitive noun ("secret"/"token"/"password") with no instruction
     # override is common in legitimate docs and must not cry wolf at medium.
@@ -185,6 +273,11 @@ ALL = [
     ("wrapper_preserves_original_text_inside_markers", t_wrapper_preserves_original_text_inside_markers),
     ("wrapper_uses_collision_resistant_boundary_id", t_wrapper_uses_collision_resistant_boundary_id),
     ("fetchresult_adds_metadata_without_wrapping_raw_content", t_fetchresult_adds_metadata_without_wrapping_raw_content),
+    ("cli_json_output_can_save_raw_content_without_refetch", t_cli_json_output_can_save_raw_content_without_refetch),
+    (
+        "cli_rejects_same_output_and_metadata_path_before_fetch",
+        t_cli_rejects_same_output_and_metadata_path_before_fetch,
+    ),
     ("fetchresult_to_untrusted_text_returns_agent_safe_output", t_fetchresult_to_untrusted_text_returns_agent_safe_output),
     ("source_url_cannot_inject_header_lines", t_source_url_cannot_inject_header_lines),
     (

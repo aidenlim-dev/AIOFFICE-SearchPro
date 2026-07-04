@@ -11,8 +11,8 @@ Un lector de páginas públicas resistente al bloqueo, para Claude Code. Sin cla
 <p>
   <a href="https://docs.anthropic.com/en/docs/claude-code"><img src="https://img.shields.io/badge/platform-Claude_Code-D97757?logo=claude" alt="Claude Code"></a>
   <img src="https://img.shields.io/badge/API_key-not_required-3FB950" alt="No API key">
-  <a href="https://github.com/fivetaku/gptaku_plugins"><img src="https://img.shields.io/badge/part_of-gptaku--plugins-6E56CF" alt="part of gptaku-plugins"></a>
-  <a href="https://github.com/fivetaku/insane-search/stargazers"><img src="https://img.shields.io/github/stars/fivetaku/insane-search?style=flat&color=F0B72F" alt="stars"></a>
+  <a href="https://github.com/aidenlim-dev/insane-search"><img src="https://img.shields.io/badge/install-direct_GitHub-6E56CF" alt="direct GitHub install"></a>
+  <a href="https://github.com/aidenlim-dev/insane-search/stargazers"><img src="https://img.shields.io/github/stars/aidenlim-dev/insane-search?style=flat&color=F0B72F" alt="stars"></a>
 </p>
 
 <!-- Hero — cinematic key-art: a blocked site (403 / CAPTCHA / WAF) shatters as
@@ -24,6 +24,28 @@ Un lector de páginas públicas resistente al bloqueo, para Claude Code. Sin cla
 ---
 
 ## ⚡ Instalación
+
+Para el curso / instalación directa desde este repositorio de GitHub:
+
+```bash
+/plugin marketplace add aidenlim-dev/insane-search
+/plugin install insane-search@insane-search-marketplace
+/reload-plugins
+```
+
+Opcional: cobertura completa con fallback de navegador:
+
+```bash
+bash setup/browser.sh
+```
+
+Cuando necesites el HTML ganador para parsearlo, guárdalo en la misma llamada:
+
+```bash
+bash setup/run-engine.sh "https://example.com/" --json --output page.html --metadata page.fetch.json
+```
+
+Instalación legacy desde `gptaku-plugins`:
 
 ```bash
 /plugin marketplace add https://github.com/fivetaku/gptaku_plugins.git
@@ -111,6 +133,6 @@ MIT
 
 <div align="center">
 
-**Parte de [gptaku-plugins](https://github.com/fivetaku/gptaku_plugins)** — plugins de Claude Code que atraviesan los muros donde todo lo demás se detiene.
+**Instalación directa desde GitHub:** [aidenlim-dev/insane-search](https://github.com/aidenlim-dev/insane-search)
 
 </div>

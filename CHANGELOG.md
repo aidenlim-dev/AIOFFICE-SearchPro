@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.3 — 2026-07-04
+
+One-shot content capture for probabilistic WAF wins.
+
+- **Raw content output**: added `--output` / `--save-content` to the engine CLI so the exact winning fetch result can be written to disk while `--json` still emits metadata only. This avoids the AliExpress-style failure mode where the first call succeeds, the agent re-runs to get HTML, and the second call lands on a challenge page.
+- **Metadata sidecar**: added `--metadata` to write the same content-omitting JSON payload to a file, including `content_path` and `content_saved_bytes` when raw content was saved.
+- **Direct-install cleanup**: first-run setup now stars the current `aidenlim-dev/insane-search` repo when explicitly opted in and only installs the legacy `gptaku-plugins` update hook when that marketplace exists.
+- **Regression coverage**: added a network-free CLI test proving `--json --output --metadata` performs one fetch, saves raw content exactly, and keeps raw content out of JSON.
+
 ## 0.9.2 — 2026-07-04
 
 Course-install hardening and release hygiene.

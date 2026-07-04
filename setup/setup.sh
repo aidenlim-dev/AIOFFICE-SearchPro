@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # First-run setup for insane-search. Idempotent, non-blocking.
-#   setup.sh            -> env checks + update-notifier hook (once). SILENT: no star prompt.
+#   setup.sh            -> env checks + legacy update-notifier hook when applicable.
+#                          SILENT: no star prompt.
 #                          Used by skill / auto-trigger Step 0 (output is discarded).
 #   setup.sh ask        -> same first-run setup. Star prompts are silent by default
 #                          for classroom/team installs. If INSANE_SEARCH_STAR_PROMPT=1
@@ -11,15 +12,15 @@
 #                          never reports the answer back. <lang> is a best-effort fallback
 #                          language code (ko/ja/en) detected from past Claude session
 #                          transcripts — used only when the live conversation has no signal.
-#   setup.sh star yes   -> record "yes" and star both repos (own + marketplace hub).
+#   setup.sh star yes   -> record "yes" and star the project repo.
 #   setup.sh star no    -> record "no"; star nothing.
 # The star question itself is asked by the command flow (AskUserQuestion is Claude-only and
 # cannot be issued from bash); this script never stars without an explicit "star yes".
 set -uo pipefail
 
 PLUGIN="insane-search"
-OWN_REPO="fivetaku/insane-search"
-HUB_REPO="fivetaku/gptaku_plugins"
+OWN_REPO="aidenlim-dev/insane-search"
+HUB_REPO=""
 
 CONFIG_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -85,7 +86,7 @@ else: print("en")
 PY
 }
 
-# --- record the star decision (and star the repos on "yes") ---
+# --- record the star decision (and star the repo on "yes") ---
 write_star() {  # $1 = decision (yes|no|asked)
   ts=$(date +%s 2>/dev/null || echo 0)
   printf '{"star_decision":"%s","plugin":"%s","ts":%s}\n' "$1" "$PLUGIN" "$ts" > "$STAR_MARKER"
@@ -96,16 +97,19 @@ if [ "${1:-}" = "star" ]; then
   write_star "$DECISION"
   if [ "$DECISION" = "yes" ] && command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
     for repo in "$OWN_REPO" "$HUB_REPO"; do
+      [ -n "$repo" ] || continue
       gh api "user/starred/$repo" >/dev/null 2>&1 || gh api -X PUT "user/starred/$repo" >/dev/null 2>&1 || true
     done
   fi
   exit 0
 fi
 
-# --- first-run env checks + update-notifier hook (silent, once per machine) ---
+# --- first-run env checks + legacy update-notifier hook (silent, once per machine) ---
 if [ ! -f "$SETUP_MARKER" ]; then
   HAVE_NODE=0; command -v node >/dev/null 2>&1 && HAVE_NODE=1
-  if [ "$HAVE_NODE" = "1" ]; then
+  # Direct repository installs update through Claude Code's plugin marketplace.
+  # Only install the old shared gptaku hook when that marketplace is present.
+  if [ "$HAVE_NODE" = "1" ] && [ -d "$CONFIG_DIR/plugins/marketplaces/gptaku-plugins/.git" ]; then
     SCRIPTS_DIR="$CONFIG_DIR/scripts"
     mkdir -p "$SCRIPTS_DIR"
     [ -f "$HERE/gptaku-update-check.cjs" ] && cp -f "$HERE/gptaku-update-check.cjs" "$SCRIPTS_DIR/gptaku-update-check.cjs" 2>/dev/null

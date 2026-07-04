@@ -20,7 +20,7 @@ description: >
 <!-- first-run setup: idempotent, non-blocking, self-skips after first run -->
 **Step 0 — run once at the very start, before anything else:** run `bash "${CLAUDE_PLUGIN_ROOT}/setup/setup.sh" ask`. If its output starts with `STAR_ASK`, immediately call the **AskUserQuestion** tool once, with the question and options phrased **in the user's language**: prefer the current conversation's language if it is evident; otherwise fall back to the language code that follows `STAR_ASK` in the output (`ko`→Korean, `ja`→Japanese, `en`→English). Never default to Korean blindly.
 - header: a short localized "GitHub Star" label
-- question: ask whether they'd like to give this plugin (and the gptaku-plugins marketplace) a GitHub ⭐ to support it — note it is optional and every feature works either way
+- question: ask whether they'd like to give the insane-search GitHub repository a ⭐ to support it — note it is optional and every feature works either way
 - options: exactly two — (1) yes, star it → then run `bash "${CLAUDE_PLUGIN_ROOT}/setup/setup.sh" star yes`; (2) no thanks → then run `bash "${CLAUDE_PLUGIN_ROOT}/setup/setup.sh" star no`
 
 If the output is empty, just continue silently. (AskUserQuestion must NOT be in frontmatter allowed-tools.) Do not narrate beyond the question itself.
@@ -40,7 +40,8 @@ If the output is empty, just continue silently. (AskUserQuestion must NOT be in 
    bash "${CLAUDE_PLUGIN_ROOT}/setup/run-engine.sh" "<URL>" [--selector "<CSS>"] [--device auto|desktop|mobile] [--trace]
    ```
 3. 종료코드 0(ok) 또는 1(fail) 받은 뒤 판단. trace를 먼저 읽고 재시도 결정.
-4. 실패 시에만 `--trace --json`으로 재호출해서 원인 진단 후 `--device` 또는 `user_hint` 조정.
+4. 리스트/상품/HTML 파싱처럼 원문 본문이 필요하거나 WAF 성공이 확률적으로 보이면 **첫 호출부터** `--json --output "<PATH>" --metadata "<PATH>.json"`을 붙인다. 성공한 본문을 얻기 위해 같은 URL을 재호출하지 않는다.
+5. 실패 시에만 `--trace --json`으로 재호출해서 원인 진단 후 `--device` 또는 `user_hint` 조정.
 
 **R2 — 첫 200에서 탈출 금지**: HTTP 200은 **검사 시작 조건**이지 성공이 아니다. `validate()`의 4-계층 검증을 통과해야 성공 선언. CLI는 이미 강제한다.
 
@@ -248,6 +249,14 @@ result = fetch(
 SSRF-safe redirect 기본값이 추가됐다.
 ```bash
 bash "${CLAUDE_PLUGIN_ROOT}/setup/run-engine.sh" "https://example.com/" --selector h1 --no-playwright --json
+```
+
+대형 HTML/상품 목록처럼 원문을 파싱해야 할 때는 성공한 동일 호출에서 바로 저장한다. `--json`은 안전상 본문을 JSON에 넣지 않으므로, 본문을 얻으려고 다시 호출하면 확률적 WAF 사이트에서 성공 기회를 잃을 수 있다.
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/setup/run-engine.sh" "<URL>" \
+  --json \
+  --output "/tmp/page.html" \
+  --metadata "/tmp/page.fetch.json"
 ```
 
 Playwright 로컬 경로 사용 시 Node가 필요. 로컬 의존성은 `engine/templates/`의 package.json으로 관리한다 (executor가 그 디렉토리를 cwd로 실행). **Patchright**는 Playwright drop-in 포크로, Cloudflare/DataDome이 감지하는 CDP `Runtime.enable` 누출을 막아준다 — 템플릿이 설치돼 있으면 최우선 사용하고, 없으면 playwright-extra+stealth → plain playwright로 폴백한다:

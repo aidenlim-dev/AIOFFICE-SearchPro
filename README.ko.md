@@ -11,8 +11,8 @@
 <p>
   <a href="https://docs.anthropic.com/en/docs/claude-code"><img src="https://img.shields.io/badge/platform-Claude_Code-D97757?logo=claude" alt="Claude Code"></a>
   <img src="https://img.shields.io/badge/API_key-not_required-3FB950" alt="No API key">
-  <a href="https://github.com/fivetaku/gptaku_plugins"><img src="https://img.shields.io/badge/part_of-gptaku--plugins-6E56CF" alt="part of gptaku-plugins"></a>
-  <a href="https://github.com/fivetaku/insane-search/stargazers"><img src="https://img.shields.io/github/stars/fivetaku/insane-search?style=flat&color=F0B72F" alt="stars"></a>
+  <a href="https://github.com/aidenlim-dev/insane-search"><img src="https://img.shields.io/badge/install-direct_GitHub-6E56CF" alt="direct GitHub install"></a>
+  <a href="https://github.com/aidenlim-dev/insane-search/stargazers"><img src="https://img.shields.io/github/stars/aidenlim-dev/insane-search?style=flat&color=F0B72F" alt="stars"></a>
 </p>
 
 <!-- Hero — cinematic key-art: a blocked site (403 / CAPTCHA / WAF) shatters as
@@ -45,6 +45,12 @@ bash setup/doctor.sh
 
 ```bash
 bash setup/browser.sh
+```
+
+파싱할 원문 HTML이 필요하면 성공한 같은 호출에서 바로 저장하세요:
+
+```bash
+bash setup/run-engine.sh "https://example.com/" --json --output page.html --metadata page.fetch.json
 ```
 
 수강생에게 짧게 배포할 문서는 [COURSE_INSTALL.ko.md](COURSE_INSTALL.ko.md)를 쓰면 됩니다.
@@ -137,6 +143,6 @@ MIT
 
 <div align="center">
 
-**[gptaku-plugins](https://github.com/fivetaku/gptaku_plugins)의 일부** — 다른 모든 게 멈추는 벽을 뚫는 Claude Code 플러그인들.
+**GitHub 직접 설치:** [aidenlim-dev/insane-search](https://github.com/aidenlim-dev/insane-search)
 
 </div>
