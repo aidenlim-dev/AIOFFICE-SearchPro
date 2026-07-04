@@ -10,7 +10,7 @@
       "name": "insane-search",
       "source": "./",
       "description": "Adaptive public-page reader for blocked sites using public APIs, curl_cffi TLS impersonation, Jina, yt-dlp, and Playwright fallbacks.",
-      "version": "0.9.3",
+      "version": "0.9.4",
       "author": {
         "name": "fivetaku / Aiden Lim"
       },

@@ -62,6 +62,12 @@ node -v   # v18+ 권장
 bash setup/browser.sh
 ```
 
+```powershell
+# Windows PowerShell
+node -v   # v18+ recommended
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
+```
+
 **Patchright 우선**: 템플릿(`playwright_real_chrome.js`)은 `require('patchright')`를 최우선 시도한다. Patchright는 Playwright API 호환 drop-in 포크로, 2026년 탐지가 노리는 CDP `Runtime.enable`(콘솔-attach) 누출을 자체 패치한다 — 그래서 patchright 경로에서는 stealth 플러그인을 얹지 않는다. patchright가 없으면 playwright-extra+stealth, 그것도 없으면 plain playwright로 폴백한다(모두 `channel:'chrome'` 유지). 결과 envelope의 `automation` 필드로 어느 경로가 쓰였는지 확인할 수 있다.
 
 ### 호출 (engine 내부)

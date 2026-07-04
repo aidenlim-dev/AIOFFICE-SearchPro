@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.4 — 2026-07-04
+
+Windows-native setup and verification.
+
+- **PowerShell wrappers**: added Windows companions for first-run setup, isolated engine execution, browser fallback setup, doctor checks, and live checks (`setup/*.ps1`). Windows users no longer need Git Bash just to run the plugin support scripts.
+- **Windows venv defaults**: `setup/run-engine.ps1` creates the plugin runtime under `%LOCALAPPDATA%\insane-search\venv` by default, still honoring `INSANE_SEARCH_VENV`, and keeps system Python untouched.
+- **Cross-platform docs**: README, course install docs, platform reference, and Playwright notes now show both bash and PowerShell paths.
+- **CI coverage**: added a `pwsh` smoke test for the PowerShell engine wrapper, including `--json --output --metadata` behavior.
+
 ## 0.9.3 — 2026-07-04
 
 One-shot content capture for probabilistic WAF wins.

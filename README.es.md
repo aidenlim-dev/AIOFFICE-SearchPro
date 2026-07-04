@@ -39,10 +39,22 @@ Opcional: cobertura completa con fallback de navegador:
 bash setup/browser.sh
 ```
 
+Windows PowerShell:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
+```
+
 Cuando necesites el HTML ganador para parsearlo, guárdalo en la misma llamada:
 
 ```bash
 bash setup/run-engine.sh "https://example.com/" --json --output page.html --metadata page.fetch.json
+```
+
+Windows PowerShell:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://example.com/" --json --output page.html --metadata page.fetch.json
 ```
 
 Instalación legacy desde `gptaku-plugins`:

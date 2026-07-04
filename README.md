@@ -41,16 +41,36 @@ cd insane-search
 bash setup/doctor.sh
 ```
 
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/aidenlim-dev/insane-search.git
+cd insane-search
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\doctor.ps1
+```
+
 Optional full browser coverage:
 
 ```bash
 bash setup/browser.sh
 ```
 
+Windows PowerShell:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
+```
+
 When you need the winning HTML for parsing, save it on the same call:
 
 ```bash
 bash setup/run-engine.sh "https://example.com/" --json --output page.html --metadata page.fetch.json
+```
+
+Windows PowerShell:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://example.com/" --json --output page.html --metadata page.fetch.json
 ```
 
 For a short classroom handout, use [COURSE_INSTALL.ko.md](COURSE_INSTALL.ko.md).

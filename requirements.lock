@@ -1,4 +1,4 @@
-# Locked Python runtime dependencies for setup/run-engine.sh.
+# Locked Python runtime dependencies for setup/run-engine.sh and setup/run-engine.ps1.
 # Regenerate with:
 #   python3 -m venv /tmp/insane-search-lock-venv
 #   /tmp/insane-search-lock-venv/bin/python -m pip install -U pip

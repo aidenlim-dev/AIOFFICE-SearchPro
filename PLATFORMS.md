@@ -70,16 +70,24 @@ The skill is organized as a set of reference files (`skills/insane-search/refere
 
 **Required:** Claude Code only.
 
-**Installed in an isolated plugin venv on first use** (`setup/run-engine.sh`; system Python is not modified):
+**Installed in an isolated plugin venv on first use** (`setup/run-engine.sh` or `setup/run-engine.ps1`; system Python is not modified):
 
 ```bash
 bash setup/run-engine.sh "https://example.com/" --selector h1 --no-playwright --json
+```
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://example.com/" --selector h1 --no-playwright --json
 ```
 
 **Optional, improves coverage:**
 
 ```bash
 bash setup/browser.sh   # local Chrome/Patchright + Playwright MCP
+```
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1   # local Chrome/Patchright + Playwright MCP
 ```
 
 If a dependency is missing, the wrapper installs the locked runtime dependency set and then tries the route.

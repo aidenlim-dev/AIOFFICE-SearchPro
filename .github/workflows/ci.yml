@@ -66,5 +66,81 @@ jobs:
           assert "content" not in data
           PY
 
+      - name: PowerShell wrapper smoke
+        shell: pwsh
+        run: |
+          $env:INSANE_SEARCH_VENV = "$PWD/.run-engine-ps-venv"
+          ./setup/run-engine.ps1 https://example.com/ --selector h1 --no-playwright --max-attempts 1 `
+            --json --output /tmp/insane-search-ps.html --metadata /tmp/insane-search-ps.json `
+            > /tmp/insane-search-ps.stdout
+          if (-not (Test-Path /tmp/insane-search-ps.html)) {
+            throw "missing saved html"
+          }
+          $data = Get-Content /tmp/insane-search-ps.json -Raw | ConvertFrom-Json
+          if (-not $data.ok) {
+            throw "PowerShell smoke ok=false"
+          }
+          if ($data.content_path -ne "/tmp/insane-search-ps.html") {
+            throw "unexpected content_path: $($data.content_path)"
+          }
+          if ($data.content_saved_bytes -le 0) {
+            throw "content_saved_bytes missing"
+          }
+          if ($data.PSObject.Properties.Name -contains "content") {
+            throw "metadata leaked content"
+          }
+
       - name: Online smoke tests
         run: .venv/bin/python skills/insane-search/engine/tests/test_smoke.py
+
+  windows-wrapper:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: First-run setup smoke
+        shell: pwsh
+        run: |
+          ./setup/setup.ps1 ask
+          if ($LASTEXITCODE -ne 0) {
+            throw "setup ask failed"
+          }
+          ./setup/setup.ps1 star no
+          if ($LASTEXITCODE -ne 0) {
+            throw "setup star no failed"
+          }
+
+      - name: PowerShell engine smoke on Windows
+        shell: pwsh
+        run: |
+          $env:INSANE_SEARCH_VENV = Join-Path $env:RUNNER_TEMP "insane-search-venv"
+          $html = Join-Path $env:RUNNER_TEMP "insane-search-win.html"
+          $metadata = Join-Path $env:RUNNER_TEMP "insane-search-win.json"
+          $stdout = Join-Path $env:RUNNER_TEMP "insane-search-win.stdout"
+          ./setup/run-engine.ps1 https://example.com/ --selector h1 --no-playwright --max-attempts 1 `
+            --json --output $html --metadata $metadata > $stdout
+          if ($LASTEXITCODE -ne 0) {
+            throw "run-engine.ps1 failed with exit code $LASTEXITCODE"
+          }
+          if (-not (Test-Path $html)) {
+            throw "missing saved html"
+          }
+          $data = Get-Content $metadata -Raw | ConvertFrom-Json
+          if (-not $data.ok) {
+            throw "PowerShell Windows smoke ok=false"
+          }
+          $expectedPath = (Resolve-Path $html).Path
+          if ($data.content_path -ne $expectedPath) {
+            throw "unexpected content_path: $($data.content_path), expected $expectedPath"
+          }
+          if ($data.content_saved_bytes -le 0) {
+            throw "content_saved_bytes missing"
+          }
+          if ($data.PSObject.Properties.Name -contains "content") {
+            throw "metadata leaked content"
+          }

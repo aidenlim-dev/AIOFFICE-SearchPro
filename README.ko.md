@@ -41,16 +41,36 @@ cd insane-search
 bash setup/doctor.sh
 ```
 
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/aidenlim-dev/insane-search.git
+cd insane-search
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\doctor.ps1
+```
+
 브라우저 폴백까지 완전히 쓰고 싶을 때:
 
 ```bash
 bash setup/browser.sh
 ```
 
+Windows PowerShell:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
+```
+
 파싱할 원문 HTML이 필요하면 성공한 같은 호출에서 바로 저장하세요:
 
 ```bash
 bash setup/run-engine.sh "https://example.com/" --json --output page.html --metadata page.fetch.json
+```
+
+Windows PowerShell:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://example.com/" --json --output page.html --metadata page.fetch.json
 ```
 
 수강생에게 짧게 배포할 문서는 [COURSE_INSTALL.ko.md](COURSE_INSTALL.ko.md)를 쓰면 됩니다.

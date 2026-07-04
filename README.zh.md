@@ -39,10 +39,22 @@
 bash setup/browser.sh
 ```
 
+Windows PowerShell:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
+```
+
 需要解析命中的原始 HTML 时，请在同一次成功调用中保存：
 
 ```bash
 bash setup/run-engine.sh "https://example.com/" --json --output page.html --metadata page.fetch.json
+```
+
+Windows PowerShell:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://example.com/" --json --output page.html --metadata page.fetch.json
 ```
 
 旧版 `gptaku-plugins` marketplace 安装：

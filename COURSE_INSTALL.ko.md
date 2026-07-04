@@ -30,6 +30,14 @@ cd insane-search
 bash setup/doctor.sh
 ```
 
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/aidenlim-dev/insane-search.git
+cd insane-search
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\doctor.ps1
+```
+
 `warn`은 선택 기능 경고입니다. 기본 fetch가 되는지 보려면 `engine smoke test passed`를 확인하세요.
 
 공개 라우트 라이브 체크:
@@ -38,16 +46,35 @@ bash setup/doctor.sh
 bash setup/live-check.sh
 ```
 
+Windows PowerShell:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\live-check.ps1
+```
+
 조금 더 넓게 확인하고 싶을 때:
 
 ```bash
 INSANE_SEARCH_LIVE_EXTENDED=1 bash setup/live-check.sh
 ```
 
+Windows PowerShell:
+
+```powershell
+$env:INSANE_SEARCH_LIVE_EXTENDED="1"
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\live-check.ps1
+```
+
 원문 HTML을 파싱해야 하는 과제에서는 성공한 같은 호출에서 바로 저장하세요. `--json`은 본문을 JSON에 넣지 않으므로, 본문을 얻으려고 같은 URL을 다시 호출하면 WAF 사이트에서 성공 기회를 놓칠 수 있습니다.
 
 ```bash
 bash setup/run-engine.sh "https://example.com/" --json --output page.html --metadata page.fetch.json
+```
+
+Windows PowerShell:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://example.com/" --json --output page.html --metadata page.fetch.json
 ```
 
 ## 4. 브라우저 폴백까지 켜기
@@ -58,14 +85,20 @@ Cloudflare급 JS 렌더링, Akamai/DataDome류 강한 WAF 대응력을 높이고
 bash setup/browser.sh
 ```
 
+Windows PowerShell:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
+```
+
 끝난 뒤 Claude Code를 재시작하거나 `/reload-plugins`를 실행하세요.
 
 ## 5. 자주 나는 문제
 
 - `Claude Code CLI not found`: Claude Code를 먼저 설치하세요.
 - `python3 is required`: Python 3가 필요합니다.
-- `Node.js not found`: 기본 사용은 가능하지만 local Chrome fallback은 동작하지 않습니다. `setup/browser.sh`를 쓰려면 Node를 설치하세요.
-- `Playwright MCP not configured`: 기본 사용은 가능하지만 JS 렌더링 정찰이 제한됩니다. `setup/browser.sh`를 실행하세요.
+- `Node.js not found`: 기본 사용은 가능하지만 local Chrome fallback은 동작하지 않습니다. macOS/Linux는 `setup/browser.sh`, Windows는 `setup/browser.ps1`를 쓰려면 Node를 설치하세요.
+- `Playwright MCP not configured`: 기본 사용은 가능하지만 JS 렌더링 정찰이 제한됩니다. macOS/Linux는 `setup/browser.sh`, Windows는 `setup/browser.ps1`을 실행하세요.
 - `auth_required`, `paywall`, `not_found`: 플러그인이 우회하지 않는 정상 중단입니다.
 
 ## 6. 설치 명령 다시
