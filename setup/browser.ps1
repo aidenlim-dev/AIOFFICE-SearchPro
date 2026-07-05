@@ -4,7 +4,9 @@
 [CmdletBinding()]
 param()
 
-$ErrorActionPreference = "Stop"
+# "Continue", not "Stop": Windows PowerShell 5.1 promotes native stderr output
+# to terminating errors under "Stop". Native calls below check $LASTEXITCODE.
+$ErrorActionPreference = "Continue"
 
 $Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $Templates = Join-Path $Root "skills/aioffice-searchpro/engine/templates"

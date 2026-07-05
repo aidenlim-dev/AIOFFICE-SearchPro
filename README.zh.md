@@ -35,6 +35,15 @@
 /reload-plugins
 ```
 
+**让 AI 智能体（包括 Claude Code 自身）来安装？** 上面的斜杠命令仅限交互式 UI，智能体无法执行。请让智能体在终端中运行非交互式 CLI：
+
+```bash
+claude plugin marketplace add aidenlim-dev/AIOFFICE-SearchPro
+claude plugin install aioffice-searchpro@aioffice-searchpro-marketplace
+```
+
+然后重启 Claude Code 或运行 `/reload-plugins` 加载插件。
+
 可选：启用完整浏览器 fallback：
 
 ```bash
@@ -44,7 +53,7 @@ bash setup/browser.sh
 Windows PowerShell:
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
 ```
 
 需要解析命中的原始 HTML 时，请在同一次成功调用中保存：
@@ -56,7 +65,7 @@ bash setup/run-engine.sh "https://example.com/" --json --output page.html --meta
 Windows PowerShell:
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://example.com/" --json --output page.html --metadata page.fetch.json
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://example.com/" --json --output page.html --metadata page.fetch.json
 ```
 
 无需记任何命令。像平常一样向 Claude Code 提问即可——一旦抓取被拦截，AIOFFICE-SearchPro 就会自动介入。

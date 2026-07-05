@@ -7,7 +7,10 @@ param(
   [string[]] $EngineArgs
 )
 
-$ErrorActionPreference = "Stop"
+# "Continue", not "Stop": Windows PowerShell 5.1 promotes native stderr output
+# (e.g. harmless "python -m venv" warnings) to terminating errors under "Stop"
+# when streams are redirected. Every native call below checks $LASTEXITCODE.
+$ErrorActionPreference = "Continue"
 
 $Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $EngineRoot = Join-Path $Root "skills/aioffice-searchpro"
@@ -60,13 +63,24 @@ if (-not (Test-Path $VenvPython)) {
   if ($parent) {
     New-Item -ItemType Directory -Force -Path $parent | Out-Null
   }
-  & $Python -m venv $VenvDir
-  if ($LASTEXITCODE -ne 0) {
-    exit $LASTEXITCODE
+  # A failed attempt can leave a partial venv behind; remove it and retry once.
+  $created = $false
+  foreach ($attempt in 1, 2) {
+    & $Python -m venv $VenvDir
+    $candidate = Join-Path $VenvDir "Scripts/python.exe"
+    if (-not (Test-Path $candidate)) {
+      $candidate = Join-Path $VenvDir "bin/python"
+    }
+    if ($LASTEXITCODE -eq 0 -and (Test-Path $candidate)) {
+      $VenvPython = $candidate
+      $created = $true
+      break
+    }
+    Remove-Item -Recurse -Force $VenvDir -ErrorAction SilentlyContinue
   }
-  $VenvPython = Join-Path $VenvDir "Scripts/python.exe"
-  if (-not (Test-Path $VenvPython)) {
-    $VenvPython = Join-Path $VenvDir "bin/python"
+  if (-not $created) {
+    Write-Error "aioffice-searchpro: failed to create venv at $VenvDir"
+    exit 1
   }
 }
 

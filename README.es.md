@@ -35,6 +35,15 @@ Para el curso / instalación directa desde este repositorio de GitHub:
 /reload-plugins
 ```
 
+**¿Le pides a un agente de IA (incluido el propio Claude Code) que lo instale?** Los comandos slash de arriba son solo para la UI interactiva y no están disponibles para agentes. Haz que el agente ejecute la CLI no interactiva en una terminal:
+
+```bash
+claude plugin marketplace add aidenlim-dev/AIOFFICE-SearchPro
+claude plugin install aioffice-searchpro@aioffice-searchpro-marketplace
+```
+
+Después reinicia Claude Code o ejecuta `/reload-plugins` para cargar el plugin.
+
 Opcional: cobertura completa con fallback de navegador:
 
 ```bash
@@ -44,7 +53,7 @@ bash setup/browser.sh
 Windows PowerShell:
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
 ```
 
 Cuando necesites el HTML ganador para parsearlo, guárdalo en la misma llamada:
@@ -56,7 +65,7 @@ bash setup/run-engine.sh "https://example.com/" --json --output page.html --meta
 Windows PowerShell:
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://example.com/" --json --output page.html --metadata page.fetch.json
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://example.com/" --json --output page.html --metadata page.fetch.json
 ```
 
 No hay comandos que aprender. Habla con Claude Code como siempre: AIOFFICE-SearchPro entra en acción en cuanto una petición se bloquea.

@@ -77,7 +77,7 @@ bash setup/run-engine.sh "https://example.com/" --selector h1 --no-playwright --
 ```
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://example.com/" --selector h1 --no-playwright --json
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://example.com/" --selector h1 --no-playwright --json
 ```
 
 **Optional, improves coverage:**
@@ -87,7 +87,7 @@ bash setup/browser.sh   # local Chrome/Patchright + Playwright MCP
 ```
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1   # local Chrome/Patchright + Playwright MCP
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1   # local Chrome/Patchright + Playwright MCP
 ```
 
 If a dependency is missing, the wrapper installs the locked runtime dependency set and then tries the route.

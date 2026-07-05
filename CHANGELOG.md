@@ -1,6 +1,12 @@
 # Changelog
 
-## 1.0.0 — 2026-07-04
+## 1.0.1 — 2026-07-05
+
+Agent-driven install hardening: "throw the repo link at Claude Code and say install" now works first-try on stock Windows.
+
+- **Agent install path**: READMEs (all languages) and `COURSE_INSTALL.ko.md` now document the non-interactive CLI (`claude plugin marketplace add` / `claude plugin install`) for AI agents, which cannot run the interactive `/plugin` slash commands and previously reverse-engineered settings files instead.
+- **Windows PowerShell 5.1 compatibility**: `run-engine.ps1`, `browser.ps1`, and `live-check.ps1` no longer use `$ErrorActionPreference = "Stop"`, which on 5.1 promoted harmless native stderr output (e.g. `python -m venv` warnings) to terminating errors; every native call already checks `$LASTEXITCODE`. Docs, `SKILL.md`, and doctor hints now invoke scripts via `powershell` (built into every Windows) instead of `pwsh` (PowerShell 7, often absent).
+- **Venv self-repair**: `run-engine.ps1` now treats a venv missing its interpreter as failed, removes the partial venv, and retries once before erroring, instead of leaving a broken venv for the next run.
 
 Project rename to AIOFFICE-SearchPro.
 

@@ -1,6 +1,6 @@
 {
   "name": "aioffice-searchpro",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AIOFFICE-SearchPro: adaptive public-page access for AI agents. Reads blocked public pages through public APIs, TLS impersonation, Jina, yt-dlp, and Playwright fallbacks without API keys.",
   "author": {
     "name": "Aiden Lim",

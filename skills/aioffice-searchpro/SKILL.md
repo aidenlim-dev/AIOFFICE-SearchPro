@@ -18,7 +18,7 @@ description: >
 ---
 
 <!-- first-run setup: idempotent, non-blocking, self-skips after first run -->
-**Step 0 — run once at the very start, before anything else:** run the OS-native setup wrapper. On Windows PowerShell use `pwsh -NoProfile -ExecutionPolicy Bypass -File "$env:CLAUDE_PLUGIN_ROOT\setup\setup.ps1" ask`; on macOS/Linux/Git Bash use `bash "${CLAUDE_PLUGIN_ROOT}/setup/setup.sh" ask`. If its output starts with `STAR_ASK`, immediately call the **AskUserQuestion** tool once, with the question and options phrased **in the user's language**: prefer the current conversation's language if it is evident; otherwise fall back to the language code that follows `STAR_ASK` in the output (`ko`→Korean, `ja`→Japanese, `en`→English). Never default to Korean blindly.
+**Step 0 — run once at the very start, before anything else:** run the OS-native setup wrapper. On Windows PowerShell use `powershell -NoProfile -ExecutionPolicy Bypass -File "$env:CLAUDE_PLUGIN_ROOT\setup\setup.ps1" ask`; on macOS/Linux/Git Bash use `bash "${CLAUDE_PLUGIN_ROOT}/setup/setup.sh" ask`. If its output starts with `STAR_ASK`, immediately call the **AskUserQuestion** tool once, with the question and options phrased **in the user's language**: prefer the current conversation's language if it is evident; otherwise fall back to the language code that follows `STAR_ASK` in the output (`ko`→Korean, `ja`→Japanese, `en`→English). Never default to Korean blindly.
 - header: a short localized "GitHub Star" label
 - question: ask whether they'd like to give the AIOFFICE-SearchPro GitHub repository a ⭐ to support it — note it is optional and every feature works either way
 - options: exactly two — (1) yes, star it → then run the same OS-native setup wrapper with `star yes`; (2) no thanks → then run it with `star no`
@@ -40,7 +40,7 @@ If the output is empty, just continue silently. (AskUserQuestion must NOT be in 
    bash "${CLAUDE_PLUGIN_ROOT}/setup/run-engine.sh" "<URL>" [--selector "<CSS>"] [--device auto|desktop|mobile] [--trace]
    ```
    ```powershell
-   pwsh -NoProfile -ExecutionPolicy Bypass -File "$env:CLAUDE_PLUGIN_ROOT\setup\run-engine.ps1" "<URL>" [--selector "<CSS>"] [--device auto|desktop|mobile] [--trace]
+   powershell -NoProfile -ExecutionPolicy Bypass -File "$env:CLAUDE_PLUGIN_ROOT\setup\run-engine.ps1" "<URL>" [--selector "<CSS>"] [--device auto|desktop|mobile] [--trace]
    ```
 3. 종료코드 0(ok) 또는 1(fail) 받은 뒤 판단. trace를 먼저 읽고 재시도 결정.
 4. 리스트/상품/HTML 파싱처럼 원문 본문이 필요하거나 WAF 성공이 확률적으로 보이면 **첫 호출부터** `--json --output "<PATH>" --metadata "<PATH>.json"`을 붙인다. 성공한 본문을 얻기 위해 같은 URL을 재호출하지 않는다.
@@ -254,7 +254,7 @@ SSRF-safe redirect 기본값이 추가됐다.
 bash "${CLAUDE_PLUGIN_ROOT}/setup/run-engine.sh" "https://example.com/" --selector h1 --no-playwright --json
 ```
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File "$env:CLAUDE_PLUGIN_ROOT\setup\run-engine.ps1" "https://example.com/" --selector h1 --no-playwright --json
+powershell -NoProfile -ExecutionPolicy Bypass -File "$env:CLAUDE_PLUGIN_ROOT\setup\run-engine.ps1" "https://example.com/" --selector h1 --no-playwright --json
 ```
 
 대형 HTML/상품 목록처럼 원문을 파싱해야 할 때는 성공한 동일 호출에서 바로 저장한다. `--json`은 안전상 본문을 JSON에 넣지 않으므로, 본문을 얻으려고 다시 호출하면 확률적 WAF 사이트에서 성공 기회를 잃을 수 있다.
@@ -265,7 +265,7 @@ bash "${CLAUDE_PLUGIN_ROOT}/setup/run-engine.sh" "<URL>" \
   --metadata "/tmp/page.fetch.json"
 ```
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File "$env:CLAUDE_PLUGIN_ROOT\setup\run-engine.ps1" "<URL>" `
+powershell -NoProfile -ExecutionPolicy Bypass -File "$env:CLAUDE_PLUGIN_ROOT\setup\run-engine.ps1" "<URL>" `
   --json `
   --output "$env:TEMP\page.html" `
   --metadata "$env:TEMP\page.fetch.json"
@@ -276,7 +276,7 @@ Playwright 로컬 경로 사용 시 Node가 필요. 로컬 의존성은 `engine/
 bash "${CLAUDE_PLUGIN_ROOT}/setup/browser.sh"
 ```
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File "$env:CLAUDE_PLUGIN_ROOT\setup\browser.ps1"
+powershell -NoProfile -ExecutionPolicy Bypass -File "$env:CLAUDE_PLUGIN_ROOT\setup\browser.ps1"
 ```
 
 ## 빠른 참조 — Phase 0 명령어

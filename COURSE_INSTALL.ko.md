@@ -10,6 +10,15 @@ Claude Code 안에서 실행합니다.
 /reload-plugins
 ```
 
+AI 에이전트(Claude Code 자신 포함)에게 설치를 시키는 경우, 위 슬래시 명령은 대화형 UI 전용이라 에이전트가 실행할 수 없습니다. 대신 터미널에서 비대화형 CLI를 실행하게 하세요:
+
+```bash
+claude plugin marketplace add aidenlim-dev/AIOFFICE-SearchPro
+claude plugin install aioffice-searchpro@aioffice-searchpro-marketplace
+```
+
+설치 후 Claude Code를 재시작하거나 `/reload-plugins`를 실행하면 플러그인이 로드됩니다.
+
 ## 2. 간단 테스트
 
 Claude Code에게 이렇게 물어봅니다.
@@ -35,7 +44,7 @@ Windows PowerShell:
 ```powershell
 git clone https://github.com/aidenlim-dev/AIOFFICE-SearchPro.git
 cd AIOFFICE-SearchPro
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\doctor.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\doctor.ps1
 ```
 
 `warn`은 선택 기능 경고입니다. 기본 fetch가 되는지 보려면 `engine smoke test passed`를 확인하세요.
@@ -49,7 +58,7 @@ bash setup/live-check.sh
 Windows PowerShell:
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\live-check.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\live-check.ps1
 ```
 
 조금 더 넓게 확인하고 싶을 때:
@@ -62,7 +71,7 @@ Windows PowerShell:
 
 ```powershell
 $env:AIOFFICE_SEARCHPRO_LIVE_EXTENDED="1"
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\live-check.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\live-check.ps1
 ```
 
 원문 HTML을 파싱해야 하는 과제에서는 성공한 같은 호출에서 바로 저장하세요. `--json`은 본문을 JSON에 넣지 않으므로, 본문을 얻으려고 같은 URL을 다시 호출하면 WAF 사이트에서 성공 기회를 놓칠 수 있습니다.
@@ -74,7 +83,7 @@ bash setup/run-engine.sh "https://example.com/" --json --output page.html --meta
 Windows PowerShell:
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://example.com/" --json --output page.html --metadata page.fetch.json
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://example.com/" --json --output page.html --metadata page.fetch.json
 ```
 
 ## 4. 브라우저 폴백까지 켜기
@@ -88,7 +97,7 @@ bash setup/browser.sh
 Windows PowerShell:
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
 ```
 
 끝난 뒤 Claude Code를 재시작하거나 `/reload-plugins`를 실행하세요.
@@ -107,4 +116,11 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
 /plugin marketplace add aidenlim-dev/AIOFFICE-SearchPro
 /plugin install aioffice-searchpro@aioffice-searchpro-marketplace
 /reload-plugins
+```
+
+AI 에이전트에게 시킬 때 (터미널, 비대화형):
+
+```bash
+claude plugin marketplace add aidenlim-dev/AIOFFICE-SearchPro
+claude plugin install aioffice-searchpro@aioffice-searchpro-marketplace
 ```

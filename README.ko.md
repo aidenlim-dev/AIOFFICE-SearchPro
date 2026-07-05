@@ -35,6 +35,15 @@
 /reload-plugins
 ```
 
+**AI 에이전트(Claude Code 자신 포함)에게 설치를 시키는 경우:** 위 슬래시 명령은 대화형 UI 전용이라 에이전트가 실행할 수 없습니다. 대신 터미널에서 비대화형 CLI를 실행하게 하세요:
+
+```bash
+claude plugin marketplace add aidenlim-dev/AIOFFICE-SearchPro
+claude plugin install aioffice-searchpro@aioffice-searchpro-marketplace
+```
+
+설치 후 Claude Code를 재시작하거나 `/reload-plugins`를 실행하면 플러그인이 로드됩니다.
+
 터미널에서 설치 상태 확인:
 
 ```bash
@@ -48,7 +57,7 @@ Windows PowerShell:
 ```powershell
 git clone https://github.com/aidenlim-dev/AIOFFICE-SearchPro.git
 cd AIOFFICE-SearchPro
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\doctor.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\doctor.ps1
 ```
 
 브라우저 폴백까지 완전히 쓰고 싶을 때:
@@ -60,7 +69,7 @@ bash setup/browser.sh
 Windows PowerShell:
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
 ```
 
 파싱할 원문 HTML이 필요하면 성공한 같은 호출에서 바로 저장하세요:
@@ -72,7 +81,7 @@ bash setup/run-engine.sh "https://example.com/" --json --output page.html --meta
 Windows PowerShell:
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://example.com/" --json --output page.html --metadata page.fetch.json
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://example.com/" --json --output page.html --metadata page.fetch.json
 ```
 
 수강생에게 짧게 배포할 문서는 [COURSE_INSTALL.ko.md](COURSE_INSTALL.ko.md)를 쓰면 됩니다.

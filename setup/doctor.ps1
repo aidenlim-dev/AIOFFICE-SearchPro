@@ -77,7 +77,7 @@ if (Get-Command node -ErrorAction SilentlyContinue) {
 if (Test-Path (Join-Path $Root "skills/aioffice-searchpro/engine/templates/node_modules")) {
   Ok "local Playwright template dependencies installed"
 } else {
-  Warn "optional browser fallback not fully installed: run 'pwsh -NoProfile -ExecutionPolicy Bypass -File setup/browser.ps1'"
+  Warn "optional browser fallback not fully installed: run 'powershell -NoProfile -ExecutionPolicy Bypass -File setup/browser.ps1'"
 }
 
 if (Get-Command claude -ErrorAction SilentlyContinue) {
@@ -86,7 +86,7 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
   if ($mcpList -match "(?im)playwright") {
     Ok "Playwright MCP appears configured"
   } else {
-    Warn "optional Playwright MCP not configured: run 'pwsh -NoProfile -ExecutionPolicy Bypass -File setup/browser.ps1'"
+    Warn "optional Playwright MCP not configured: run 'powershell -NoProfile -ExecutionPolicy Bypass -File setup/browser.ps1'"
   }
 } else {
   Warn "optional Playwright MCP not configured: Claude Code CLI not found"
