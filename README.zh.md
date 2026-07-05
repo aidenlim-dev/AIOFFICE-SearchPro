@@ -56,6 +56,13 @@ bash ~/.claude/plugins/marketplaces/aioffice-searchpro-marketplace/setup/doctor.
 
 doctor 摘要中的 OPTIONAL 项（Node.js、浏览器 fallback）不是必需的——向用户报告，仅在用户同意后安装（`setup/browser.ps1 -InstallNode`，macOS：`--install-node`）。
 
+**Codex 也可以用** — 同一个仓库，只是命令换成 Codex 版（`.codex-plugin/plugin.json` 内置 Codex 原生清单）：
+
+```bash
+codex plugin marketplace add https://github.com/aidenlim-dev/AIOFFICE-SearchPro
+codex plugin add aioffice-searchpro@aioffice-searchpro-marketplace
+```
+
 可选：启用完整浏览器 fallback：
 
 ```bash

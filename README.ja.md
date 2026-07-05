@@ -56,6 +56,13 @@ bash ~/.claude/plugins/marketplaces/aioffice-searchpro-marketplace/setup/doctor.
 
 doctor サマリーの OPTIONAL 項目（Node.js・ブラウザフォールバック）は必須ではありません — ユーザーに報告し、同意を得た場合のみインストールしてください（`setup/browser.ps1 -InstallNode`、macOS: `--install-node`）。
 
+**Codex でも動きます** — 同じリポジトリで、コマンドだけ Codex 用に（`.codex-plugin/plugin.json` に Codex ネイティブマニフェスト同梱）：
+
+```bash
+codex plugin marketplace add https://github.com/aidenlim-dev/AIOFFICE-SearchPro
+codex plugin add aioffice-searchpro@aioffice-searchpro-marketplace
+```
+
 任意：ブラウザ fallback まで有効にする場合：
 
 ```bash

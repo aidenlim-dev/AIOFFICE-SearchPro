@@ -56,6 +56,15 @@ bash ~/.claude/plugins/marketplaces/aioffice-searchpro-marketplace/setup/doctor.
 
 doctor 요약의 OPTIONAL 항목(Node.js·브라우저 폴백)은 필수가 아닙니다 — 사용자에게 보고만 하고, 동의한 경우에만 설치하세요(`setup/browser.ps1 -InstallNode`, macOS: `--install-node`).
 
+**Codex에서도 됩니다** — 같은 저장소, 명령만 Codex용으로 (`.codex-plugin/plugin.json`에 Codex 네이티브 매니페스트 동봉):
+
+```bash
+codex plugin marketplace add https://github.com/aidenlim-dev/AIOFFICE-SearchPro
+codex plugin add aioffice-searchpro@aioffice-searchpro-marketplace
+```
+
+Windows 로컬 개발용으로는 `setup\codex-install-local.ps1`이 클론을 `~/plugins/aioffice-searchpro` junction으로 연결하고 `~/.agents/plugins/marketplace.json`에 등록합니다(해제: `codex-uninstall-local.ps1`).
+
 터미널에서 설치 상태 확인 (이미 마켓플레이스로 설치했다면 클론 없이 `~/.claude/plugins/marketplaces/aioffice-searchpro-marketplace`의 doctor를 바로 실행):
 
 ```bash

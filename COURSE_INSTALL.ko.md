@@ -19,6 +19,13 @@ claude plugin install aioffice-searchpro@aioffice-searchpro-marketplace
 
 설치 후 Claude Code를 재시작하거나 `/reload-plugins`를 실행하면 플러그인이 로드됩니다.
 
+Codex를 쓴다면 같은 저장소로 이렇게 설치합니다:
+
+```bash
+codex plugin marketplace add https://github.com/aidenlim-dev/AIOFFICE-SearchPro
+codex plugin add aioffice-searchpro@aioffice-searchpro-marketplace
+```
+
 ## 2. 간단 테스트
 
 Claude Code에게 이렇게 물어봅니다.

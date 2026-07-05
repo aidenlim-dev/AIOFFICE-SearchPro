@@ -1,0 +1,53 @@
+{
+  "name": "aioffice-searchpro",
+  "version": "1.1.0",
+  "description": "AIOFFICE-SearchPro: adaptive public-page access for AI agents. Reads blocked public pages through public APIs, TLS impersonation, Jina, yt-dlp, and Playwright fallbacks without API keys.",
+  "author": {
+    "name": "Aiden Lim",
+    "url": "https://github.com/aidenlim-dev/AIOFFICE-SearchPro"
+  },
+  "homepage": "https://github.com/aidenlim-dev/AIOFFICE-SearchPro",
+  "repository": "https://github.com/aidenlim-dev/AIOFFICE-SearchPro",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "web-access",
+    "search",
+    "webfetch",
+    "jina",
+    "yt-dlp",
+    "twitter",
+    "reddit",
+    "youtube",
+    "naver",
+    "curl_cffi",
+    "tls-impersonation",
+    "playwright",
+    "aioffice",
+    "searchpro"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "AIOFFICE-SearchPro",
+    "shortDescription": "Adaptive access to blocked public pages — no API keys, no proxy setup",
+    "longDescription": "AIOFFICE-SearchPro helps the agent read stubborn public content by escalating through public API readers, syndication gateways, TLS impersonation (curl_cffi), and a real headless browser until one route works. It stops honestly at login walls and paywalls.",
+    "developerName": "Aiden Lim",
+    "category": "Coding",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "websiteURL": "https://github.com/aidenlim-dev/AIOFFICE-SearchPro",
+    "privacyPolicyURL": "https://github.com/aidenlim-dev/AIOFFICE-SearchPro/blob/main/DISCLAIMER.md",
+    "termsOfServiceURL": "https://github.com/aidenlim-dev/AIOFFICE-SearchPro/blob/main/LICENSE",
+    "defaultPrompt": [
+      "Summarize this blocked article with the cheapest route first",
+      "Find what people are saying about a topic on Reddit or X",
+      "Get the captions and metadata from this YouTube video"
+    ],
+    "brandColor": "#6E56CF",
+    "composerIcon": "./assets/icon.svg",
+    "logo": "./assets/icon.svg",
+    "screenshots": []
+  }
+}

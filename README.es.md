@@ -56,6 +56,13 @@ bash ~/.claude/plugins/marketplaces/aioffice-searchpro-marketplace/setup/doctor.
 
 Los elementos OPTIONAL del resumen de doctor (Node.js, fallback de navegador) no son obligatorios — repórtalos al usuario e instálalos solo con su consentimiento (`setup/browser.ps1 -InstallNode`, macOS: `--install-node`).
 
+**También funciona en Codex** — mismo repositorio, comandos de Codex (incluye un manifiesto nativo en `.codex-plugin/plugin.json`):
+
+```bash
+codex plugin marketplace add https://github.com/aidenlim-dev/AIOFFICE-SearchPro
+codex plugin add aioffice-searchpro@aioffice-searchpro-marketplace
+```
+
 Opcional: cobertura completa con fallback de navegador:
 
 ```bash

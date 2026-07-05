@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0 — 2026-07-05
+
+Codex support, ported from the Codex-first rewrite (`sinmb79/codex-insane-search`).
+
+- **Codex-native manifests**: added `.codex-plugin/plugin.json` (with full `interface` metadata — display name, default prompts, brand color, icon) and a repo-local `.agents/plugins/marketplace.json`, alongside the existing Claude manifests. New `assets/icon.svg`.
+- **Codex local install scripts**: `setup/codex-install-local.ps1` junctions a clone into `~/plugins/aioffice-searchpro` and registers it in `~/.agents/plugins/marketplace.json` (source-of-truth stays in the repo); `setup/codex-uninstall-local.ps1` reverses both.
+- **SKILL.md Codex compatibility section**: plugin-root resolution when `CLAUDE_PLUGIN_ROOT` is absent (resolve relative to SKILL.md), Claude→Codex tool-name mapping (WebFetch→`web.open`, WebSearch→`web.search_query`, shell→`shell_command`), and Codex update commands.
+- **Docs**: Codex install commands (`codex plugin marketplace add` / `codex plugin add`) in all README languages and the course install guide.
+- **Jina rate-limit correction** (from the Codex rewrite): `references/jina.md` now states 20 RPM without an API key and 500 RPM with a free key, instead of claiming 500 RPM keyless.
+
 ## 1.0.2 — 2026-07-05
 
 Post-install clarity: no stray clones, and a doctor summary that tells users (and agents) exactly what's optional.

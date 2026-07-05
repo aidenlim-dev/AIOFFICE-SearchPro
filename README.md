@@ -56,6 +56,15 @@ bash ~/.claude/plugins/marketplaces/aioffice-searchpro-marketplace/setup/doctor.
 
 Items under OPTIONAL in the doctor summary (Node.js, browser fallback) are not required — report them to the user and only install after they agree (`setup/browser.ps1 -InstallNode`, macOS: `--install-node`).
 
+**Codex works too** — same repo, Codex commands (a Codex-native manifest ships at `.codex-plugin/plugin.json`):
+
+```bash
+codex plugin marketplace add https://github.com/aidenlim-dev/AIOFFICE-SearchPro
+codex plugin add aioffice-searchpro@aioffice-searchpro-marketplace
+```
+
+For local development on Windows, `setup\codex-install-local.ps1` junctions your clone into `~/plugins/aioffice-searchpro` and registers it in `~/.agents/plugins/marketplace.json` (undo: `codex-uninstall-local.ps1`).
+
 Verify the install from a terminal (already installed via the marketplace? run doctor from `~/.claude/plugins/marketplaces/aioffice-searchpro-marketplace` instead — no clone needed):
 
 ```bash
