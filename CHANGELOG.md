@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.9.2 — 2026-07-15
 
 Cross-platform yt-dlp invocation — the YouTube / media route no longer
 misreports an installed yt-dlp as missing.
