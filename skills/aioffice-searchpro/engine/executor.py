@@ -18,10 +18,12 @@ path (MCP must be driven from the Claude session itself).
 """
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import time
 from typing import Optional
@@ -99,11 +101,84 @@ def _pick_executor(capabilities: list[str], device_class: str) -> str:
         if "needs_real_tls_stack" in caps:
             return "playwright_mobile_chrome"
         return "playwright_mcp_mobile"
+    if "needs_protocol_stealth" in caps:
+        return "protocol_stealth_chrome"
     if "needs_real_tls_stack" in caps:
         return "playwright_real_chrome"
     if "needs_js_exec" in caps:
         return "playwright_mcp"
     return "playwright_real_chrome"  # safest general fallback
+
+
+def _module_available(name: str) -> bool:
+    try:
+        return importlib.util.find_spec(name) is not None
+    except Exception:
+        return False
+
+
+def _auto_install(pkg: str) -> bool:
+    if os.environ.get("INSANE_AUTO_INSTALL", "").strip() not in ("1", "true", "yes"):
+        return False
+    try:
+        subprocess.run([sys.executable, "-m", "pip", "install", pkg, "-q"],
+                       capture_output=True, timeout=180, check=False)
+    except Exception:
+        return False
+    importlib.invalidate_caches()
+    return _module_available(pkg)
+
+
+def _run_python_template(template: str, args: dict, timeout: int = 90) -> tuple[int, str, str]:
+    path = os.path.join(TEMPLATES_DIR, template)
+    if not os.path.isfile(path):
+        return 127, "", f"template not found: {path}"
+    try:
+        proc = subprocess.run(
+            [sys.executable, path], input=json.dumps(args), cwd=TEMPLATES_DIR,
+            capture_output=True, text=True, timeout=timeout,
+        )
+        return proc.returncode, proc.stdout, proc.stderr
+    except subprocess.TimeoutExpired:
+        return 124, "", f"timeout after {timeout}s"
+    except Exception as e:
+        return 1, "", f"{type(e).__name__}:{e}"
+
+
+def _run_protocol_stealth(
+    att: Attempt, url: str, *, success_selectors: Optional[list[str]], timeout: int, t0: float,
+) -> tuple[Attempt, str]:
+    """nodriver (raw CDP, no Playwright shim) first, patchright channel=chrome next.
+
+    For gates that fingerprint the automation protocol (Runtime.enable), every
+    Playwright-shimmed driver fails regardless of patch quality; nodriver is the
+    strongest free option, patchright the license-safe next. Missing drivers are
+    reported so the caller continues down its fallback list.
+    """
+    args: dict = {"url": url, "timeout": timeout * 1000}
+    if success_selectors:
+        args["waitSelector"] = success_selectors[0]
+    for pkg, template in (("nodriver", "nodriver_fetch.py"), ("patchright", "patchright_fetch.py")):
+        if not _module_available(pkg) and not _auto_install(pkg):
+            continue
+        rc, stdout, stderr = _run_python_template(template, args, timeout=timeout + 30)
+        att.executor = f"protocol_stealth_chrome:{pkg}"
+        att.elapsed_s = round(time.time() - t0, 3)
+        if rc != 0 or not stdout:
+            att.error = f"{pkg}: {(stderr or 'no stdout')[:200]}"
+            continue
+        resp = _FakeResp(stdout)
+        vr = validate(resp, success_selectors=success_selectors)
+        att.status = 200
+        att.body_size = len(stdout)
+        att.verdict = vr.verdict.value
+        att.reasons = vr.reasons
+        return att, stdout
+    att.elapsed_s = round(time.time() - t0, 3)
+    if not att.error:
+        att.error = "nodriver/patchright not installed (pip install nodriver, or INSANE_AUTO_INSTALL=1)"
+    att.verdict = Verdict.UNKNOWN.value
+    return att, ""
 
 
 def _run_node_template(template: str, args: dict, timeout: int = 90) -> tuple[int, str, str]:
@@ -184,6 +259,9 @@ def run_playwright_fallback(
         referer="",
     )
 
+    if choice == "protocol_stealth_chrome":
+        return _run_protocol_stealth(att, url, success_selectors=success_selectors, timeout=timeout, t0=t0)
+
     if choice.startswith("playwright_mcp"):
         att.error = (
             "Playwright MCP must be invoked from the Claude session — "
@@ -234,9 +312,10 @@ def run_playwright_fallback(
         att.verdict = Verdict.UNKNOWN.value
         return att, ""
 
-    # stdout is a JSON envelope {html, finalUrl, status, cookies, userAgent}.
-    # Fall back to treating raw stdout as HTML for forward/backward compat.
-    html, final_url, status, cookies, user_agent, automation = _parse_envelope(stdout, url)
+    # stdout is a JSON envelope {html, finalUrl, status, cookies, userAgent,
+    # innerText}. Fall back to treating raw stdout as HTML for forward/backward
+    # compat (older templates that did not emit a JSON envelope).
+    html, final_url, status, cookies, user_agent, automation, inner_text = _parse_envelope(stdout, url)
 
     resp = _FakeResp(html, status=status, final_url=final_url)
     vr = validate(resp, success_selectors=success_selectors)
@@ -252,12 +331,22 @@ def run_playwright_fallback(
     if vr.verdict in (Verdict.STRONG_OK, Verdict.WEAK_OK) and cookies:
         _bridge_cookies_to_pool(url, cookies, user_agent)
 
+    # Stash the rendered innerText for the render-merge step: many SPAs expose
+    # visible text only via innerText; the rescue gate in fetch_chain compares
+    # it against the body's visible text and keeps the longer one.
+    if inner_text:
+        try:
+            att._inner_text = inner_text
+        except Exception:
+            pass
+
     return att, html
 
 
 def _parse_envelope(stdout: str, url: str):
-    """Return (html, final_url, status, cookies, user_agent) from a JSON
-    envelope, or treat stdout as raw HTML if it isn't JSON."""
+    """Return (html, final_url, status, cookies, user_agent, automation,
+    inner_text) from a JSON envelope, or treat stdout as raw HTML if it isn't
+    JSON. inner_text is "" for envelopes emitted by older templates."""
     import json
     s = stdout.lstrip()
     if s[:1] == "{":
@@ -269,10 +358,14 @@ def _parse_envelope(stdout: str, url: str):
             cookies = env.get("cookies") or []
             user_agent = env.get("userAgent") or None
             automation = env.get("automation") or None
-            return html, final_url, status, cookies, user_agent, automation
+            # Bound the browser-controlled innerText at the parse boundary —
+            # the rescue gate in fetch_chain caps again, but the cap belongs
+            # here too so a hostile page cannot balloon the envelope in memory.
+            inner_text = (env.get("innerText") or "")[:1_000_000]
+            return html, final_url, status, cookies, user_agent, automation, inner_text
         except Exception:
             pass
-    return stdout, url, 200, [], None, None
+    return stdout, url, 200, [], None, None, ""
 
 
 def _bridge_cookies_to_pool(url: str, cookies: list, user_agent: Optional[str]) -> None:

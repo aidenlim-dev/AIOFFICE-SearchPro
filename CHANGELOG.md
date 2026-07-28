@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.2.0 - 2026-07-28
+
+업스트림 insane-search 0.10.0 ~ 0.12.1 엔진 개선 반영. 포크의 리네임된 스킬 디렉토리(`skills/aioffice-searchpro/`) 위로 수동 이식했고, 로컬 개선은 전부 유지했다.
+
+**업스트림에서 반영**
+
+- **content-rescue** (0.10.0/0.10.1): PDF 본문 추출, JSON-LD `articleBody` 구제, 렌더 innerText 병합. 파서 입력에 상한을 둬 적대적 페이지가 메모리를 부풀리지 못하게 한다. `result.extraction_source`로 어떤 경로였는지 판별. 끄기: `--no-extract`.
+- **transient 재시도** (0.10.0): 429/502/503/504는 probe 단계에서 `Retry-After`를 반영해 백오프 재시도(총 10초 캡). 끄기: `--no-retry`.
+- **content-quality + differential diagnosis** (0.11.0): 실패 응답에 `block_class`가 붙는다 - `bot_detection`(라우트 결과가 엇갈림, 우회 여지 있음) vs `infra_or_auth`(모든 라우트가 균일한 401/404, 스텔스로 우회 불가).
+- **markdown/본문 추출** (0.11.0): raw HTML 성공은 기본적으로 markdownify로 구조보존 마크다운화(`raw+md`). `--maincontent`(resiliparse)는 opt-in. PDF는 pdfplumber 우선, pypdf 폴백. AGPL인 pymupdf는 사용하지 않는다.
+- **protocol_stealth_chrome** (0.10.0): `Runtime.enable`을 지문화하는 게이트용 nodriver/patchright 티어. `needs_protocol_stealth` 태그로 선택된다.
+- **scraper-forge / auto-forge** (0.10.0/0.12.0): `scripts/endpoint_miner.py` 정적 마이닝, patchright 네트워크 캡처, `recipes/<domain>/recipe.yaml`이 있으면 격자 전에 API로 직행. `INSANE_AUTO_FORGE=1`이면 실패 시 스스로 API를 발굴해 레시피를 저장한다.
+- **grid-stop과 browser-futile 판정 분리** (0.12.1): 429는 TLS 격자만 중단시키고 브라우저 폴백은 유지한다(이전에는 429가 브라우저까지 건너뛰었다). `_BROWSER_FUTILE_VALUES`는 401/404만 포함.
+- **bias_check 이식성** (0.11.0): phase0 면제를 경로 suffix로 매칭하도록 바뀌어, 리네임된 스킬 디렉토리에서도 별도 패치 없이 동작한다. 기존 로컬 리네임 패치는 이걸로 대체됐다.
+
+**유지된 로컬 개선**
+
+- 프로파일 인지형 실패 안내(`_fallback_order_for_profile`): WAF 프로파일이 실제로 요구하는 폴백만 안내한다. real-TLS 프로파일에 MCP를 최종 수단이라고 잘못 안내하지 않는다.
+- 로컬 Playwright 의존성 진단(`_local_playwright_dependency_error`): `npm install` 누락 시 실행 가능한 안내 문구를 trace에 남긴다.
+- `--output` / `--metadata` 원샷 저장: 성공한 본문을 얻으려고 같은 URL을 재호출하지 않는다.
+- 브라우저 우선 우회 방지 라우팅 지시, Codex 네이티브 지원, OS-native wrapper 안내.
+
+**참고**
+
+- 업스트림의 MCP 예산 픽스(`is_mcp_stub`)는 이 포크가 먼저 구현해 둔 것과 동일한 로직이라 중복 적용하지 않고 하나로 합쳤다.
+- `engine/tests/test_u9.py`의 MCP 예산 테스트는 폴백 체인 리터럴 대신 "MCP는 로컬 브라우저 예산을 쓰지 않는다"는 속성을 검증하도록 고쳤다. 업스트림이 `cloudflare_turnstile` 체인에 `protocol_stealth_chrome`를 끼워넣어 기존 리터럴 기대값이 낡았기 때문이다.
+- markdownify는 신규 기본 의존성이다(미설치 시 raw 폴백으로 정상 동작).
+
 ## 1.1.1 - 2026-07-16
 
 Upstream fix incorporated (insane-search 0.9.2): cross-platform yt-dlp invocation - the YouTube / media route no longer misreports an installed yt-dlp as missing.

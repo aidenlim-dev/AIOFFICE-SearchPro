@@ -188,8 +188,15 @@ result = fetch(
 
 if result.ok:
     print(result.verdict)     # strong_ok | weak_ok
-    html = result.content     # raw fetched text for parsers/storage
+    html = result.content     # fetched text - raw body unless a rescue path fired
     agent_text = result.to_untrusted_text()  # pass this to LLM/agent context
+    # content-rescue: PDF 응답은 pypdf 추출 텍스트, 얇은 SPA 셸은 JSON-LD
+    # articleBody / 렌더된 innerText로 대체될 수 있다. 어떤 경로였는지는
+    # result.extraction_source로 판별 ("raw" = 원문 그대로,
+    # pdf | json_ld | *+inner_text = 구조 텍스트). 일반 HTML 성공은 항상 raw.
+    # 끄기: fetch(..., enable_extraction=False) / CLI --no-extract.
+    # 429/502/503/504는 probe에서 backoff 재시도(Retry-After 반영, 총 10초 캡).
+    # 끄기: enable_retry=False / CLI --no-retry.
 else:
     # result.trace / result.untried_routes 확인.
     # result.must_invoke_playwright_mcp=True 일 때만 MCP를 세션에서 직접 실행.
@@ -201,6 +208,7 @@ else:
 `fetch()`는 단일 API이지만 내부는 phase로 나뉘어 있다. 설치된 플러그인에서는 OS-native wrapper(`setup/run-engine.sh` 또는 `setup/run-engine.ps1`)가 격리 venv를 준비한 뒤 `python -m engine`을 실행한다. `result.trace`에서 각 시도를 확인할 수 있다.
 
 ```
+recipe     - recipes/<domain>/recipe.yaml 있으면 격자 전 API 직행 (scraper-forge 결과)
 probe      — curl_cffi + safari + self-referer로 첫 시도
 validate   — 4-계층 검증 (marker / size / cookie / success_selectors)
 detect     — WAF 제품 감지 ([(profile_id, confidence)] 랭킹)
@@ -238,11 +246,22 @@ report     — FetchResult(ok, verdict, profile_used, trace, summary)
 
 | 태그 | 실행기 | 언제 |
 |------|--------|------|
-| `needs_real_tls_stack` + `needs_js_exec` | `playwright_real_chrome.js` (로컬 Node) | Akamai Bot Manager 등 — Chromium 번들 TLS는 탐지됨 |
+| `needs_protocol_stealth` | `protocol_stealth_chrome` (nodriver -> patchright+channel=chrome) | 자동화 프로토콜(Runtime.enable)을 지문화하는 게이트 - Playwright 심 계열은 패치 무관 실패(2026 벤치 실측) |
+| `needs_real_tls_stack` + `needs_js_exec` | `playwright_real_chrome.js` (로컬 Node) | Chromium 번들 TLS가 탐지되는 경우 |
 | `needs_js_exec` only | Playwright MCP (`mcp__playwright__*`) | Cloudflare 기본 방어 등 |
 | `needs_mobile_context` (+ real_tls) | `playwright_mobile_chrome.js` | 모바일 디바이스 에뮬레이션 필요 |
 
+`protocol_stealth_chrome`는 `pip install nodriver`(또는 patchright)가 필요하다 - 없으면 다음 fallback으로 진행하며, `INSANE_AUTO_INSTALL=1`이면 첫 호출 시 자동 설치한다.
 자세한 선택 기준: [playwright.md](references/playwright.md).
+
+### 막힌 사이트를 재사용 수집기로 (scraper-forge)
+
+HTML은 막혀도 내부 API는 얕은 경우가 많다(R7). 발굴→검증→레시피→(선택)스크래퍼 흐름은 [scraper-forge.md](references/scraper-forge.md) 참조:
+
+- 정적 마이닝: `python3 scripts/endpoint_miner.py <URL>`
+- 동적 캡처: `engine/templates/network_capture_patchright.py` (렌더 중 XHR/JSON 수집)
+- 결과를 `recipes/<domain>/recipe.yaml`로 저장하면 이후 OS-native `run-engine` wrapper가 격자 전에 API로 직행한다. 개발 환경에서는 `python3 -m engine <URL>`을 쓴다.
+- **자동 모드**: `INSANE_AUTO_FORGE=1`을 주면 체인이 실패할 때 엔진이 스스로 렌더→XHR 캡처→본문 overlap으로 데이터 API 선별→curl 재현→레시피 자동 저장까지 한다(JS앱+JSON API 사이트에서 동작하며, 서버렌더/인증/POST는 no-content). 광고·텔레메트리 엔드포인트는 denylist+overlap으로 걸러낸다.
 
 ### Playwright MCP 호출 규칙
 
@@ -268,7 +287,24 @@ result = fetch(
 
 최초 호출 시 OS-native wrapper(`setup/run-engine.sh` 또는 `setup/run-engine.ps1`)가 플러그인 전용 venv(Windows 기본 `%LOCALAPPDATA%\aioffice-searchpro\venv`, macOS/Linux 기본 `~/.cache/aioffice-searchpro/venv`, `AIOFFICE_SEARCHPRO_VENV`로 재정의 가능)를 만들고 필요 패키지를 설치한다. 시스템 Python은 건드리지 않는다. **curl_cffi는 0.15.0 이상**을 요구한다 — 0.15부터
 `impersonate="chrome"`이 최신 Chrome(146+) 지문으로 갱신되고(0.14는 chrome142에 고정), HTTP/3 지문과
-SSRF-safe redirect 기본값이 추가됐다.
+SSRF-safe redirect 기본값이 추가됐다. wrapper가 사용하는 의존성 가드는 **미설치뿐 아니라 0.15 미만이면 업그레이드**한다:
+```bash
+python3 -c "import curl_cffi,bs4,yaml,pypdf,markdownify; v=curl_cffi.__version__.split('.'); assert (int(v[0]),int(v[1]))>=(0,15)" 2>/dev/null \
+  || pip install -U "curl_cffi>=0.15.0" beautifulsoup4 pyyaml pypdf markdownify -q
+```
+
+**콘텐츠 처리 - 기본 동작 + 선택 라이브러리.** 엔진의 실사용자는 대개 LLM 컨텍스트에 넣으려는 에이전트라, 깨끗한 마크다운을 **기본으로** 준다. 라이브러리가 없으면 전부 raw 폴백으로 정상 동작한다(graceful degradation):
+
+- `markdownify`(MIT, 위 가드로 자동 설치): **기본 ON**. raw HTML -> 구조보존 마크다운(표 -> 파이프표, `<pre>/<code>` -> 펜스). `extraction_source`가 `raw+md`. 끄려면 `--no-markdown` / `enable_markdown=False`(raw HTML 그대로).
+- `resiliparse`(Apache-2.0): **opt-in**. `--maincontent` / `enable_maincontent=True`. nav/footer/광고 제거 후 본문만(`extraction_source`=`maincontent`), markdown보다 우선. 비-article 페이지에선 본문을 과하게 잘라낼 수 있어 기본 off로 둔다.
+- `pdfplumber`(MIT): **자동**. PDF 본문을 pdfplumber(다단컬럼·표 우수) 우선 추출, 미설치 시 pypdf 폴백. **`pymupdf4llm`/`PyMuPDF`는 AGPL이라 사용 금지.**
+
+```bash
+pip install resiliparse pdfplumber -q   # 본문추출(opt-in)·PDF 개선을 원할 때
+```
+
+실패(`ok=False`) 응답에는 `block_class`가 붙는다: `bot_detection`(라우트 결과가 엇갈리거나 WAF 시그널이 있어 브라우저·다른 라우트로 우회 가능)과 `infra_or_auth`(모든 라우트가 균일하게 401/404를 반환해 스텔스로 우회 불가)를 구분한다. 재시도 가치 판단에 사용한다.
+
 ```bash
 bash "${CLAUDE_PLUGIN_ROOT}/setup/run-engine.sh" "https://example.com/" --selector h1 --no-playwright --json
 ```

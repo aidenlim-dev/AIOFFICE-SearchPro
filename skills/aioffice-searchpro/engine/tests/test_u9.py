@@ -162,7 +162,13 @@ def t_mcp_stub_does_not_consume_local_browser_budget() -> None:
         ex.run_playwright_fallback = old_pw
 
     assert result.ok, result.summary
-    assert calls == ["playwright_mcp", "playwright_real_chrome"], calls
+    # The MCP stub must be attempted but must NOT spend the single local-browser
+    # slot, so exactly one real (non-MCP) executor still runs after it. Asserted
+    # as a property rather than a literal sequence: the profile's fallback chain
+    # is upstream-owned and gained protocol_stealth_chrome in 0.12.0.
+    assert calls and calls[0] == "playwright_mcp", calls
+    real_calls = [c for c in calls if not c.startswith("playwright_mcp")]
+    assert len(real_calls) == 1, calls
     print("  ok MCP handoff marker does not consume real-Chrome attempt budget")
 
 
