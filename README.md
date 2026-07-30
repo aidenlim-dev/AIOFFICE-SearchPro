@@ -4,30 +4,28 @@ English | [한국어](README.ko.md) | [中文](README.zh.md) | [日本語](READM
 
 # AIOFFICE-SearchPro
 
-<sub>Forked from <a href="https://github.com/fivetaku/insane-search">fivetaku/insane-search</a> and maintained as an AIOFFICE distribution.</sub>
-
-**Impossible is nothing. If it's public, AIOFFICE-SearchPro gets in.**
-
-A resilient public-page reader for Claude Code. No API keys, no proxy setup.
+**A public-page reader for Claude Code and Codex.** No API keys, no proxy setup.
 
 <p>
   <a href="https://docs.anthropic.com/en/docs/claude-code"><img src="https://img.shields.io/badge/platform-Claude_Code-D97757?logo=claude" alt="Claude Code"></a>
+  <img src="https://img.shields.io/badge/Codex-supported-10A37F" alt="Codex supported">
   <img src="https://img.shields.io/badge/API_key-not_required-3FB950" alt="No API key">
-  <a href="https://github.com/aidenlim-dev/AIOFFICE-SearchPro"><img src="https://img.shields.io/badge/install-direct_GitHub-6E56CF" alt="direct GitHub install"></a>
   <a href="https://github.com/aidenlim-dev/AIOFFICE-SearchPro/stargazers"><img src="https://img.shields.io/github/stars/aidenlim-dev/AIOFFICE-SearchPro?style=flat&color=F0B72F" alt="stars"></a>
 </p>
 
-<!-- Hero — cinematic key-art: a blocked site (403 / CAPTCHA / WAF) shatters as
-     AIOFFICE-SearchPro breaks through and returns real public content with its source. -->
-<img src="assets/hero.png" width="860" alt="Cinematic split: on the left a blocked site shows 403 Forbidden, a CAPTCHA, and a WAF wall; it shatters down the middle as AIOFFICE-SearchPro breaks through on the right, returning a real public post from @claudeai (Claude Code Plugins) with its source — no API key.">
+<img src="assets/hero.png" width="860" alt="A blocked site showing 403 Forbidden, a CAPTCHA, and a WAF wall shatters as AIOFFICE-SearchPro breaks through, returning a real public post with its source and no API key.">
 
 </div>
 
 ---
 
-## ⚡ Install
+When an ordinary fetch hits `403`, a WAF challenge, or a bot wall, your agent normally answers *"I can't access that."* This plugin sits behind that moment: it walks a public-only escalation chain until one route returns real content, then hands back text that is ready to drop into a model's context.
 
-For this course / direct GitHub install:
+It reads **public** pages. It stops at logins and paywalls and says so.
+
+## Install
+
+**Claude Code** (interactive):
 
 ```bash
 /plugin marketplace add aidenlim-dev/AIOFFICE-SearchPro
@@ -35,158 +33,132 @@ For this course / direct GitHub install:
 /reload-plugins
 ```
 
-**Asking an AI agent (including Claude Code itself) to install this?** The slash commands above are interactive-only and unavailable to agents. Have the agent run the non-interactive CLI in a terminal instead:
+**Claude Code** (for an agent, or any non-interactive shell — the slash commands above are interactive-only):
 
 ```bash
 claude plugin marketplace add aidenlim-dev/AIOFFICE-SearchPro
 claude plugin install aioffice-searchpro@aioffice-searchpro-marketplace
 ```
 
-Then restart Claude Code or run `/reload-plugins` to load the plugin.
-
-To verify, run doctor straight from the installed copy — **no extra clone needed**:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\plugins\marketplaces\aioffice-searchpro-marketplace\setup\doctor.ps1"
-```
-
-```bash
-bash ~/.claude/plugins/marketplaces/aioffice-searchpro-marketplace/setup/doctor.sh
-```
-
-Items under OPTIONAL in the doctor summary (Node.js, browser fallback) are not required — report them to the user and only install after they agree (`setup/browser.ps1 -InstallNode`, macOS: `--install-node`).
-
-**Codex works too** — same repo, Codex commands (a Codex-native manifest ships at `.codex-plugin/plugin.json`):
+**Codex** — same repo, Codex-native manifest at `.codex-plugin/plugin.json`:
 
 ```bash
 codex plugin marketplace add https://github.com/aidenlim-dev/AIOFFICE-SearchPro
 codex plugin add aioffice-searchpro@aioffice-searchpro-marketplace
 ```
 
-For local development on Windows, `setup\codex-install-local.ps1` junctions your clone into `~/plugins/aioffice-searchpro` and registers it in `~/.agents/plugins/marketplace.json` (undo: `codex-uninstall-local.ps1`).
+Restart the agent (or `/reload-plugins`) to load it. First use builds an isolated venv for `curl_cffi`, `yt-dlp`, and parsers — your system Python is left alone.
 
-Verify the install from a terminal (already installed via the marketplace? run doctor from `~/.claude/plugins/marketplaces/aioffice-searchpro-marketplace` instead — no clone needed):
-
-```bash
-git clone https://github.com/aidenlim-dev/AIOFFICE-SearchPro.git
-cd AIOFFICE-SearchPro
-bash setup/doctor.sh
-```
-
-Windows PowerShell:
-
-```powershell
-git clone https://github.com/aidenlim-dev/AIOFFICE-SearchPro.git
-cd AIOFFICE-SearchPro
-powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\doctor.ps1
-```
-
-Optional full browser coverage:
+To check an install, run doctor against the installed copy. No second clone needed:
 
 ```bash
-bash setup/browser.sh
+bash ~/.claude/plugins/marketplaces/aioffice-searchpro-marketplace/setup/doctor.sh
 ```
-
-Windows PowerShell:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\plugins\marketplaces\aioffice-searchpro-marketplace\setup\doctor.ps1"
 ```
 
-When you need the winning HTML for parsing, save it on the same call:
+Anything listed under OPTIONAL in the doctor summary (Node.js, browser fallback) is not required to use the plugin. Install it only if you want the browser tier: `setup/browser.sh` (macOS/Linux, `--install-node`) or `setup/browser.ps1` (Windows, `-InstallNode`).
+
+Teaching this to a class? See [COURSE_INSTALL.ko.md](COURSE_INSTALL.ko.md).
+
+## Using it
+
+Nothing to learn. Ask your agent normally, and the plugin engages when a fetch gets blocked:
+
+> *"Summarize the top Reddit threads about Claude Code."*
+> *"Pull the transcript of this YouTube video."*
+> *"Read this Naver blog post."*
+
+To drive the engine directly:
 
 ```bash
-bash setup/run-engine.sh "https://example.com/" --json --output page.html --metadata page.fetch.json
+bash setup/run-engine.sh "https://example.com/"
 ```
 
-Windows PowerShell:
+Fetching a page you intend to parse? Save the winning response on the same call, so a probabilistic WAF success is never thrown away and re-requested:
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "https://example.com/" --json --output page.html --metadata page.fetch.json
+```bash
+bash setup/run-engine.sh "https://example.com/" --json --output page.md --metadata page.fetch.json
 ```
 
-For a short classroom handout, use [COURSE_INSTALL.ko.md](COURSE_INSTALL.ko.md).
+Useful flags — full list via `--help`:
 
-No commands to learn after install. Ask Claude Code normally — AIOFFICE-SearchPro kicks in when a fetch gets blocked.
-
-## 💬 Try it
-
-Just ask normally — AIOFFICE-SearchPro kicks in when a fetch gets blocked:
-
-> *"Find what people are saying about Claude Code on Reddit and summarize the top threads."*
-> *"Search X for posts about AIOFFICE-SearchPro."*
-> *"Summarize this YouTube video."*
-
-**Expected:** Claude reaches each site's public route — Reddit's feed, X via oEmbed, YouTube captions — with no login and no API key, and returns usable text, where the same request returns *"I can't access that"* without the plugin.
-
-## 🌐 Works on
-
-**X · Reddit · YouTube · Hacker News · Naver · Coupang · LinkedIn · Medium · Substack · arXiv · GitHub · Stack Overflow · Bluesky · Mastodon** — plus any site with a public page, feed, or `/rss`. Full platform list & methods → [PLATFORMS.md](PLATFORMS.md).
-
-## ⚙️ Why it gets through
-
-- **It escalates, never pre-judges** — public API readers → syndication gateways → TLS impersonation → a real headless browser, trying each route until one works.
-- **It looks human** — builds a full browser identity (real TLS fingerprint, cookie warming, referer chain), not just a swapped User-Agent.
-- **It finds hidden APIs** — watches the real browser's network traffic and reuses the site's own internal JSON.
-- **Zero system-Python setup** — first use creates an isolated plugin venv for `curl_cffi`, `yt-dlp`, and parser dependencies. No API keys, no signup.
-
-## 🆚 Default Claude Code vs `+ AIOFFICE-SearchPro`
-
-| When you hit… | Claude Code alone | `+ AIOFFICE-SearchPro` |
-| :--- | :--- | :--- |
-| A `403` / WAF-blocked page | ✖ gives up | ✓ escalates until one route gets through |
-| Platform content (X, Reddit, HN) | ✖ often blocked or empty | ✓ public API readers + syndication |
-| An anti-bot / CAPTCHA challenge | ✖ stops | ✓ TLS impersonation, then a real headless browser |
-| A media page (YouTube, 1,800+ sites) | ✖ no transcript | ✓ `yt-dlp` metadata + captions |
-| Missing tools (`curl_cffi`, `yt-dlp`) | — | ✓ auto-installs on first use |
-| API keys / signup | — | ✓ none |
-| A **login wall or paywall** | ✖ | ✖ **stops here, and says so** (see Boundaries) |
-
-The differentiating row is the one thing the default fetcher can't do: **it keeps trying public routes until one works.**
-
-## ✨ What just happened
-
-| Without it | With AIOFFICE-SearchPro |
+| Flag | Effect |
 | :--- | :--- |
-| Ordinary fetch hits `403` and Claude says it can't read the page | The plugin picks a public-access route and returns usable text |
-| You manually try mirrors, archives, mobile URLs | Fallbacks escalate automatically, public-only |
-| A blocked page is a dead end | Metadata and structured data still yield titles, prices, summaries |
+| `--output PATH` / `--metadata PATH` | Save content and result JSON from this same attempt |
+| `--selector CSS` | Positive proof that the real page loaded, not a challenge shell |
+| `--no-markdown` | Return raw HTML instead of converted markdown |
+| `--maincontent` | Strip nav/footer/ads down to the article body |
+| `--device mobile` | Pin the mobile route |
+| `--trace` | Print every attempt and why it failed |
 
-## 🔁 How it works
+## How it gets through
 
-<img src="assets/pipeline.png" width="860" alt="Phase 0→3 escalation pipeline: a blocked URL flows through special public endpoints → lightweight probes → TLS impersonation → a real headless browser until one returns clean public content; a login or paywall exits as 'authentication required'. Every response is scanned for OGP / JSON-LD.">
+Four tiers, each running only when the previous one fails or trips a blocking signal:
+
+| Tier | What it does |
+| :--- | :--- |
+| **Phase 0** | Official public routes a generic crawler can't guess — Reddit `.rss`, X `tweet-result`/oEmbed, YouTube via `yt-dlp`, Threads inline `video_versions` |
+| **Phase 1** | Cheap probes: public API readers, syndication gateways, mobile / `.json` / `/rss` URL variants |
+| **Phase 2** | TLS impersonation via `curl_cffi`, ordered for fingerprint diversity, with a full browser identity (real TLS fingerprint, cookie warming, referer chain) |
+| **Phase 3** | A real browser. Protocol-stealth drivers (nodriver, patchright) for gates that fingerprint automation itself, plus network capture that surfaces the site's own internal JSON APIs |
+
+Nine WAF products are profiled (Cloudflare, Akamai, DataDome, PerimeterX, Kasada, Imperva, AWS WAF, F5, plus a generic challenge profile), and the detected profile decides which browser tier is even worth trying.
+
+A `200` is treated as the *start* of validation, never as success: a four-layer check (marker, size, cookie, your `--selector`) has to agree before the engine calls it a win.
 
 <details>
-<summary><strong>Phase 0→3 adaptive scheduler — details</strong></summary>
+<summary><strong>Content handling — what you actually get back</strong></summary>
 
-Each phase runs only if the previous one fails or detects a blocking signal:
+The consumer is usually a model's context window, so the engine cleans up before returning:
 
-- **Phase 0** — special public endpoints (platform APIs, feeds) it can't discover generically
-- **Phase 1** — lightweight probes: public API readers, syndication gateways, mobile / `.json` / `/rss` URL variants
-- **Phase 2** — TLS impersonation (curl_cffi: safari → chrome → firefox) with a full browser identity
-- **Phase 3** — a real headless browser, which also surfaces the public JSON APIs a site uses internally
-- **Exit** — a login or paywall is detected: it reports *"authentication required"* rather than pretending
+- **Markdown by default.** A raw-HTML success is converted to structure-preserving markdown (tables stay tables, code stays fenced). Opt out with `--no-markdown`.
+- **PDF and thin-shell rescue.** PDF responses are extracted as text; SPA shells that ship no visible HTML fall back to JSON-LD `articleBody` or the rendered `innerText`. `result.extraction_source` tells you which path ran.
+- **Article-body extraction** with `--maincontent` when boilerplate is in the way.
+- **Failure diagnosis.** A failed fetch carries `block_class`: `bot_detection` (routes disagree, escalation may help) or `infra_or_auth` (every route uniformly 401/404, so stealth cannot help). Use it to decide whether a retry is worth anything.
+- **Untrusted by construction.** Fetched page text is wrapped and labelled as untrusted public web content before it reaches a model, with prompt-injection risk scored.
 
-Every response is also scanned for OGP / JSON-LD, so even partial pages yield titles, summaries, and prices.
+Missing an optional library? Every path degrades to raw output instead of failing.
 </details>
 
-## 🔒 Boundaries
+<details>
+<summary><strong>Turning a blocked site into a reusable recipe</strong></summary>
 
-AIOFFICE-SearchPro is a **reader for public content**, not a way around authentication.
+HTML is often armored while the site's own JSON API is not. `scripts/endpoint_miner.py` mines endpoints statically; a patchright template captures XHR traffic during render. Save the result as `recipes/<domain>/recipe.yaml` and later fetches skip the grid and go straight to the API.
 
-- Reaches what's available through public pages, public APIs, feeds, archives, and a browser's public responses.
-- **Stops at logins and paywalls** — it reports `authentication required` instead of trying to defeat them.
-- Never logs in as you and never stores or transmits credentials.
-- All routes use no-auth public endpoints and standard, documented techniques.
+Set `INSANE_AUTO_FORGE=1` and the engine does this on its own when the chain fails: render, capture XHR, pick the data API by content overlap, reproduce it with curl, and write the recipe. See [references/scraper-forge.md](skills/aioffice-searchpro/references/scraper-forge.md).
+</details>
+
+## Where it works
+
+**X · Reddit · YouTube · Threads · Hacker News · Naver · Coupang · LinkedIn · Medium · Substack · arXiv · GitHub · Stack Overflow · Bluesky · Mastodon** — plus any site with a public page, feed, or `/rss`.
+
+Per-platform methods: [PLATFORMS.md](PLATFORMS.md).
+
+## What it will not do
+
+This is a reader for public content, not an authentication bypass.
+
+- **Logins and paywalls stop it.** It returns `authentication required` instead of attempting to defeat them.
+- It never logs in as you, and never stores or transmits credentials.
+- Every route uses no-auth public endpoints and documented techniques.
+- When it genuinely cannot get through, it says which routes it tried and which are left, rather than reporting a confident failure.
+
+## How this fork differs
+
+Forked from [fivetaku/insane-search](https://github.com/fivetaku/insane-search) and maintained as an AIOFFICE distribution. Upstream engine work is ported in; these changes are local:
+
+- **Codex support** — native manifest, local install scripts, and tool-name mapping so both agents behave identically.
+- **Anti-detour routing** — the skill is documented as the designated tool for bot-protected sites, so an agent stops reaching for a heavyweight browser first.
+- **Profile-aware failure guidance** — escalation advice follows what the detected WAF profile actually needs, instead of always pointing at Playwright MCP.
+- **One-shot capture** — `--output` / `--metadata` keep a successful body on first call.
+- **OS-native wrappers** — `setup/run-engine.{sh,ps1}` manage an isolated venv on both Windows and Unix.
+- **Actionable dependency diagnostics** — a missing local Playwright install reports the exact fix instead of a bare "unavailable".
+
+Version history and per-release porting notes: [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
 MIT
-
----
-
-<div align="center">
-
-**Direct GitHub install:** [aidenlim-dev/AIOFFICE-SearchPro](https://github.com/aidenlim-dev/AIOFFICE-SearchPro)
-
-</div>
