@@ -115,6 +115,31 @@ yt-dlp --write-comments --skip-download --write-info-json \
 > 뉴스 사이트는 직접 URL보다 **YouTube 공식 채널 경유**가 더 안정적.
 > 예: `ytsearch:BBC News {키워드}`
 
+## yt-dlp 미지원 플랫폼 — Threads
+
+yt-dlp에는 Threads 익스트랙터가 없다 (2026.03 기준 `--list-extractors` 0건, generic 폴백도 `Unsupported URL`).
+영상 포스트는 engine Phase 0 라우트(`engine/phase0.py::_threads`)가 처리한다:
+
+```bash
+python3 -m engine "https://www.threads.com/@{handle}/post/{shortcode}"
+# → content = {"post_code": "...", "video_urls": ["https://scontent-….cdninstagram.com/…"]}
+curl -sL -o /tmp/threads.mp4 "{video_urls[0]}"        # 서명 CDN URL은 plain curl로 충분
+ffprobe -v error -show_entries stream=codec_type,codec_name /tmp/threads.mp4
+# 실측(2026-07-26): h264 720×1280 + AAC progressive 먹싱본 — DASH 합성 불필요
+```
+
+동작 원리 (수동 재현 시): 익명 GET(curl_cffi safari 지문, WAF 챌린지 없이 1회 통과) → HTML 인라인 JSON에
+`video_versions` 블록이 여러 개(관련/추천 포스트 포함, 실측 7개) → URL shortcode(`"code":"…"`)에
+**문자 거리 최근접 블록**이 본 포스트 → URL의 `\/`·유니코드 이스케이프 해제 → 첫 항목(type 101) 사용.
+
+미검증 경계 (실패 시 참고):
+
+- **서명 URL 만료**: `oe` 파라미터가 만료 시각으로 추정 — 추출 즉시 다운로드할 것. URL만 저장해두고 나중에 받는 흐름 금지.
+- **DASH-only 포스트**: 실측 샘플은 progressive였으나 일부 포스트는 `video_dashinit`/`audio_dashinit` 분리 가능성 — 다운로드 후 ffprobe로 오디오 스트림 존재 확인.
+- **캐러셀(다중 영상) 포스트**: 최근접 1블록 규칙이 부족할 수 있음 (미테스트).
+- **이미지/텍스트 포스트**: 라우트가 ok=False로 반환해 일반 체인이 본문을 처리한다.
+- **로그인 월**: 현재 익명 GET 통과. Meta가 막으면 engine이 격자→Playwright로 에스컬레이션.
+
 ## 주의사항
 
 - 자동 생성 자막은 행간 중복 → 후처리 필요

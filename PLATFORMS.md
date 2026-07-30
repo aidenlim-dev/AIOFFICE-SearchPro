@@ -14,6 +14,7 @@ Only special endpoints that the generic chain can't discover on its own. Everyth
 |----------|--------|-----------|
 | X/Twitter | single tweet → `cdn.syndication tweet-result` + oEmbed · timeline → syndication · keyword → **WebSearch → tweet-result** | `twitter.md` |
 | Reddit | `.rss` feed via curl_cffi (the unauth `.json` now 403s) | `json-api.md` |
+| Threads | video post → inline `video_versions` JSON, block nearest to the URL shortcode (engine Phase 0 — yt-dlp has no extractor; signed CDN URLs expire, download immediately) | `media.md` |
 | Bluesky | AT Protocol (`public.api.bsky.app/xrpc/...`) | `public-api.md` |
 | Mastodon | Per-instance public API | `public-api.md` |
 | Hacker News | Firebase API + **Algolia Search** (`hn.algolia.com/api/v1/search`) | `json-api.md` |

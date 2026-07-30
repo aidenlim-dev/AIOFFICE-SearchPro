@@ -198,10 +198,35 @@ def linkedin_routes() -> list[RouteResult]:
     return [_route("linkedin", "pulse(curl_cffi chrome)", pulse_jsonld)]
 
 
+def threads_routes(post_url: str = "https://www.threads.com/@elbow999/post/DbPsmllCneb") -> list[RouteResult]:
+    def inline_json():
+        pm = re.search(r"/post/([A-Za-z0-9_-]+)", post_url)
+        if pm is None:
+            return RouteResult("threads", "inline-json(curl_cffi)", ok=False,
+                               error="post_url has no /post/<shortcode>")
+        code = pm.group(1)
+        x = _cffi_get(post_url)
+        if x.status_code != 200:
+            return RouteResult("threads", "inline-json(curl_cffi)", ok=False, status=x.status_code,
+                               error=f"status={x.status_code} (포스트 삭제 또는 로그인 월 가능성)")
+        cps = [m.start() for m in re.finditer(r'"code"\s*:\s*"%s"' % code, x.text)]
+        vvs = list(re.finditer(r'"video_versions"\s*:\s*\[(.*?)\]', x.text))
+        if not cps or not vvs:
+            return RouteResult("threads", "inline-json(curl_cffi)", ok=False, status=200, bytes=len(x.text),
+                               error="no code/video_versions marker (포스트 삭제 또는 마크업 변경 가능성)")
+        best = min(vvs, key=lambda m: min(abs(m.start() - c) for c in cps))
+        u = re.search(r'"url"\s*:\s*"([^"]+)"', best.group(1))
+        vurl = u.group(1).replace("\\/", "/").encode().decode("unicode_escape") if u else ""
+        return RouteResult("threads", "inline-json(curl_cffi)", ok=vurl.startswith("https://"),
+                           status=200, bytes=len(x.text), sample=vurl[:60])
+    return [_route("threads", "inline-json(curl_cffi)", inline_json)]
+
+
 BATTERIES = {
     "reddit": reddit_routes,
     "x": x_routes,
     "youtube": youtube_routes,
+    "threads": threads_routes,
     "hn": hn_routes,
     "arxiv": arxiv_routes,
     "naver": naver_routes,

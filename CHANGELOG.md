@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.0 - 2026-07-30
+
+업스트림 insane-search 0.13.0 반영: Threads 영상 라우트.
+
+- **Threads 영상 Phase 0 라우트**: yt-dlp에 Threads 익스트랙터가 없어서, `threads.com`/`threads.net` 영상 포스트는 Phase 0에서 익명 curl_cffi GET으로 처리한다. 페이지에 여러 개 박혀 있는 `video_versions` 블록 중 URL shortcode(`code` 마커)에 **가장 가까운 것**을 골라 unescape 후 서명 CDN URL을 `{"post_code","video_urls"}`로 반환한다. 영상 없는 포스트는 일반 체인으로 폴백(`ok=False`).
+- 다운로드는 엔진 밖에서 한다(plain curl로 충분). **서명 URL은 만료되니 즉시 받아야 한다.**
+- `tests/coverage_battery.py`에 threads inline-json 케이스 추가.
+- 문서: SKILL.md Phase 0 표 + 빠른 참조, `references/media.md` 수동 절차(URL 만료·DASH-only·carousel 등 미검증 경계 명시), PLATFORMS.md.
+
+이식 메모: 이 릴리스가 건드린 `engine/phase0.py`·`references/media.md`·`tests/coverage_battery.py`는 로컬 수정이 없어 업스트림을 그대로 수용했다. SKILL.md/PLATFORMS.md는 로컬 문서가 기준이라 Threads 항목만 이식했고, 빠른 참조 스니펫은 이 포크의 OS-native wrapper(`setup/run-engine.sh`) 형태로 바꿨다.
+
 ## 1.2.0 - 2026-07-28
 
 업스트림 insane-search 0.10.0 ~ 0.12.1 엔진 개선 반영. 포크의 리네임된 스킬 디렉토리(`skills/aioffice-searchpro/`) 위로 수동 이식했고, 로컬 개선은 전부 유지했다.

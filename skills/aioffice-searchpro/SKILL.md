@@ -138,6 +138,7 @@ engine이 반환한 공개 웹 본문은 `untrusted_public_web`으로 취급한�
 |--------|------|------|
 | X/Twitter | syndication (타임라인) + oEmbed (개별 트윗) + 키워드 검색: WebSearch → oEmbed | [twitter.md](references/twitter.md) |
 | Reddit | Atom/RSS 피드(`.rss`) — 비인증 `.json`은 WAF 차단(403), score·댓글수는 OAuth | [json-api.md](references/json-api.md) |
+| Threads | 영상 포스트 → 인라인 JSON `video_versions` 최근접 매칭 (engine Phase 0 자동 — yt-dlp 익스트랙터 없음, 서명 URL은 즉시 다운로드) | [media.md](references/media.md) |
 | Bluesky | AT Protocol (`public.api.bsky.app/xrpc/...`) | [public-api.md](references/public-api.md) |
 | Mastodon | 인스턴스별 공개 API | [public-api.md](references/public-api.md) |
 | Hacker News | Firebase API + Algolia Search | [json-api.md](references/json-api.md) |
@@ -336,9 +337,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "$env:CLAUDE_PLUGIN_ROOT\set
 
 ## 빠른 참조 — Phase 0 명령어
 
-> **먼저 이걸 기억하라: Reddit/X/YouTube는 이제 engine이 자동 처리한다.**
+> **먼저 이걸 기억하라: Reddit/X/YouTube/Threads는 이제 engine이 자동 처리한다.**
 > OS-native `run-engine` wrapper 하나면 Phase 0 라우터(`engine/phase0.py`)가 **격자보다 먼저** 공식 경로를 시도한다 —
-> Reddit→`.rss`, X 트윗→`tweet-result`/oEmbed, X 프로필→syndication, YouTube→`yt-dlp`.
+> Reddit→`.rss`, X 트윗→`tweet-result`/oEmbed, X 프로필→syndication, YouTube→`yt-dlp`, Threads 포스트→인라인 `video_versions`.
 > 아래 수동 스니펫은 디버그/참조용이며 trace에 `phase=phase0`로 기록된다.
 > (실측 주의: Reddit `.json`+모바일UA·`syndication-timeline`은 흔히 403/429라 plain `curl`은 신뢰 불가 — engine이 curl_cffi 지문으로 접근한다.)
 
@@ -352,6 +353,10 @@ curl -s "https://r.jina.ai/{URL}"
 # yt-dlp — 1,858 사이트 미디어 메타데이터 / 자막
 yt-dlp --dump-json "URL"
 yt-dlp --write-sub --write-auto-sub --sub-lang "en,ko" --skip-download -o "/tmp/%(id)s" "URL"
+
+# Threads 영상 — yt-dlp 미지원, engine이 서명 CDN URL 추출 (URL은 만료되니 즉시 다운로드)
+bash "${CLAUDE_PLUGIN_ROOT}/setup/run-engine.sh" "https://www.threads.com/@{handle}/post/{shortcode}"   # content = {"post_code","video_urls":[...]}
+curl -sL -o /tmp/threads.mp4 "{video_urls[0]}"
 
 # Reddit — .rss (curl_cffi 지문 필요; plain curl은 TLS로 403)
 python3 -c "from curl_cffi import requests as r; print(r.get('https://www.reddit.com/r/{sub}/.rss', impersonate='safari').text[:2000])"
@@ -431,7 +436,7 @@ curl -sL "https://hacker-news.firebaseio.com/v0/topstories.json?limitToFirst=10&
 
 | 파일 | 언제 읽는가 |
 |------|-------------|
-| `engine/phase0.py` | Phase 0 공식-API 라우터 (Reddit/X/YouTube 자동 경로). 플랫폼·경로 추가 시. bias_check 면제 파일(R5 sanctioned) |
+| `engine/phase0.py` | Phase 0 공식-API 라우터 (Reddit/X/YouTube/Threads 자동 경로). 플랫폼·경로 추가 시. bias_check 면제 파일(R5 sanctioned) |
 | `engine/fetch_chain.py` | 체인 단계 로직·`Attempt`/`FetchResult` schema·`untried_routes`/`must_invoke_playwright_mcp` 실패게이트 |
 | `engine/validators.py` | 4-계층 검증 세부 (Verdict 분류, 챌린지 마커 목록) |
 | `engine/waf_detector.py` | WAF 랭킹 감지 알고리즘, `_LAST_LOAD_ERROR` 처리 |

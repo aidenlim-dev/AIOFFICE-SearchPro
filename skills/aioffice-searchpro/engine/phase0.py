@@ -25,6 +25,7 @@ Each attempt dict: {"route","platform","ok","status","bytes","note"}.
 from __future__ import annotations
 
 import importlib.util
+import json
 import re
 import shutil
 import subprocess
@@ -69,6 +70,8 @@ def _detect(url: str) -> Optional[str]:
         return "x"
     if "youtube.com" in h or h == "youtu.be":
         return "youtube"
+    if h in ("threads.com", "threads.net") or h.endswith((".threads.com", ".threads.net")):
+        return "threads"
     return None
 
 
@@ -207,7 +210,59 @@ def _youtube(url: str, timeout: int) -> dict:
             "final_url": url, "attempts": attempts}
 
 
-_ROUTERS = {"reddit": _reddit, "x": _x, "youtube": _youtube}
+# --- threads -----------------------------------------------------------------
+_THREADS_POST_RE = re.compile(r"/post/([A-Za-z0-9_-]+)")
+
+
+def _threads(url: str, timeout: int) -> dict:
+    """Threads video post → signed CDN URLs from the page's inline JSON.
+
+    yt-dlp has no Threads extractor, but an anonymous GET with a curl_cffi
+    fingerprint passes the WAF and the HTML embeds several `video_versions`
+    blocks (related posts included) — the block nearest to `"code":"<shortcode>"`
+    is the requested post's. The signed URLs expire (`oe` param): download
+    promptly, outside the engine (plain curl suffices for the CDN).
+    """
+    attempts: list[dict] = []
+    m = _THREADS_POST_RE.search(url.split("?", 1)[0])
+    if not m:  # profile/tag URL — no deterministic media route; run the grid
+        attempts.append(_attempt("threads", "inline-json", False, 0, "", "no-post-shortcode"))
+        return {"platform": "threads", "ok": False, "route": None, "content": "",
+                "final_url": url, "attempts": attempts}
+    code = m.group(1)
+    try:
+        x = _cffi_get(url, timeout=timeout)
+        raw = x.text if x.status_code == 200 else ""
+        code_pos = [c.start() for c in re.finditer(r'"code"\s*:\s*"%s"' % re.escape(code), raw)]
+        blocks = list(re.finditer(r'"video_versions"\s*:\s*\[(.*?)\]', raw))
+        if not code_pos or not blocks:
+            note = (f"status={x.status_code}" if x.status_code != 200
+                    else ("no-code-marker" if not code_pos else "no-video_versions"))
+            attempts.append(_attempt("threads", "inline-json", False, x.status_code, raw, note))
+            return {"platform": "threads", "ok": False, "route": None, "content": "",
+                    "final_url": url, "attempts": attempts}
+        best = min(blocks, key=lambda b: min(abs(b.start() - c) for c in code_pos))
+        urls: list[str] = []
+        for u in re.findall(r'"url"\s*:\s*"([^"]+)"', best.group(1)):
+            u = u.replace("\\/", "/").encode().decode("unicode_escape")
+            if u not in urls:
+                urls.append(u)
+        if not urls:
+            attempts.append(_attempt("threads", "inline-json", False, x.status_code, raw, "empty-video_versions"))
+            return {"platform": "threads", "ok": False, "route": None, "content": "",
+                    "final_url": url, "attempts": attempts}
+        content = json.dumps({"post_code": code, "video_urls": urls}, ensure_ascii=False)
+        attempts.append(_attempt("threads", "inline-json", True, x.status_code, content,
+                                 f"{len(urls)} video url(s)"))
+        return {"platform": "threads", "ok": True, "route": "inline-json",
+                "content": content, "final_url": url, "attempts": attempts}
+    except Exception as e:
+        attempts.append(_attempt("threads", "inline-json", False, 0, "", f"{type(e).__name__}"))
+        return {"platform": "threads", "ok": False, "route": None, "content": "",
+                "final_url": url, "attempts": attempts}
+
+
+_ROUTERS = {"reddit": _reddit, "x": _x, "youtube": _youtube, "threads": _threads}
 
 
 # --- public entrypoint -------------------------------------------------------
