@@ -33,21 +33,21 @@ It reads **public** pages. It stops at logins and paywalls and says so.
 /reload-plugins
 ```
 
-**Claude Code** (for an agent, or any non-interactive shell — the slash commands above are interactive-only):
+**Claude Code** (for an agent, or any non-interactive shell - the slash commands above are interactive-only):
 
 ```bash
 claude plugin marketplace add aidenlim-dev/AIOFFICE-SearchPro
 claude plugin install aioffice-searchpro@aioffice-searchpro-marketplace
 ```
 
-**Codex** — same repo, Codex-native manifest at `.codex-plugin/plugin.json`:
+**Codex** - same repo, Codex-native manifest at `.codex-plugin/plugin.json`:
 
 ```bash
 codex plugin marketplace add https://github.com/aidenlim-dev/AIOFFICE-SearchPro
 codex plugin add aioffice-searchpro@aioffice-searchpro-marketplace
 ```
 
-Restart the agent (or `/reload-plugins`) to load it. First use builds an isolated venv for `curl_cffi`, `yt-dlp`, and parsers — your system Python is left alone.
+Restart the agent (or `/reload-plugins`) to load it. First use builds an isolated venv for `curl_cffi`, `yt-dlp`, and parsers - your system Python is left alone.
 
 To check an install, run doctor against the installed copy. No second clone needed:
 
@@ -83,7 +83,7 @@ Fetching a page you intend to parse? Save the winning response on the same call,
 bash setup/run-engine.sh "https://example.com/" --json --output page.md --metadata page.fetch.json
 ```
 
-Useful flags — full list via `--help`:
+Useful flags - full list via `--help`:
 
 | Flag | Effect |
 | :--- | :--- |
@@ -100,7 +100,7 @@ Four tiers, each running only when the previous one fails or trips a blocking si
 
 | Tier | What it does |
 | :--- | :--- |
-| **Phase 0** | Official public routes a generic crawler can't guess — Reddit `.rss`, X `tweet-result`/oEmbed, YouTube via `yt-dlp`, Threads inline `video_versions` |
+| **Phase 0** | Official public routes a generic crawler can't guess - Reddit `.rss`, X `tweet-result`/oEmbed, YouTube via `yt-dlp`, Threads inline `video_versions` |
 | **Phase 1** | Cheap probes: public API readers, syndication gateways, mobile / `.json` / `/rss` URL variants |
 | **Phase 2** | TLS impersonation via `curl_cffi`, ordered for fingerprint diversity, with a full browser identity (real TLS fingerprint, cookie warming, referer chain) |
 | **Phase 3** | A real browser. Protocol-stealth drivers (nodriver, patchright) for gates that fingerprint automation itself, plus network capture that surfaces the site's own internal JSON APIs |
@@ -110,7 +110,7 @@ Nine WAF products are profiled (Cloudflare, Akamai, DataDome, PerimeterX, Kasada
 A `200` is treated as the *start* of validation, never as success: a four-layer check (marker, size, cookie, your `--selector`) has to agree before the engine calls it a win.
 
 <details>
-<summary><strong>Content handling — what you actually get back</strong></summary>
+<summary><strong>Content handling - what you actually get back</strong></summary>
 
 The consumer is usually a model's context window, so the engine cleans up before returning:
 
@@ -133,7 +133,7 @@ Set `INSANE_AUTO_FORGE=1` and the engine does this on its own when the chain fai
 
 ## Where it works
 
-**X · Reddit · YouTube · Threads · Hacker News · Naver · Coupang · LinkedIn · Medium · Substack · arXiv · GitHub · Stack Overflow · Bluesky · Mastodon** — plus any site with a public page, feed, or `/rss`.
+**X · Reddit · YouTube · Threads · Hacker News · Naver · Coupang · LinkedIn · Medium · Substack · arXiv · GitHub · Stack Overflow · Bluesky · Mastodon** - plus any site with a public page, feed, or `/rss`.
 
 Per-platform methods: [PLATFORMS.md](PLATFORMS.md).
 
@@ -150,12 +150,12 @@ This is a reader for public content, not an authentication bypass.
 
 Forked from [fivetaku/insane-search](https://github.com/fivetaku/insane-search) and maintained as an AIOFFICE distribution. Upstream engine work is ported in; these changes are local:
 
-- **Codex support** — native manifest, local install scripts, and tool-name mapping so both agents behave identically.
-- **Anti-detour routing** — the skill is documented as the designated tool for bot-protected sites, so an agent stops reaching for a heavyweight browser first.
-- **Profile-aware failure guidance** — escalation advice follows what the detected WAF profile actually needs, instead of always pointing at Playwright MCP.
-- **One-shot capture** — `--output` / `--metadata` keep a successful body on first call.
-- **OS-native wrappers** — `setup/run-engine.{sh,ps1}` manage an isolated venv on both Windows and Unix.
-- **Actionable dependency diagnostics** — a missing local Playwright install reports the exact fix instead of a bare "unavailable".
+- **Codex support** - native manifest, local install scripts, and tool-name mapping so both agents behave identically.
+- **Anti-detour routing** - the skill is documented as the designated tool for bot-protected sites, so an agent stops reaching for a heavyweight browser first.
+- **Profile-aware failure guidance** - escalation advice follows what the detected WAF profile actually needs, instead of always pointing at Playwright MCP.
+- **One-shot capture** - `--output` / `--metadata` keep a successful body on first call.
+- **OS-native wrappers** - `setup/run-engine.{sh,ps1}` manage an isolated venv on both Windows and Unix.
+- **Actionable dependency diagnostics** - a missing local Playwright install reports the exact fix instead of a bare "unavailable".
 
 Version history and per-release porting notes: [CHANGELOG.md](CHANGELOG.md).
 
