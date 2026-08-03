@@ -53,22 +53,15 @@ Restart the agent (or `/reload-plugins`) to load it. First use builds an isolate
 
 ### Update an existing installation
 
-Existing users must update both the marketplace and the plugin to receive the latest version. Run these commands inside Claude Code:
-
-```bash
-/plugin marketplace update aioffice-searchpro-marketplace
-/plugin update aioffice-searchpro@aioffice-searchpro-marketplace
-/reload-plugins
-```
-
-From a terminal or another agent, use the non-interactive CLI and then restart Claude Code:
+Existing users must update both the marketplace and the plugin to receive the latest version. Run these commands in a **separate terminal, not in the Claude Code conversation**. Entering `/plugin update ...` in the conversation opens the plugin manager instead of running the update.
 
 ```bash
 claude plugin marketplace update aioffice-searchpro-marketplace
 claude plugin update aioffice-searchpro@aioffice-searchpro-marketplace
+claude plugin list
 ```
 
-After updating, `claude plugin list` should report `aioffice-searchpro` version `1.4.0` or newer.
+Confirm that the list reports `aioffice-searchpro` version `1.4.0` or newer, then restart Claude Code. An open session can also reload plugins with `/reload-plugins`.
 
 To check an install, run doctor against the installed copy. No second clone needed:
 

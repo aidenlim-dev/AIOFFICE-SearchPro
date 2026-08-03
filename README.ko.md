@@ -53,22 +53,15 @@ codex plugin add aioffice-searchpro@aioffice-searchpro-marketplace
 
 ### 기존 설치 업데이트
 
-이미 설치한 사용자는 마켓플레이스와 플러그인을 모두 업데이트해야 새 버전이 적용된다. Claude Code 안에서는 다음 명령을 실행한다:
-
-```bash
-/plugin marketplace update aioffice-searchpro-marketplace
-/plugin update aioffice-searchpro@aioffice-searchpro-marketplace
-/reload-plugins
-```
-
-터미널이나 에이전트에서는 비대화형 CLI를 실행하고 Claude Code를 재시작한다:
+이미 설치한 사용자는 마켓플레이스와 플러그인을 모두 업데이트해야 새 버전이 적용된다. 아래 명령은 **Claude Code 대화창이 아니라 별도 터미널**에서 실행한다. `/plugin update ...`를 대화창에 입력하면 업데이트 대신 플러그인 관리 화면만 열린다.
 
 ```bash
 claude plugin marketplace update aioffice-searchpro-marketplace
 claude plugin update aioffice-searchpro@aioffice-searchpro-marketplace
+claude plugin list
 ```
 
-업데이트 후 `claude plugin list`에서 `aioffice-searchpro`가 `1.4.0` 이상인지 확인한다.
+목록에서 `aioffice-searchpro`가 `1.4.0` 이상인지 확인한 뒤 Claude Code를 재시작한다. 열려 있는 세션에서는 `/reload-plugins`로 다시 불러올 수도 있다.
 
 설치 확인은 설치된 사본에서 doctor를 돌리면 된다. 저장소를 다시 clone할 필요 없다:
 

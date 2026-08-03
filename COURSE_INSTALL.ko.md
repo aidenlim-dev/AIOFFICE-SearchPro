@@ -19,22 +19,15 @@ claude plugin install aioffice-searchpro@aioffice-searchpro-marketplace
 
 설치 후 Claude Code를 재시작하거나 `/reload-plugins`를 실행하면 플러그인이 로드됩니다.
 
-기존 설치자는 아래 명령으로 업데이트합니다.
-
-```bash
-/plugin marketplace update aioffice-searchpro-marketplace
-/plugin update aioffice-searchpro@aioffice-searchpro-marketplace
-/reload-plugins
-```
-
-터미널에서는 다음 비대화형 명령을 쓸 수 있습니다.
+기존 설치자는 아래 명령을 **Claude Code 대화창이 아닌 별도 터미널**에서 실행합니다. `/plugin update ...`를 대화창에 입력하면 업데이트 대신 플러그인 관리 화면만 열립니다.
 
 ```bash
 claude plugin marketplace update aioffice-searchpro-marketplace
 claude plugin update aioffice-searchpro@aioffice-searchpro-marketplace
+claude plugin list
 ```
 
-업데이트 후 `claude plugin list`에서 버전이 `1.4.0` 이상인지 확인하세요.
+목록에서 버전이 `1.4.0` 이상인지 확인한 뒤 Claude Code를 재시작하세요. 열려 있는 세션에서는 `/reload-plugins`로 다시 불러올 수도 있습니다.
 
 Codex를 쓴다면 같은 저장소로 이렇게 설치합니다:
 
@@ -152,6 +145,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\browser.ps1
 - `python3 is required`: Python 3가 필요합니다.
 - `Node.js not found`: 기본 사용은 가능하지만 local Chrome fallback은 동작하지 않습니다. macOS/Linux는 `setup/browser.sh`, Windows는 `setup/browser.ps1`를 쓰려면 Node를 설치하세요.
 - `Playwright MCP not configured`: 기본 사용은 가능하지만 JS 렌더링 정찰이 제한됩니다. macOS/Linux는 `setup/browser.sh`, Windows는 `setup/browser.ps1`을 실행하세요.
+- `/plugin update ...` 입력 후 플러그인 화면만 열림: 정상적인 UI 동작입니다. 개별 플러그인 업데이트는 별도 터미널에서 `claude plugin update aioffice-searchpro@aioffice-searchpro-marketplace`를 실행하세요.
 - `auth_required`, `paywall`, `not_found`: 플러그인이 우회하지 않는 정상 중단입니다.
 
 ## 6. 설치 명령 다시
