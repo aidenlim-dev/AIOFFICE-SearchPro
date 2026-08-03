@@ -1,7 +1,7 @@
 {
   "name": "aioffice-searchpro",
-  "version": "1.3.0",
-  "description": "AIOFFICE-SearchPro: adaptive public-page access for AI agents. Reads blocked public pages through public APIs, TLS impersonation, Jina, yt-dlp, and Playwright fallbacks without API keys.",
+  "version": "1.4.0",
+  "description": "AIOFFICE-SearchPro: adaptive public-page reading and structured extraction for AI agents. Reads blocked or dynamic pages and organizes articles, products, prices, tables, and listings without API keys.",
   "author": {
     "name": "Aiden Lim",
     "url": "https://github.com/aidenlim-dev/AIOFFICE-SearchPro"
@@ -42,6 +42,7 @@
     "termsOfServiceURL": "https://github.com/aidenlim-dev/AIOFFICE-SearchPro/blob/main/LICENSE",
     "defaultPrompt": [
       "Summarize this blocked article with the cheapest route first",
+      "Extract the products, prices, and links from this page into a table",
       "Find what people are saying about a topic on Reddit or X",
       "Get the captions and metadata from this YouTube video"
     ],

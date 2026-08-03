@@ -9,8 +9,8 @@
     {
       "name": "aioffice-searchpro",
       "source": "./",
-      "description": "AIOFFICE-SearchPro adaptive public-page reader for blocked sites using public APIs, curl_cffi TLS impersonation, Jina, yt-dlp, and Playwright fallbacks.",
-      "version": "1.1.1",
+      "description": "AIOFFICE-SearchPro adaptive public-page reader and structured extractor for blocked or dynamic sites, product listings, tables, articles, and media.",
+      "version": "1.4.0",
       "author": {
         "name": "Aiden Lim"
       },

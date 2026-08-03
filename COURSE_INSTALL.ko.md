@@ -19,6 +19,23 @@ claude plugin install aioffice-searchpro@aioffice-searchpro-marketplace
 
 설치 후 Claude Code를 재시작하거나 `/reload-plugins`를 실행하면 플러그인이 로드됩니다.
 
+기존 설치자는 아래 명령으로 업데이트합니다.
+
+```bash
+/plugin marketplace update aioffice-searchpro-marketplace
+/plugin update aioffice-searchpro@aioffice-searchpro-marketplace
+/reload-plugins
+```
+
+터미널에서는 다음 비대화형 명령을 쓸 수 있습니다.
+
+```bash
+claude plugin marketplace update aioffice-searchpro-marketplace
+claude plugin update aioffice-searchpro@aioffice-searchpro-marketplace
+```
+
+업데이트 후 `claude plugin list`에서 버전이 `1.4.0` 이상인지 확인하세요.
+
 Codex를 쓴다면 같은 저장소로 이렇게 설치합니다:
 
 ```bash
@@ -31,10 +48,16 @@ codex plugin add aioffice-searchpro@aioffice-searchpro-marketplace
 Claude Code에게 이렇게 물어봅니다.
 
 ```text
-https://example.com/ 읽어줘
+https://example.com/products 의 판매 상품 리스트를 상품명, 가격, 링크 표로 정리해줘
 ```
 
 막힌 사이트를 테스트할 때는 공개 페이지 URL만 사용하세요. 로그인, 페이월, 비공개 데이터는 대상이 아닙니다.
+
+자동 선택이 되지 않으면 아래처럼 명시 호출할 수 있습니다.
+
+```text
+/aioffice-searchpro:aioffice-searchpro 이 URL의 판매 상품 리스트를 표로 정리해줘: https://example.com/products
+```
 
 ## 3. 상태 점검
 

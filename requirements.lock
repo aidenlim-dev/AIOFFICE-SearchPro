@@ -2,7 +2,7 @@
 # Regenerate with:
 #   python3 -m venv /tmp/aioffice-searchpro-lock-venv
 #   /tmp/aioffice-searchpro-lock-venv/bin/python -m pip install -U pip
-#   /tmp/aioffice-searchpro-lock-venv/bin/python -m pip install -U "curl_cffi>=0.15.0" beautifulsoup4 pyyaml yt-dlp
+#   /tmp/aioffice-searchpro-lock-venv/bin/python -m pip install -U "curl_cffi>=0.15.0" beautifulsoup4 pyyaml yt-dlp pypdf markdownify
 #   /tmp/aioffice-searchpro-lock-venv/bin/python -m pip freeze | sort
 PyYAML==6.0.3
 Pygments==2.20.0
@@ -10,10 +10,13 @@ beautifulsoup4==4.15.0
 certifi==2026.6.17
 cffi==2.0.0
 curl_cffi==0.15.0
+markdownify==1.2.3
 markdown-it-py==4.2.0
 mdurl==0.1.2
 pycparser==3.0
+pypdf==6.14.2
 rich==15.0.0
+six==1.17.0
 soupsieve==2.8.4
 typing_extensions==4.16.0
 yt-dlp==2026.6.9

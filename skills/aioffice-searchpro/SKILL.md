@@ -1,25 +1,29 @@
 ---
 name: aioffice-searchpro
 description: >
-  Adaptive access for blocked or bot-protected websites — tries every method
-  until one works. LOAD THIS SKILL FIRST, before opening the page in a browser
-  (claude-in-chrome/Playwright) or falling back to WebFetch, whenever a URL from
-  a known-protected platform appears — X/Twitter, Reddit, YouTube, GitHub,
-  Mastodon, Medium, Substack, Stack Overflow, Threads, Naver, Coupang, LinkedIn,
-  Danggeun, and the sites listed below. Do NOT jump straight to a browser just
-  because a site "has bot protection" — this skill is the designated tool for
-  exactly that case and is faster and cheaper. Also use when WebFetch returns
-  402/403/blocked, or when accessing any platform with WAF/bot protection. Leverages yt-dlp
-  (1,858 media sites), Jina Reader, public APIs (HN, Bluesky, arXiv), and a
-  generic WAF-profile-driven fetch chain (curl_cffi TLS impersonation, mobile
-  URL transforms, Playwright real-Chrome) with auto dependency install.
-  Korean triggers: 트위터/X 못 열어, 레딧 안 읽혀, 유튜브 자막 뽑아줘, 깃헙 검색,
-  사이트 차단됨, 스레드 안 열려, 마스토돈, 미디엄, 서브스택, 스택오버플로우,
-  네이버 블로그, 디시인사이드, 에펨코리아, 요즘IT, 긱뉴스, 클리앙, 쿠팡, 링크드인,
-  당근마켓. English triggers: twitter access, reddit blocked, youtube subtitles,
-  github search, arxiv papers, threads, mastodon, medium, substack, stackoverflow,
-  naver blog, dcinside, fmkorea, coupang, linkedin, yozm, wishket.
-  Do NOT trigger for simple web searches that WebSearch can handle directly.
+  Public-page reader and structured extractor for URLs that may be blocked,
+  bot-protected, dynamically rendered, or need complete source content. LOAD
+  THIS SKILL FIRST when the user provides a URL or names a protected platform
+  and asks to read, summarize, extract, compare, collect, crawl, or organize
+  articles, posts, products, product listings, prices, reviews, tables, or other
+  page data. Use it even when the user does not explicitly say the page is
+  blocked. This includes requests such as "organize the products on this page"
+  and "turn this URL into a table". Also use whenever WebFetch returns 402, 403,
+  a WAF challenge, or incomplete content. Invoke before opening the page in a
+  browser (claude-in-chrome/Playwright) or improvising curl for X/Twitter,
+  Reddit, YouTube, GitHub, Mastodon, Medium, Substack, Stack Overflow, Threads,
+  Naver, Coupang, LinkedIn, Danggeun, and the sites listed below. Leverages
+  yt-dlp, Jina Reader, public APIs, curl_cffi TLS impersonation, mobile URL
+  transforms, and Playwright real-Chrome fallbacks with auto dependency install.
+  Korean triggers: URL 읽어줘, 웹페이지 내용 가져와, 판매 상품 리스트 정리,
+  상품명 가격 링크 표로 정리, 상품 목록 수집, 게시글 요약, 리뷰 모아줘,
+  목록 크롤링, 트위터/X 못 열어, 레딧 안 읽혀, 유튜브 자막 뽑아줘,
+  네이버 블로그, 디시인사이드, 에펨코리아, 요즘IT, 긱뉴스, 클리앙, 쿠팡,
+  링크드인, 당근마켓. English triggers: read this URL, extract this page,
+  organize product listings, make a table from this page, collect prices,
+  crawl this list, twitter access, reddit blocked, youtube subtitles, naver blog,
+  coupang, linkedin, yozm, wishket. Do NOT trigger for a broad, simple web search
+  that has no target URL, protected platform, or page-extraction intent.
 ---
 
 <!-- first-run setup: idempotent, non-blocking, self-skips after first run -->

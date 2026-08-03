@@ -9,7 +9,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENGINE_ROOT="$ROOT/skills/aioffice-searchpro"
 LOCK_FILE="$ROOT/requirements.lock"
 VENV_DIR="${AIOFFICE_SEARCHPRO_VENV:-${XDG_CACHE_HOME:-$HOME/.cache}/aioffice-searchpro/venv}"
-STAMP="$VENV_DIR/.aioffice-searchpro-deps-v3"
+STAMP="$VENV_DIR/.aioffice-searchpro-deps-v4"
 
 if ! command -v python3 >/dev/null 2>&1; then
   echo "aioffice-searchpro: python3 is required but was not found" >&2

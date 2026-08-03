@@ -49,6 +49,16 @@ codex plugin add aioffice-searchpro@aioffice-searchpro-marketplace
 
 Restart the agent (or `/reload-plugins`) to load it. First use builds an isolated venv for `curl_cffi`, `yt-dlp`, and parsers - your system Python is left alone.
 
+Already installed? Refresh the marketplace and plugin to receive trigger improvements:
+
+```bash
+/plugin marketplace update aioffice-searchpro-marketplace
+/plugin update aioffice-searchpro@aioffice-searchpro-marketplace
+/reload-plugins
+```
+
+After updating, `claude plugin list` should report `aioffice-searchpro` version `1.4.0` or newer.
+
 To check an install, run doctor against the installed copy. No second clone needed:
 
 ```bash
@@ -70,6 +80,13 @@ Nothing to learn. Ask your agent normally, and the plugin engages when a fetch g
 > *"Summarize the top Reddit threads about Claude Code."*
 > *"Pull the transcript of this YouTube video."*
 > *"Read this Naver blog post."*
+> *"Extract the products, prices, and links from this URL into a table."*
+
+If automatic selection is uncertain, invoke the skill explicitly:
+
+```text
+/aioffice-searchpro:aioffice-searchpro Extract the product listings from this URL: https://example.com/products
+```
 
 To drive the engine directly:
 

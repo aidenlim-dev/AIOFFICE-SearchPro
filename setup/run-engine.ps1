@@ -56,7 +56,7 @@ $VenvPython = Join-Path $VenvDir "Scripts/python.exe"
 if (-not (Test-Path $VenvPython)) {
   $VenvPython = Join-Path $VenvDir "bin/python"
 }
-$Stamp = Join-Path $VenvDir ".aioffice-searchpro-deps-v3"
+$Stamp = Join-Path $VenvDir ".aioffice-searchpro-deps-v4"
 
 if (-not (Test-Path $VenvPython)) {
   $parent = Split-Path -Parent $VenvDir

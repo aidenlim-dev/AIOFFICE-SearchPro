@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.0 - 2026-08-04
+
+Claude가 일반적인 URL 정리 요청에서도 SearchPro를 먼저 선택하도록 스킬 인식 범위를 보강했다.
+
+- `SKILL.md` 자동 선택 설명에 URL 읽기, 판매 상품 리스트, 가격과 링크 표, 게시글과 리뷰 수집 등 실제 사용자 표현을 한국어와 영어로 추가했다.
+- 사용자가 "차단됨"을 말하지 않아도 URL 기반 구조화 추출 요청이면 스킬을 먼저 로드하도록 명시했다.
+- 자동 선택이 애매할 때 쓸 수 있는 `/aioffice-searchpro:aioffice-searchpro` 명시 호출법과 기존 설치자의 업데이트 절차를 README와 강의 가이드에 추가했다.
+- Claude, Codex, marketplace manifest 버전을 `1.4.0`으로 맞췄다. 이전 marketplace의 `1.1.1` 고정값 때문에 설치본이 구버전으로 표시되던 문제를 해소했다.
+- `requirements.lock`에 문서상 기본 의존성이지만 빠져 있던 `markdownify`와 `pypdf`를 추가했다. 설치 stamp를 v4로 올려 기존 사용자도 다음 실행 때 HTML 표 변환과 PDF 추출 의존성을 자동 설치한다.
+
 ## 1.3.0 - 2026-07-30
 
 업스트림 insane-search 0.13.0 반영: Threads 영상 라우트.

@@ -49,6 +49,16 @@ codex plugin add aioffice-searchpro@aioffice-searchpro-marketplace
 
 설치 후 에이전트를 재시작하거나 `/reload-plugins`를 실행한다. 첫 호출 때 `curl_cffi`, `yt-dlp`, 파서용 격리 venv를 만들며, 시스템 Python은 건드리지 않는다.
 
+이미 설치한 사용자는 새 버전을 받아야 자동 인식 개선이 적용된다:
+
+```bash
+/plugin marketplace update aioffice-searchpro-marketplace
+/plugin update aioffice-searchpro@aioffice-searchpro-marketplace
+/reload-plugins
+```
+
+업데이트 후 `claude plugin list`에서 `aioffice-searchpro`가 `1.4.0` 이상인지 확인한다.
+
 설치 확인은 설치된 사본에서 doctor를 돌리면 된다. 저장소를 다시 clone할 필요 없다:
 
 ```bash
@@ -70,6 +80,13 @@ doctor 요약의 OPTIONAL 항목(Node.js, 브라우저 폴백)은 없어도 플�
 > *"Claude Code 관련 레딧 인기 스레드 정리해줘."*
 > *"이 유튜브 영상 자막 뽑아줘."*
 > *"이 네이버 블로그 글 읽어줘."*
+> *"이 URL의 판매 상품을 상품명, 가격, 링크 표로 정리해줘."*
+
+자동 선택 여부가 애매하면 스킬을 명시해서 바로 호출할 수 있다:
+
+```text
+/aioffice-searchpro:aioffice-searchpro 이 URL의 판매 상품 리스트를 표로 정리해줘: https://example.com/products
+```
 
 엔진을 직접 돌릴 때는:
 
