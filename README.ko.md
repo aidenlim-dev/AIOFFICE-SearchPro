@@ -4,6 +4,8 @@
 
 # AIOFFICE-SearchPro
 
+<sub>원본 프로젝트: <a href="https://github.com/fivetaku/insane-search">fivetaku/insane-search</a>. 이 저장소는 원본을 포크해 AIOFFICE 배포판으로 관리합니다.</sub>
+
 **차단된 공개 페이지를 읽어내는 Claude Code / Codex 플러그인.** API 키도, 프록시 설정도 필요 없다.
 
 <p>
@@ -49,12 +51,21 @@ codex plugin add aioffice-searchpro@aioffice-searchpro-marketplace
 
 설치 후 에이전트를 재시작하거나 `/reload-plugins`를 실행한다. 첫 호출 때 `curl_cffi`, `yt-dlp`, 파서용 격리 venv를 만들며, 시스템 Python은 건드리지 않는다.
 
-이미 설치한 사용자는 새 버전을 받아야 자동 인식 개선이 적용된다:
+### 기존 설치 업데이트
+
+이미 설치한 사용자는 마켓플레이스와 플러그인을 모두 업데이트해야 새 버전이 적용된다. Claude Code 안에서는 다음 명령을 실행한다:
 
 ```bash
 /plugin marketplace update aioffice-searchpro-marketplace
 /plugin update aioffice-searchpro@aioffice-searchpro-marketplace
 /reload-plugins
+```
+
+터미널이나 에이전트에서는 비대화형 CLI를 실행하고 Claude Code를 재시작한다:
+
+```bash
+claude plugin marketplace update aioffice-searchpro-marketplace
+claude plugin update aioffice-searchpro@aioffice-searchpro-marketplace
 ```
 
 업데이트 후 `claude plugin list`에서 `aioffice-searchpro`가 `1.4.0` 이상인지 확인한다.

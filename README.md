@@ -4,6 +4,8 @@ English | [한국어](README.ko.md) | [中文](README.zh.md) | [日本語](READM
 
 # AIOFFICE-SearchPro
 
+<sub>Original project: <a href="https://github.com/fivetaku/insane-search">fivetaku/insane-search</a>. This repository is a fork maintained as the AIOFFICE distribution.</sub>
+
 **A public-page reader for Claude Code and Codex.** No API keys, no proxy setup.
 
 <p>
@@ -49,12 +51,21 @@ codex plugin add aioffice-searchpro@aioffice-searchpro-marketplace
 
 Restart the agent (or `/reload-plugins`) to load it. First use builds an isolated venv for `curl_cffi`, `yt-dlp`, and parsers - your system Python is left alone.
 
-Already installed? Refresh the marketplace and plugin to receive trigger improvements:
+### Update an existing installation
+
+Existing users must update both the marketplace and the plugin to receive the latest version. Run these commands inside Claude Code:
 
 ```bash
 /plugin marketplace update aioffice-searchpro-marketplace
 /plugin update aioffice-searchpro@aioffice-searchpro-marketplace
 /reload-plugins
+```
+
+From a terminal or another agent, use the non-interactive CLI and then restart Claude Code:
+
+```bash
+claude plugin marketplace update aioffice-searchpro-marketplace
+claude plugin update aioffice-searchpro@aioffice-searchpro-marketplace
 ```
 
 After updating, `claude plugin list` should report `aioffice-searchpro` version `1.4.0` or newer.
