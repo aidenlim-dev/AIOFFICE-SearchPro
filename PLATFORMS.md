@@ -12,7 +12,7 @@ Only special endpoints that the generic chain can't discover on its own. Everyth
 
 | Platform | Method | Reference |
 |----------|--------|-----------|
-| X/Twitter | single tweet → `cdn.syndication tweet-result` + oEmbed · timeline → syndication · keyword → **WebSearch → tweet-result** | `twitter.md` |
+| X/Twitter | single tweet → `cdn.syndication tweet-result` + oEmbed · timeline → syndication · keyword → **free Brave/Yahoo + optional xAI `x_search` merge → tweet-result revalidation** | `twitter.md` |
 | Reddit | `.rss` feed via curl_cffi (the unauth `.json` now 403s) | `json-api.md` |
 | Threads | video post → inline `video_versions` JSON, block nearest to the URL shortcode (engine Phase 0 — yt-dlp has no extractor; signed CDN URLs expire, download immediately) | `media.md` |
 | Bluesky | AT Protocol (`public.api.bsky.app/xrpc/...`) | `public-api.md` |
@@ -59,7 +59,7 @@ The skill is organized as a set of reference files (`skills/aioffice-searchpro/r
 | `json-api.md` | Public JSON APIs (Reddit, HN, dev.to, Wikipedia, npm, PyPI, etc.) |
 | `public-api.md` | Bluesky, Mastodon, Stack Exchange, arXiv, CrossRef, OpenLibrary, GitHub, Wayback |
 | `media.md` | yt-dlp usage for 1,858 media sites |
-| `twitter.md` | X/Twitter tweet-result + oEmbed + syndication + WebSearch keyword search |
+| `twitter.md` | X/Twitter tweet-result + oEmbed + syndication + `engine.x_search` keyword discovery (free Brave/Yahoo + optional xAI) |
 | `naver.md` | Naver Search (curl_cffi identity spoofing), blog mobile URLs, Finance JSON API |
 | `rss.md` | Korean news RSS (9 outlets), Google News RSS, feedparser, SearXNG |
 | `tls-impersonate.md` | curl_cffi multi-target + identity spoofing (cookie warming, referrer chain) + behavioral challenge detection |
@@ -121,7 +121,7 @@ There are no commands. Just talk normally — the skill triggers when a URL is b
 → Reddit .rss feed (curl_cffi) → posts
 
 "Search X for AIOFFICE-SearchPro"
-→ Intent routing: keyword → WebSearch(site:x.com) → tweet-result → full tweets
+→ Intent routing: keyword → `python3 -m engine.x_search QUERY` → free Brave/Yahoo + optional xAI discovery → tweet-result → full tweets
 
 "네이버에서 클로드코드 뉴스 찾아줘"
 → Naver Search (identity spoofing) → news tab → article URLs → Jina Reader

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.5.0 - 2026-08-25
+
+업스트림 insane-search 0.15.0 반영: X 키워드 검색 다중 경로화.
+
+- **X 키워드 검색이 Grok 없이도 동작**: `engine/x_search.py` 신설. 무료 Brave/Yahoo discovery를 항상 병렬 실행하고, `XAI_API_KEY` 또는 로컬 OMO xAI OAuth가 있으면 xAI `x_search`를 병렬 병합한다. 모든 후보 URL은 공개 tweet-result 엔드포인트로 재검증 후 반환한다.
+- **Provenance 노출**: 결과에 discovery 소스, 공급자별 오류, 거부 URL, post별 발견 경로가 남는다. `--free-only` 또는 `INSANE_SEARCH_XAI=off`로 무료 전용 강제 가능.
+- `tests/test_x_search.py` 추가, `tests/coverage_battery.py`에 키워드 discovery 케이스 확장. 문서(SKILL.md, PLATFORMS.md, references/twitter.md) 갱신.
+- 스킵: 업스트림 0.14.1의 settings.json 보호 fix와 업데이트 알림 오탐 fix는 이 포크에서 제거한 gptaku 업데이트 알림 훅 전용이라 해당 없음.
+
 ## 1.4.0 - 2026-08-04
 
 Claude가 일반적인 URL 정리 요청에서도 SearchPro를 먼저 선택하도록 스킬 인식 범위를 보강했다.

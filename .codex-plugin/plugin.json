@@ -1,6 +1,6 @@
 {
   "name": "aioffice-searchpro",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "AIOFFICE-SearchPro: adaptive public-page reading and structured extraction for AI agents. Reads blocked or dynamic pages and organizes articles, products, prices, tables, and listings without API keys.",
   "author": {
     "name": "Aiden Lim",
