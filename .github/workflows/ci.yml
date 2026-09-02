@@ -46,6 +46,9 @@ jobs:
           uv run python skills/aioffice-searchpro/engine/tests/test_u7.py
           uv run python skills/aioffice-searchpro/engine/tests/test_u8.py
           uv run python skills/aioffice-searchpro/engine/tests/test_u9.py
+          uv run python skills/aioffice-searchpro/engine/tests/test_u9_merge.py
+          uv run python skills/aioffice-searchpro/engine/tests/test_u10.py
+          uv run python skills/aioffice-searchpro/engine/tests/test_u11.py
           PYTHONPATH="$PWD/skills/aioffice-searchpro" uv run pytest -q skills/aioffice-searchpro/tests/test_x_search.py
 
       - name: Bias check

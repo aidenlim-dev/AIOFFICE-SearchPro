@@ -2,11 +2,14 @@
   "name": "aioffice-searchpro-templates",
   "version": "0.1.0",
   "private": true,
-  "description": "Local deps for Playwright real-Chrome templates. npm install && npx patchright install chrome",
+  "description": "Shared dependencies for Playwright real-Chrome templates",
   "dependencies": {
     "patchright": "^1.61.1",
     "playwright": "^1.58.2",
     "playwright-extra": "^4.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
+  },
+  "overrides": {
+    "brace-expansion": "1.1.18"
   }
 }

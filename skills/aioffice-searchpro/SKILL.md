@@ -273,6 +273,7 @@ report     — FetchResult(ok, verdict, profile_used, trace, summary)
 | `needs_mobile_context` (+ real_tls) | `playwright_mobile_chrome.js` | 모바일 디바이스 에뮬레이션 필요 |
 
 `protocol_stealth_chrome`는 `uv pip install nodriver`(또는 patchright)가 필요하다 - 없으면 다음 fallback으로 진행하며, `INSANE_AUTO_INSTALL=1`이면 첫 호출 시 자동 설치한다.
+브라우저 레인은 headful이 기본이다. headless가 필요한 자동 실행 환경에서는 호출 인자에 `{"headless": true}`를 지정한다.
 자세한 선택 기준: [playwright.md](references/playwright.md).
 
 ### 막힌 사이트를 재사용 수집기로 (scraper-forge)
@@ -346,7 +347,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "$env:CLAUDE_PLUGIN_ROOT\set
   --metadata "$env:TEMP\page.fetch.json"
 ```
 
-Playwright 로컬 경로 사용 시 Node가 필요. 로컬 의존성은 `engine/templates/`의 package.json으로 관리한다 (executor가 그 디렉토리를 cwd로 실행). **Patchright**는 Playwright drop-in 포크로, Cloudflare/DataDome이 감지하는 CDP `Runtime.enable` 누출을 막아준다 — 템플릿이 설치돼 있으면 최우선 사용하고, 없으면 playwright-extra+stealth → plain playwright로 폴백한다:
+Playwright 로컬 경로 사용 시 Node와 npm이 필요하다. 첫 브라우저 폴백에서 `package-lock.json` 기준 의존성을 공용 캐시에 자동 설치하고, 이후 플러그인 버전에서도 재사용한다. 기본 경로는 macOS/Linux `~/.cache/aioffice-searchpro/node`, Windows `%LOCALAPPDATA%\aioffice-searchpro\node`이며 `AIOFFICE_SEARCHPRO_NODE_DEPS_DIR`로 바꿀 수 있다. **Patchright**는 Playwright drop-in 포크로, Cloudflare/DataDome이 감지하는 CDP `Runtime.enable` 누출을 막아준다. 템플릿이 설치돼 있으면 최우선 사용하고, 없으면 playwright-extra+stealth, plain playwright 순으로 폴백한다:
 ```bash
 bash "${CLAUDE_PLUGIN_ROOT}/setup/browser.sh"
 ```

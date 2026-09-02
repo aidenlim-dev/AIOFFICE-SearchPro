@@ -5,7 +5,7 @@ automation PROTOCOL (Runtime.enable / Target.setAutoAttach) block every
 Playwright-based driver regardless of patch quality, while a plain CDP
 WebSocket control plane passes. nodriver is that control plane.
 
-stdin:  {"url": str, "timeout": ms, "waitSelector": str?}
+stdin:  {"url": str, "timeout": ms, "waitSelector": str?, "headless": bool?}
 stdout: page HTML. stderr: diagnostics. exit 0 on content, 1 on failure.
 """
 import asyncio
@@ -17,7 +17,8 @@ async def main() -> int:
     args = json.load(sys.stdin)
     import nodriver as uc
 
-    browser = await uc.start(headless=True)
+    headless = bool(args.get("headless", False))
+    browser = await uc.start(headless=headless)
     try:
         tab = await browser.get(args["url"])
         await tab.sleep(6)  # JS challenge solve window

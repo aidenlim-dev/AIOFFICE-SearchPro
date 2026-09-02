@@ -1,6 +1,6 @@
 [project]
 name = "aioffice-searchpro"
-version = "1.5.0"
+version = "1.6.0"
 description = "Adaptive public-page reading and structured extraction for AI agents"
 requires-python = ">=3.10"
 dependencies = [

@@ -114,7 +114,7 @@ JS 챌린지 사이트는 브라우저로 쿠키를 획득한 뒤 curl_cffi로 �
 ```python
 # 1. nodriver로 cf_clearance 쿠키 획득
 import nodriver as uc
-browser = await uc.start(headless=True)
+browser = await uc.start(headless=False)
 page = await browser.get("https://cf-protected-site.com")
 await page.cf_verify()
 cookies = await browser.cookies.get_all()

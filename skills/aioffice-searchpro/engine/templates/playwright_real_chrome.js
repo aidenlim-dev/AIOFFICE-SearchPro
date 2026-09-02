@@ -10,9 +10,7 @@
  * NO-SITE-NAME RULE: this file must never branch on specific hostnames.
  * All site specifics come from the JSON input (url, waitSelector).
  *
- * Dependencies (install once in this directory):
- *   npm install
- *   npx patchright install chrome    # system Chrome channel
+ * Dependencies are prepared by setup/browser.sh or by executor.py on first use.
  */
 
 const fs = require('fs');

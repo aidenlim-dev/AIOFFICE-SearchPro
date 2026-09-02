@@ -19,6 +19,7 @@ path (MCP must be driven from the Claude session itself).
 from __future__ import annotations
 
 import importlib.util
+import hashlib
 import json
 import os
 import shutil
@@ -55,44 +56,116 @@ def _node_available() -> bool:
     return shutil.which("node") is not None
 
 
-def _local_playwright_dependency_error() -> Optional[str]:
-    """Return an actionable setup error when local Playwright cannot start.
+def _default_node_deps_dir() -> str:
+    override = os.environ.get("AIOFFICE_SEARCHPRO_NODE_DEPS_DIR", "").strip()
+    if override:
+        return os.path.abspath(os.path.expanduser(override))
+    if os.name == "nt":
+        base = os.environ.get("LOCALAPPDATA") or os.path.expanduser("~/.cache")
+    else:
+        base = os.environ.get("XDG_CACHE_HOME") or os.path.expanduser("~/.cache")
+    return os.path.join(base, "aioffice-searchpro", "node")
 
-    The templates load local dependencies from `engine/templates/package.json`
-    because subprocesses run with that directory as cwd. Checking the module
-    graph before launching Chrome keeps missing `npm install` failures cheap
-    and makes the two Playwright tiers explicit in the trace.
-    """
-    if not _node_available():
-        return "node not available for local Playwright template"
-    probe = """
-const mods = ['patchright', 'playwright-extra', 'playwright'];
-for (const m of mods) {
-  try {
-    require.resolve(m);
-    process.exit(0);
-  } catch (_e) {}
-}
-process.stderr.write('missing local Playwright dependency: install engine/templates/package.json');
-process.exit(1);
-"""
+
+# Marketplace copies do not contain the gitignored templates/node_modules.
+# Keep the dependencies outside the versioned plugin directory so upgrades can
+# reuse them. The package-lock fingerprint refreshes the cache when it changes.
+NODE_DEPS_DIR = _default_node_deps_dir()
+NODE_DEPS_STAMP = ".aioffice-searchpro-package-lock"
+_NODE_DEPS_CACHE: Optional[str] = None
+
+
+def _has_playwright_module(root: str) -> bool:
+    return os.path.isdir(os.path.join(root, "node_modules", "playwright"))
+
+
+def _node_manifest_path() -> Optional[str]:
+    for name in ("package-lock.json", "package.json"):
+        path = os.path.join(TEMPLATES_DIR, name)
+        if os.path.isfile(path):
+            return path
+    return None
+
+
+def _fingerprint_file(path: str) -> str:
+    digest = hashlib.sha256()
+    with open(path, "rb") as manifest:
+        for chunk in iter(lambda: manifest.read(65536), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _node_manifest_fingerprint() -> str:
+    path = _node_manifest_path()
+    return _fingerprint_file(path) if path else ""
+
+
+def _shared_node_deps_current(root: str) -> bool:
+    if not _has_playwright_module(root):
+        return False
     try:
+        with open(os.path.join(root, NODE_DEPS_STAMP), encoding="ascii") as stamp:
+            if stamp.read().strip() == _node_manifest_fingerprint():
+                return True
+    except OSError:
+        return False
+
+
+def _npm_install(dest: str) -> bool:
+    """Install locked template dependencies into the shared cache."""
+    npm = shutil.which("npm")
+    if npm is None:
+        return False
+    os.makedirs(dest, exist_ok=True)
+    for name in ("package.json", "package-lock.json"):
+        source = os.path.join(TEMPLATES_DIR, name)
+        if os.path.isfile(source):
+            shutil.copyfile(source, os.path.join(dest, name))
+    env = dict(os.environ)
+    env["PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD"] = "1"
+    env["PATCHRIGHT_SKIP_BROWSER_DOWNLOAD"] = "1"
+    lock = os.path.join(dest, ".installing")
+    try:
+        if os.path.exists(lock) and time.time() - os.path.getmtime(lock) < 900:
+            return _shared_node_deps_current(dest)
+        with open(lock, "w", encoding="ascii"):
+            pass
+        command = [npm, "ci" if os.path.isfile(os.path.join(dest, "package-lock.json")) else "install",
+                   "--silent", "--no-audit", "--no-fund"]
         proc = subprocess.run(
-            ["node", "-e", probe],
-            cwd=TEMPLATES_DIR,
-            capture_output=True,
-            text=True,
-            timeout=10,
+            command, cwd=dest, env=env, capture_output=True, text=True,
+            timeout=900, check=False,
         )
-    except subprocess.TimeoutExpired:
-        return "local Playwright dependency probe timed out"
-    except Exception as e:
-        return f"local Playwright dependency probe failed: {type(e).__name__}:{e}"
-    if proc.returncode == 0:
+        if proc.returncode != 0 or not _has_playwright_module(dest):
+            return False
+        with open(os.path.join(dest, NODE_DEPS_STAMP), "w", encoding="ascii") as stamp:
+            stamp.write(_node_manifest_fingerprint())
+        return True
+    except Exception:
+        return False
+    finally:
+        try:
+            os.remove(lock)
+        except OSError:
+            pass
+
+
+def _resolve_node_deps() -> Optional[str]:
+    """Resolve Playwright dependencies, installing the shared cache once."""
+    global _NODE_DEPS_CACHE
+    if _NODE_DEPS_CACHE is not None:
+        return _NODE_DEPS_CACHE or None
+    if not _node_available():
+        _NODE_DEPS_CACHE = ""
         return None
-    hint = "run `cd skills/aioffice-searchpro/engine/templates && npm install && npx patchright install chrome`"
-    detail = (proc.stderr or proc.stdout or "missing local Playwright dependency").strip()
-    return f"{detail}; {hint}"
+    if _has_playwright_module(TEMPLATES_DIR):
+        _NODE_DEPS_CACHE = TEMPLATES_DIR
+        return TEMPLATES_DIR
+    if _shared_node_deps_current(NODE_DEPS_DIR) or _npm_install(NODE_DEPS_DIR):
+        _NODE_DEPS_CACHE = NODE_DEPS_DIR
+        return NODE_DEPS_DIR
+    _NODE_DEPS_CACHE = ""
+    return None
 
 
 def _pick_executor(capabilities: list[str], device_class: str) -> str:
@@ -149,7 +222,8 @@ def _run_python_template(template: str, args: dict, timeout: int = 90) -> tuple[
 
 
 def _run_protocol_stealth(
-    att: Attempt, url: str, *, success_selectors: Optional[list[str]], timeout: int, t0: float,
+    att: Attempt, url: str, *, success_selectors: Optional[list[str]], timeout: int,
+    headless: Optional[bool], t0: float,
 ) -> tuple[Attempt, str]:
     """nodriver (raw CDP, no Playwright shim) first, patchright channel=chrome next.
 
@@ -159,6 +233,8 @@ def _run_protocol_stealth(
     reported so the caller continues down its fallback list.
     """
     args: dict = {"url": url, "timeout": timeout * 1000}
+    if headless is not None:
+        args["headless"] = headless
     if success_selectors:
         args["waitSelector"] = success_selectors[0]
     for pkg, template in (("nodriver", "nodriver_fetch.py"), ("patchright", "patchright_fetch.py")):
@@ -184,20 +260,32 @@ def _run_protocol_stealth(
     return att, ""
 
 
-def _run_node_template(template: str, args: dict, timeout: int = 90) -> tuple[int, str, str]:
+def _run_node_template(template: str, args: dict, timeout: int = 90,
+                       deps_root: Optional[str] = None) -> tuple[int, str, str]:
     """Run a Node.js template with args as JSON on stdin.
 
-    Template convention: reads `process.stdin` → JSON → runs fetch → writes
+    Template convention: reads JSON from stdin, runs fetch, and writes
     HTML to stdout; errors go to stderr with non-zero exit code.
+
+    deps_root points to the directory whose node_modules is exposed through
+    NODE_PATH. This lets templates use a cache outside the plugin directory.
     """
     path = os.path.join(TEMPLATES_DIR, template)
     if not os.path.isfile(path):
         return 127, "", f"template not found: {path}"
+    env = dict(os.environ)
+    if deps_root:
+        node_path = os.path.join(deps_root, "node_modules")
+        env["NODE_PATH"] = (
+            node_path + os.pathsep + env["NODE_PATH"]
+            if env.get("NODE_PATH") else node_path
+        )
     try:
         proc = subprocess.run(
             ["node", path],
             input=json.dumps(args),
             cwd=TEMPLATES_DIR,
+            env=env,
             capture_output=True,
             text=True,
             timeout=timeout,
@@ -238,6 +326,7 @@ def run_playwright_fallback(
     timeout: int = 90,
     profile_dir: Optional[str] = None,
     force_executor: Optional[str] = None,
+    headless: Optional[bool] = None,
 ) -> tuple[Attempt, str]:
     """Invoke the appropriate Playwright executor.
 
@@ -245,6 +334,8 @@ def run_playwright_fallback(
     `fallback_when_challenge` list). When set, it overrides capability-based
     inference. Recognized values: "playwright_real_chrome",
     "playwright_mobile_chrome", "playwright_mcp".
+    headless: browser mode override. None keeps the template default, which is
+    headful. True is useful in unattended environments.
 
     Returns (Attempt, html_content). Attempt.verdict reflects validation.
     """
@@ -263,7 +354,10 @@ def run_playwright_fallback(
     )
 
     if choice == "protocol_stealth_chrome":
-        return _run_protocol_stealth(att, url, success_selectors=success_selectors, timeout=timeout, t0=t0)
+        return _run_protocol_stealth(
+            att, url, success_selectors=success_selectors, timeout=timeout,
+            headless=headless, t0=t0,
+        )
 
     if choice.startswith("playwright_mcp"):
         att.error = (
@@ -274,9 +368,12 @@ def run_playwright_fallback(
         att.elapsed_s = round(time.time() - t0, 3)
         return att, ""
 
-    dep_error = _local_playwright_dependency_error()
-    if dep_error:
-        att.error = dep_error[:300]
+    deps_root = _resolve_node_deps()
+    if deps_root is None:
+        att.error = (
+            "node/npm unavailable or npm ci failed; local Playwright dependencies "
+            f"could not be resolved in {TEMPLATES_DIR} or {NODE_DEPS_DIR}"
+        )[:300]
         att.verdict = Verdict.UNKNOWN.value
         att.elapsed_s = round(time.time() - t0, 3)
         return att, ""
@@ -306,8 +403,12 @@ def run_playwright_fallback(
         args["device"] = "iPhone 13 Pro"
     if success_selectors:
         args["waitSelector"] = success_selectors[0]
+    if headless is not None:
+        args["headless"] = headless
 
-    rc, stdout, stderr = _run_node_template(template, args, timeout=timeout + 10)
+    rc, stdout, stderr = _run_node_template(
+        template, args, timeout=timeout + 10, deps_root=deps_root,
+    )
     att.elapsed_s = round(time.time() - t0, 3)
 
     if rc != 0 or not stdout:

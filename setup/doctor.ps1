@@ -10,6 +10,17 @@ $Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $RunEngine = Join-Path $Root "setup/run-engine.ps1"
 $Fail = $false
 
+function Get-DefaultNodeDepsDir {
+  if ($env:AIOFFICE_SEARCHPRO_NODE_DEPS_DIR) {
+    return $env:AIOFFICE_SEARCHPRO_NODE_DEPS_DIR
+  }
+  $localAppData = [Environment]::GetFolderPath("LocalApplicationData")
+  if ($localAppData) {
+    return (Join-Path $localAppData "aioffice-searchpro/node")
+  }
+  return (Join-Path $HOME ".cache/aioffice-searchpro/node")
+}
+
 function Ok($Message) { Write-Host "ok  $Message" }
 function Warn($Message) { Write-Host "warn $Message" }
 function Bad($Message) { Write-Host "bad $Message"; $script:Fail = $true }
@@ -81,9 +92,11 @@ if ($HasNode) {
   Warn "Node.js not found; local real-Chrome Playwright fallback will be unavailable"
 }
 
-$HasBrowserDeps = Test-Path (Join-Path $Root "skills/aioffice-searchpro/engine/templates/node_modules")
+$SharedNodeModules = Join-Path (Get-DefaultNodeDepsDir) "node_modules/playwright"
+$LocalNodeModules = Join-Path $Root "skills/aioffice-searchpro/engine/templates/node_modules/playwright"
+$HasBrowserDeps = (Test-Path $SharedNodeModules) -or (Test-Path $LocalNodeModules)
 if ($HasBrowserDeps) {
-  Ok "local Playwright template dependencies installed"
+  Ok "Playwright template dependencies installed"
 } else {
   Warn "optional browser fallback not fully installed: run 'powershell -NoProfile -ExecutionPolicy Bypass -File setup/browser.ps1'"
 }

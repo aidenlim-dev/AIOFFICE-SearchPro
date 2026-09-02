@@ -1,6 +1,6 @@
 {
   "name": "aioffice-searchpro",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "AIOFFICE-SearchPro: adaptive public-page reading and structured extraction for AI agents. Reads blocked or dynamic pages and organizes articles, products, prices, tables, and listings without API keys.",
   "author": {
     "name": "Aiden Lim",
@@ -30,7 +30,7 @@
   "interface": {
     "displayName": "AIOFFICE-SearchPro",
     "shortDescription": "Adaptive access to blocked public pages — no API keys, no proxy setup",
-    "longDescription": "AIOFFICE-SearchPro helps the agent read stubborn public content by escalating through public API readers, syndication gateways, TLS impersonation (curl_cffi), and a real headless browser until one route works. It stops honestly at login walls and paywalls.",
+    "longDescription": "AIOFFICE-SearchPro helps the agent read stubborn public content by escalating through public API readers, syndication gateways, TLS impersonation (curl_cffi), and a real browser until one route works. It stops honestly at login walls and paywalls.",
     "developerName": "Aiden Lim",
     "category": "Coding",
     "capabilities": [

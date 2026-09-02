@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.6.0 - 2026-09-02
+
+업스트림 insane-search 0.16.0의 설치본 브라우저 폴백 수정을 로컬 배포 구조에 맞춰 반영했다.
+
+- Marketplace 설치본에 `node_modules`가 없어 로컬 Playwright 폴백이 항상 실패하던 문제를 수정했다. 첫 브라우저 폴백에서 공용 캐시에 `npm ci`로 의존성을 자동 설치하고, 잠금 파일 지문이 바뀌면 캐시를 갱신한다.
+- 간접 의존성 `brace-expansion`을 보안 수정 버전으로 고정해 Node 런타임 감사를 통과하도록 했다.
+- 공용 캐시는 macOS/Linux `~/.cache/aioffice-searchpro/node`, Windows `%LOCALAPPDATA%\aioffice-searchpro\node`를 기본으로 사용한다. `AIOFFICE_SEARCHPRO_NODE_DEPS_DIR`로 재정의할 수 있다.
+- nodriver와 Python patchright 레인은 headful을 기본으로 사용한다. 호출 인자의 `{"headless": true}`로 덮어쓸 수 있다.
+- `unknown_challenge` 프로파일에 `protocol_stealth_chrome`을 추가해 저신뢰 챌린지도 CDP 레인을 시도한다.
+- Python 의존성 정본을 `pyproject.toml`과 `uv.lock`으로 전환하고 실행 래퍼, CI, doctor를 uv 기반으로 통일했다.
+
 ## 1.5.0 - 2026-08-25
 
 업스트림 insane-search 0.15.0 반영: X 키워드 검색 다중 경로화.

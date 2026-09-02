@@ -4,6 +4,7 @@ set -u
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 RUN_ENGINE="$ROOT/setup/run-engine.sh"
+NODE_DEPS="${AIOFFICE_SEARCHPRO_NODE_DEPS_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/aioffice-searchpro/node}"
 fail=0
 
 ok() { printf 'ok  %s\n' "$1"; }
@@ -65,9 +66,10 @@ else
 fi
 
 has_browser_deps=0
-if [ -d "$ROOT/skills/aioffice-searchpro/engine/templates/node_modules" ]; then
+if [ -d "$NODE_DEPS/node_modules/playwright" ] || \
+   [ -d "$ROOT/skills/aioffice-searchpro/engine/templates/node_modules/playwright" ]; then
   has_browser_deps=1
-  ok "local Playwright template dependencies installed"
+  ok "Playwright template dependencies installed"
 else
   warn "optional browser fallback not fully installed: run 'bash setup/browser.sh'"
 fi
