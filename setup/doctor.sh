@@ -31,10 +31,16 @@ else
   bad ".claude-plugin/marketplace.json is missing"
 fi
 
-if [ -f "$ROOT/requirements.lock" ]; then
-  ok "Python dependency lockfile present"
+if [ -f "$ROOT/pyproject.toml" ] && [ -f "$ROOT/uv.lock" ]; then
+  ok "uv project and dependency lockfile present"
 else
-  bad "requirements.lock is missing"
+  bad "pyproject.toml or uv.lock is missing"
+fi
+
+if command -v uv >/dev/null 2>&1; then
+  ok "uv found: $(uv --version)"
+else
+  bad "uv not found. Install it from https://docs.astral.sh/uv/getting-started/installation/"
 fi
 
 if [ -f "$ROOT/skills/aioffice-searchpro/engine/templates/package-lock.json" ]; then

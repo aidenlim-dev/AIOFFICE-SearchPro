@@ -11,7 +11,7 @@ which yt-dlp || python3 -m yt_dlp --version
 
 - `yt-dlp` 명령어가 PATH에 있으면 그대로 사용
 - 없으면 `python3 -m yt_dlp`로 대체 (아래 모든 명령어에서 치환)
-- 미설치 시: `pip install yt-dlp`
+- 미설치 시: 프로젝트 루트에서 `uv sync --frozen`
 
 ## 핵심 명령어 (모든 지원 사이트 공통)
 

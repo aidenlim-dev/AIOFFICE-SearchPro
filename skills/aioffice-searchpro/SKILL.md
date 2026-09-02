@@ -272,7 +272,7 @@ report     — FetchResult(ok, verdict, profile_used, trace, summary)
 | `needs_js_exec` only | Playwright MCP (`mcp__playwright__*`) | Cloudflare 기본 방어 등 |
 | `needs_mobile_context` (+ real_tls) | `playwright_mobile_chrome.js` | 모바일 디바이스 에뮬레이션 필요 |
 
-`protocol_stealth_chrome`는 `pip install nodriver`(또는 patchright)가 필요하다 - 없으면 다음 fallback으로 진행하며, `INSANE_AUTO_INSTALL=1`이면 첫 호출 시 자동 설치한다.
+`protocol_stealth_chrome`는 `uv pip install nodriver`(또는 patchright)가 필요하다 - 없으면 다음 fallback으로 진행하며, `INSANE_AUTO_INSTALL=1`이면 첫 호출 시 자동 설치한다.
 자세한 선택 기준: [playwright.md](references/playwright.md).
 
 ### 막힌 사이트를 재사용 수집기로 (scraper-forge)
@@ -306,12 +306,11 @@ result = fetch(
 
 ## 의존성 자동 설치
 
-최초 호출 시 OS-native wrapper(`setup/run-engine.sh` 또는 `setup/run-engine.ps1`)가 플러그인 전용 venv(Windows 기본 `%LOCALAPPDATA%\aioffice-searchpro\venv`, macOS/Linux 기본 `~/.cache/aioffice-searchpro/venv`, `AIOFFICE_SEARCHPRO_VENV`로 재정의 가능)를 만들고 필요 패키지를 설치한다. 시스템 Python은 건드리지 않는다. **curl_cffi는 0.15.0 이상**을 요구한다 — 0.15부터
+최초 호출 시 OS-native wrapper(`setup/run-engine.sh` 또는 `setup/run-engine.ps1`)가 uv로 플러그인 전용 환경(Windows 기본 `%LOCALAPPDATA%\aioffice-searchpro\venv`, macOS/Linux 기본 `~/.cache/aioffice-searchpro/venv`, `AIOFFICE_SEARCHPRO_VENV`로 재정의 가능)을 동기화한다. 시스템 Python은 건드리지 않는다. **curl_cffi는 0.15.0 이상**을 요구한다. 0.15부터
 `impersonate="chrome"`이 최신 Chrome(146+) 지문으로 갱신되고(0.14는 chrome142에 고정), HTTP/3 지문과
-SSRF-safe redirect 기본값이 추가됐다. wrapper가 사용하는 의존성 가드는 **미설치뿐 아니라 0.15 미만이면 업그레이드**한다:
+SSRF-safe redirect 기본값이 추가됐다. wrapper는 `pyproject.toml`과 `uv.lock`을 기준으로 의존성을 재현한다:
 ```bash
-python3 -c "import curl_cffi,bs4,yaml,pypdf,markdownify; v=curl_cffi.__version__.split('.'); assert (int(v[0]),int(v[1]))>=(0,15)" 2>/dev/null \
-  || pip install -U "curl_cffi>=0.15.0" beautifulsoup4 pyyaml pypdf markdownify -q
+uv sync --frozen
 ```
 
 **콘텐츠 처리 - 기본 동작 + 선택 라이브러리.** 엔진의 실사용자는 대개 LLM 컨텍스트에 넣으려는 에이전트라, 깨끗한 마크다운을 **기본으로** 준다. 라이브러리가 없으면 전부 raw 폴백으로 정상 동작한다(graceful degradation):
@@ -321,7 +320,7 @@ python3 -c "import curl_cffi,bs4,yaml,pypdf,markdownify; v=curl_cffi.__version__
 - `pdfplumber`(MIT): **자동**. PDF 본문을 pdfplumber(다단컬럼·표 우수) 우선 추출, 미설치 시 pypdf 폴백. **`pymupdf4llm`/`PyMuPDF`는 AGPL이라 사용 금지.**
 
 ```bash
-pip install resiliparse pdfplumber -q   # 본문추출(opt-in)·PDF 개선을 원할 때
+uv add resiliparse pdfplumber   # 본문추출(opt-in), PDF 개선을 원할 때
 ```
 
 실패(`ok=False`) 응답에는 `block_class`가 붙는다: `bot_detection`(라우트 결과가 엇갈리거나 WAF 시그널이 있어 브라우저·다른 라우트로 우회 가능)과 `infra_or_auth`(모든 라우트가 균일하게 401/404를 반환해 스텔스로 우회 불가)를 구분한다. 재시도 가치 판단에 사용한다.

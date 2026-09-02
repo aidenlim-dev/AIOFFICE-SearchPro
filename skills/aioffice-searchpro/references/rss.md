@@ -5,7 +5,7 @@
 ## 의존성
 
 ```bash
-python3 -c "import feedparser" 2>/dev/null || pip install feedparser -q
+uv add feedparser
 ```
 
 ## RSS 자동 발견

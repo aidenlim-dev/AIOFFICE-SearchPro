@@ -49,7 +49,7 @@ codex plugin marketplace add https://github.com/aidenlim-dev/AIOFFICE-SearchPro
 codex plugin add aioffice-searchpro@aioffice-searchpro-marketplace
 ```
 
-Restart the agent (or `/reload-plugins`) to load it. First use builds an isolated venv for `curl_cffi`, `yt-dlp`, and parsers - your system Python is left alone.
+Restart the agent (or `/reload-plugins`) to load it. The runtime requires [uv](https://docs.astral.sh/uv/getting-started/installation/). First use syncs an isolated uv environment for `curl_cffi`, `yt-dlp`, and parsers, leaving your system Python alone.
 
 ### Update an existing installation
 
@@ -175,7 +175,7 @@ Forked from [fivetaku/insane-search](https://github.com/fivetaku/insane-search) 
 - **Anti-detour routing** - the skill is documented as the designated tool for bot-protected sites, so an agent stops reaching for a heavyweight browser first.
 - **Profile-aware failure guidance** - escalation advice follows what the detected WAF profile actually needs, instead of always pointing at Playwright MCP.
 - **One-shot capture** - `--output` / `--metadata` keep a successful body on first call.
-- **OS-native wrappers** - `setup/run-engine.{sh,ps1}` manage an isolated venv on both Windows and Unix.
+- **OS-native wrappers** - `setup/run-engine.{sh,ps1}` use `uv sync --frozen` to manage an isolated environment on Windows and Unix.
 - **Actionable dependency diagnostics** - a missing local Playwright install reports the exact fix instead of a bare "unavailable".
 
 Version history and per-release porting notes: [CHANGELOG.md](CHANGELOG.md).

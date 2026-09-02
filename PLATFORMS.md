@@ -71,7 +71,7 @@ The skill is organized as a set of reference files (`skills/aioffice-searchpro/r
 
 **Required:** Claude Code only.
 
-**Installed in an isolated plugin venv on first use** (`setup/run-engine.sh` or `setup/run-engine.ps1`; system Python is not modified):
+**Installed in an isolated uv environment on first use** (`setup/run-engine.sh` or `setup/run-engine.ps1`; system Python is not modified):
 
 ```bash
 bash setup/run-engine.sh "https://example.com/" --selector h1 --no-playwright --json

@@ -49,7 +49,7 @@ codex plugin marketplace add https://github.com/aidenlim-dev/AIOFFICE-SearchPro
 codex plugin add aioffice-searchpro@aioffice-searchpro-marketplace
 ```
 
-설치 후 에이전트를 재시작하거나 `/reload-plugins`를 실행한다. 첫 호출 때 `curl_cffi`, `yt-dlp`, 파서용 격리 venv를 만들며, 시스템 Python은 건드리지 않는다.
+설치 후 에이전트를 재시작하거나 `/reload-plugins`를 실행한다. 실행에는 [uv](https://docs.astral.sh/uv/getting-started/installation/)가 필요하다. 첫 호출 때 `curl_cffi`, `yt-dlp`, 파서용 격리 uv 환경을 동기화하며, 시스템 Python은 건드리지 않는다.
 
 ### 기존 설치 업데이트
 
@@ -175,7 +175,7 @@ HTML은 중무장돼 있어도 사이트 자체의 JSON API는 얕은 경우가 
 - **우회 방지 라우팅** - 봇 보호 사이트에는 이 스킬이 지정 도구임을 문서에 명시해, 에이전트가 무거운 브라우저부터 꺼내들지 않게 한다.
 - **프로파일 인지형 실패 안내** - 무조건 Playwright MCP를 가리키는 대신, 감지된 WAF 프로파일이 실제로 요구하는 경로를 안내한다.
 - **원샷 저장** - `--output` / `--metadata`로 첫 호출에서 성공한 본문을 확보한다.
-- **OS 네이티브 wrapper** - `setup/run-engine.{sh,ps1}`가 Windows와 Unix 양쪽에서 격리 venv를 관리한다.
+- **OS 네이티브 wrapper** - `setup/run-engine.{sh,ps1}`가 Windows와 Unix에서 `uv sync --frozen`으로 격리 환경을 관리한다.
 - **실행 가능한 의존성 진단** - 로컬 Playwright가 없으면 "사용 불가"로 끝내지 않고 정확한 해결 명령을 알려준다.
 
 버전 이력과 릴리스별 이식 메모는 [CHANGELOG.md](CHANGELOG.md)에 있다.

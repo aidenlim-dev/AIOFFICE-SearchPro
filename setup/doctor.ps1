@@ -45,10 +45,16 @@ if (Test-Path (Join-Path $Root ".claude-plugin/marketplace.json")) {
   Bad ".claude-plugin/marketplace.json is missing"
 }
 
-if (Test-Path (Join-Path $Root "requirements.lock")) {
-  Ok "Python dependency lockfile present"
+if ((Test-Path (Join-Path $Root "pyproject.toml")) -and (Test-Path (Join-Path $Root "uv.lock"))) {
+  Ok "uv project and dependency lockfile present"
 } else {
-  Bad "requirements.lock is missing"
+  Bad "pyproject.toml or uv.lock is missing"
+}
+
+if (Get-Command uv -ErrorAction SilentlyContinue) {
+  Ok "uv found: $(& uv --version)"
+} else {
+  Bad "uv not found. Install it from https://docs.astral.sh/uv/getting-started/installation/"
 }
 
 if (Test-Path (Join-Path $Root "skills/aioffice-searchpro/engine/templates/package-lock.json")) {

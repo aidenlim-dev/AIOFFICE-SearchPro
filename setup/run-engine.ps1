@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Run the aioffice-searchpro engine through an isolated Python environment.
+# Run the aioffice-searchpro engine through an isolated uv environment.
 # Windows-native companion to setup/run-engine.sh.
 [CmdletBinding()]
 param(
@@ -7,38 +7,13 @@ param(
   [string[]] $EngineArgs
 )
 
-# "Continue", not "Stop": Windows PowerShell 5.1 promotes native stderr output
-# (e.g. harmless "python -m venv" warnings) to terminating errors under "Stop"
-# when streams are redirected. Every native call below checks $LASTEXITCODE.
+# "Continue", not "Stop": Windows PowerShell 5.1 can promote native stderr
+# output to terminating errors when streams are redirected. Native calls below
+# check $LASTEXITCODE directly.
 $ErrorActionPreference = "Continue"
 
 $Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $EngineRoot = Join-Path $Root "skills/aioffice-searchpro"
-$LockFile = Join-Path $Root "requirements.lock"
-
-function Get-PythonExe {
-  $candidates = @(
-    @{ Command = "python"; Args = @() },
-    @{ Command = "python3"; Args = @() },
-    @{ Command = "py"; Args = @("-3") }
-  )
-  foreach ($candidate in $candidates) {
-    if (-not (Get-Command $candidate.Command -ErrorAction SilentlyContinue)) {
-      continue
-    }
-    $probeArgs = @($candidate.Args) + @("-c", "import sys; print(sys.executable)")
-    try {
-      $out = & $candidate.Command @probeArgs 2>$null
-      if ($LASTEXITCODE -eq 0 -and $out) {
-        return ($out | Select-Object -First 1).Trim()
-      }
-    } catch {
-      continue
-    }
-  }
-  throw "aioffice-searchpro: Python 3 is required but was not found"
-}
-
 function Get-DefaultVenvDir {
   if ($env:AIOFFICE_SEARCHPRO_VENV) {
     return $env:AIOFFICE_SEARCHPRO_VENV
@@ -50,69 +25,41 @@ function Get-DefaultVenvDir {
   return (Join-Path $HOME ".cache/aioffice-searchpro/venv")
 }
 
-$Python = Get-PythonExe
+if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
+  Write-Error "aioffice-searchpro: uv is required but was not found: https://docs.astral.sh/uv/getting-started/installation/"
+  exit 127
+}
+
 $VenvDir = Get-DefaultVenvDir
 $VenvPython = Join-Path $VenvDir "Scripts/python.exe"
 if (-not (Test-Path $VenvPython)) {
   $VenvPython = Join-Path $VenvDir "bin/python"
 }
-$Stamp = Join-Path $VenvDir ".aioffice-searchpro-deps-v4"
 
-if (-not (Test-Path $VenvPython)) {
-  $parent = Split-Path -Parent $VenvDir
-  if ($parent) {
-    New-Item -ItemType Directory -Force -Path $parent | Out-Null
-  }
-  # A failed attempt can leave a partial venv behind; remove it and retry once.
-  $created = $false
-  foreach ($attempt in 1, 2) {
-    & $Python -m venv $VenvDir
-    $candidate = Join-Path $VenvDir "Scripts/python.exe"
-    if (-not (Test-Path $candidate)) {
-      $candidate = Join-Path $VenvDir "bin/python"
-    }
-    if ($LASTEXITCODE -eq 0 -and (Test-Path $candidate)) {
-      $VenvPython = $candidate
-      $created = $true
-      break
-    }
-    Remove-Item -Recurse -Force $VenvDir -ErrorAction SilentlyContinue
-  }
-  if (-not $created) {
-    Write-Error "aioffice-searchpro: failed to create venv at $VenvDir"
-    exit 1
-  }
+$parent = Split-Path -Parent $VenvDir
+if ($parent) {
+  New-Item -ItemType Directory -Force -Path $parent | Out-Null
 }
-
-$Log = Join-Path $VenvDir "install.log"
-& $VenvPython -m pip --version *> $null
+$Log = "$VenvDir.install.log"
+$OldUvProjectEnvironment = $env:UV_PROJECT_ENVIRONMENT
+$env:UV_PROJECT_ENVIRONMENT = $VenvDir
+& uv sync --project $Root --frozen --no-install-project *> $Log
 if ($LASTEXITCODE -ne 0) {
-  & $VenvPython -m ensurepip --upgrade *> $Log
-  if ($LASTEXITCODE -ne 0) {
-    Get-Content $Log -ErrorAction SilentlyContinue | Write-Error
-    exit 1
-  }
+  Get-Content $Log -ErrorAction SilentlyContinue | Write-Error
+  $env:UV_PROJECT_ENVIRONMENT = $OldUvProjectEnvironment
+  exit 1
+}
+$env:UV_PROJECT_ENVIRONMENT = $OldUvProjectEnvironment
+
+$VenvPython = Join-Path $VenvDir "Scripts/python.exe"
+if (-not (Test-Path $VenvPython)) {
+  $VenvPython = Join-Path $VenvDir "bin/python"
 }
 
 $OldPythonUtf8 = $env:PYTHONUTF8
 $OldPythonIoEncoding = $env:PYTHONIOENCODING
 $env:PYTHONUTF8 = "1"
 $env:PYTHONIOENCODING = "utf-8"
-
-if (-not (Test-Path $Stamp)) {
-  & $VenvPython -m pip install -U pip *> $Log
-  if ($LASTEXITCODE -ne 0) {
-    Get-Content $Log -ErrorAction SilentlyContinue | Write-Error
-    exit 1
-  }
-  & $VenvPython -m pip install -U -r $LockFile *>> $Log
-  if ($LASTEXITCODE -ne 0) {
-    Get-Content $Log -ErrorAction SilentlyContinue | Write-Error
-    exit 1
-  }
-  [DateTimeOffset]::UtcNow.ToUnixTimeSeconds() | Set-Content -Encoding ASCII $Stamp
-}
-
 $OldPythonPath = $env:PYTHONPATH
 if ($OldPythonPath) {
   $env:PYTHONPATH = "$EngineRoot$([IO.Path]::PathSeparator)$OldPythonPath"
