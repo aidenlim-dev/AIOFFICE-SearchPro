@@ -61,7 +61,7 @@ claude plugin update aioffice-searchpro@aioffice-searchpro-marketplace
 claude plugin list
 ```
 
-목록에서 `aioffice-searchpro`가 `1.6.0` 이상인지 확인한 뒤 Claude Code를 재시작한다. 열려 있는 세션에서는 `/reload-plugins`로 다시 불러올 수도 있다.
+목록에서 `aioffice-searchpro`가 `1.6.1` 이상인지 확인한 뒤 Claude Code를 재시작한다. 열려 있는 세션에서는 `/reload-plugins`로 다시 불러올 수도 있다.
 
 설치 확인은 설치된 사본에서 doctor를 돌리면 된다. 저장소를 다시 clone할 필요 없다:
 

@@ -26,6 +26,7 @@ import sys
 from pathlib import Path
 
 from . import fetch
+from .url_masking import mask_url
 from .fetch_chain import FetchResult
 
 
@@ -137,7 +138,7 @@ def main(argv: list[str] | None = None) -> int:
         for att in result.trace:
             d = att.to_dict()
             imp = d.get("impersonate") or "-"
-            ref = d.get("referer") or "-"
+            ref = mask_url(d.get("referer") or "") or "-"
             print(
                 f"[{d['phase']:<8}] {d['executor']:<18} "
                 f"xform={d['url_transform']:<16} imp={imp:<14} ref={ref:<14} "
