@@ -196,10 +196,7 @@ import io as _io
 import json as _json
 import re as _re
 
-try:
-    from pypdf import PdfReader as _PdfReader
-except ImportError:
-    _PdfReader = None
+_PdfReader = None
 
 # Optional: HTML→markdown (M1). When present, a raw-HTML success is converted
 # to structure-preserving markdown (tables→pipe tables, <pre>/<code>→fences,
@@ -224,10 +221,26 @@ _MAINCONTENT_MIN_CHARS = 200     # reject a near-empty extraction, keep raw
 # multi-column layouts and tables than pypdf. Tried first; falls back to pypdf.
 # pymupdf / pymupdf4llm are AGPL and must NOT be used here (would relicense the
 # MIT plugin).
-try:
-    import pdfplumber as _pdfplumber
-except ImportError:
-    _pdfplumber = None
+_pdfplumber = None
+_pdf_extractors_loaded = False
+
+
+def _load_pdf_extractors() -> None:
+    """Load optional PDF dependencies once, only when a bounded PDF needs them."""
+    global _PdfReader, _pdfplumber, _pdf_extractors_loaded
+    if _pdf_extractors_loaded:
+        return
+    try:
+        from pypdf import PdfReader as reader
+        _PdfReader = reader
+    except ImportError:
+        _PdfReader = None
+    try:
+        import pdfplumber as plumber
+        _pdfplumber = plumber
+    except ImportError:
+        _pdfplumber = None
+    _pdf_extractors_loaded = True
 
 _JSONLD_MIN_CHARS = 100          # an articleBody shorter than this is a teaser
 _INNER_TEXT_MIN_CHARS = 200      # innerText shorter than this never wins
@@ -372,6 +385,7 @@ def _extract_pdf(body: bytes, url: str) -> tuple[str, str, float, str]:
     the extracted text is capped at _RESCUE_MAX_TEXT."""
     if len(body) > _PDF_MAX_BYTES:
         return "", "", 0.0, "pdf_too_large"
+    _load_pdf_extractors()
     if _pdfplumber is None and _PdfReader is None:
         return "", "", 0.0, "pdf_no_extractor"
 
