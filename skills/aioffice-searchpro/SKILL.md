@@ -252,14 +252,14 @@ report     — FetchResult(ok, verdict, profile_used, trace, summary)
 
 | 축 | 값 | 비고 |
 |----|-----|------|
-| `url_transforms` | `original`, `mobile_subdomain` (`www.→m.`), `am_prefix`, `drop_www` | 사이트명 없음, 규칙만 |
+| `url_transforms` | `original`, `mobile_subdomain` (`www.→m.`), `am_prefix`, `m_prefix_subdomain` (`sub.→m.sub.`), `drop_www` | 사이트명 없음, 규칙만 |
 | `tls_impersonate` | `safari`, `safari_ios`, `chrome99`, `chrome119`, `chrome131`, `chrome_android`, `firefox`... | 프로파일별 avoid 리스트 존재 |
 | `referer_strategy` | `self_root`, `google_search`, `none` | |
 
 **device_class**:
 - `"auto"` (기본) — 프로파일 전략 따름
-- `"desktop"` — TLS 데스크톱만 + `mobile_subdomain` 비활성
-- `"mobile"` — TLS 모바일만 + `mobile_subdomain` 활성
+- `"desktop"` - TLS 데스크톱만 사용, 세 모바일 URL 변환 비활성
+- `"mobile"` - TLS 모바일만 사용, `mobile_subdomain`, `am_prefix`, `m_prefix_subdomain` 활성
 
 ### Playwright 폴백 (capability-matched)
 
