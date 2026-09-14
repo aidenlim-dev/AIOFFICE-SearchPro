@@ -41,6 +41,7 @@ from .content_safety import ContentSafetyReport, analyze_untrusted_content, wrap
 from .validators import Verdict, validate, TERMINAL_NONSUCCESS
 from .waf_detector import detect, load_profile, _load_profiles, last_load_error
 from .url_transforms import iter_transformed
+from .url_masking import mask_url
 
 
 _OK_VALUES = (Verdict.STRONG_OK.value, Verdict.WEAK_OK.value)
@@ -87,7 +88,10 @@ class Attempt:
     error: Optional[str] = None
 
     def to_dict(self) -> dict:
-        return asdict(self)
+        payload = asdict(self)
+        payload["url"] = mask_url(self.url)
+        payload["referer"] = mask_url(self.referer)
+        return payload
 
 
 @dataclass
@@ -155,7 +159,7 @@ class FetchResult:
     def to_dict(self) -> dict:
         return {
             "ok": self.ok,
-            "final_url": self.final_url,
+            "final_url": mask_url(self.final_url),
             "verdict": self.verdict,
             "profile_used": self.profile_used,
             "trace": [a.to_dict() for a in self.trace],
