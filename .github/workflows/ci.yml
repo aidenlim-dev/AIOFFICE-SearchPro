@@ -50,6 +50,12 @@ jobs:
           uv run python skills/aioffice-searchpro/engine/tests/test_u10.py
           uv run python skills/aioffice-searchpro/engine/tests/test_url_masking.py
           uv run python skills/aioffice-searchpro/engine/tests/test_u11.py
+          uv run python skills/aioffice-searchpro/engine/tests/test_envelope_fail_closed.py
+          uv run python skills/aioffice-searchpro/engine/tests/test_m_prefix_subdomain.py
+          uv run python skills/aioffice-searchpro/engine/tests/test_cli_result.py
+          uv run python skills/aioffice-searchpro/engine/tests/test_lazy_pdf.py
+          uv run python skills/aioffice-searchpro/engine/tests/test_t2_rescue.py
+          uv run python skills/aioffice-searchpro/engine/tests/test_t5_pdfplumber.py
           PYTHONPATH="$PWD/skills/aioffice-searchpro" uv run pytest -q skills/aioffice-searchpro/tests/test_x_search.py
 
       - name: Bias check
@@ -94,6 +100,25 @@ jobs:
             throw "metadata leaked content"
           }
 
+      - name: Combined JSON and file output smoke
+        run: |
+          AIOFFICE_SEARCHPRO_VENV="$PWD/.run-engine-venv" \
+            bash setup/run-engine.sh https://example.com/ --selector h1 --no-playwright --max-attempts 1 \
+              --json-content --output /tmp/aioffice-searchpro-combined.html \
+              --metadata /tmp/aioffice-searchpro-combined.json > /tmp/aioffice-searchpro-combined.stdout
+          uv run python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(Path("/tmp/aioffice-searchpro-combined.stdout").read_text())
+          metadata = json.loads(Path("/tmp/aioffice-searchpro-combined.json").read_text())
+          content = Path("/tmp/aioffice-searchpro-combined.html").read_text()
+          assert payload["ok"] is True
+          assert payload["trace"]
+          assert content and content in payload.pop("untrusted_text")
+          assert "content" not in metadata and "untrusted_text" not in metadata
+          assert payload == metadata
+          PY
+
       - name: Online smoke tests
         run: uv run python skills/aioffice-searchpro/engine/tests/test_smoke.py
 
@@ -129,7 +154,7 @@ jobs:
           $metadata = Join-Path $env:RUNNER_TEMP "aioffice-searchpro-win.json"
           $stdout = Join-Path $env:RUNNER_TEMP "aioffice-searchpro-win.stdout"
           ./setup/run-engine.ps1 https://example.com/ --selector h1 --no-playwright --max-attempts 1 `
-            --json --output $html --metadata $metadata > $stdout
+            --json-content --output $html --metadata $metadata > $stdout
           if ($LASTEXITCODE -ne 0) {
             throw "run-engine.ps1 failed with exit code $LASTEXITCODE"
           }
@@ -149,4 +174,15 @@ jobs:
           }
           if ($data.PSObject.Properties.Name -contains "content") {
             throw "metadata leaked content"
+          }
+          if ($data.PSObject.Properties.Name -contains "untrusted_text") {
+            throw "metadata included wrapped content"
+          }
+          $combined = Get-Content $stdout -Raw | ConvertFrom-Json
+          $body = Get-Content $html -Raw
+          if (-not $combined.ok -or -not $combined.untrusted_text.Contains($body)) {
+            throw "combined JSON is missing the saved content"
+          }
+          if ($combined.content_path -ne $data.content_path -or $combined.trace.Count -ne $data.trace.Count) {
+            throw "combined JSON and metadata disagree"
           }

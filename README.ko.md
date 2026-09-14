@@ -25,6 +25,13 @@
 
 **공개** 페이지를 읽는 도구다. 로그인과 페이월에서는 멈추고, 멈췄다고 말한다.
 
+## v1.7.0 변경 사항
+
+- `--json-content`로 한 번의 수집에서 메타데이터, trace, 외부 데이터 경계로 감싼 본문을 함께 받는다. `--output`과 함께 사용할 수 있고, 기존 `--json`과 메타데이터 파일은 본문을 생략한다.
+- 손상된 브라우저 출력은 폐기해 쿠키가 본문으로 유출되는 경로를 차단한다. JSON 출력과 메타데이터 파일의 URL 자격 증명도 가린다.
+- 데스크톱 페이지가 프레임셋만 반환하는 서브도메인은 `m.` 주소를 추가로 탐색한다.
+- PDF 파서는 PDF 추출이 필요할 때만 불러온다.
+
 ## 설치
 
 **Claude Code** (대화형):
@@ -61,7 +68,7 @@ claude plugin update aioffice-searchpro@aioffice-searchpro-marketplace
 claude plugin list
 ```
 
-목록에서 `aioffice-searchpro`가 `1.6.1` 이상인지 확인한 뒤 Claude Code를 재시작한다. 열려 있는 세션에서는 `/reload-plugins`로 다시 불러올 수도 있다.
+목록에서 `aioffice-searchpro`가 `1.7.0` 이상인지 확인한 뒤 Claude Code를 재시작한다. 열려 있는 세션에서는 `/reload-plugins`로 다시 불러올 수도 있다.
 
 설치 확인은 설치된 사본에서 doctor를 돌리면 된다. 저장소를 다시 clone할 필요 없다:
 

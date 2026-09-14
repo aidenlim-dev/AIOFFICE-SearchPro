@@ -25,6 +25,13 @@ When an ordinary fetch hits `403`, a WAF challenge, or a bot wall, your agent no
 
 It reads **public** pages. It stops at logins and paywalls and says so.
 
+## New in v1.7.0
+
+- `--json-content` returns metadata, trace and wrapped untrusted text from one fetch. It works with `--output`; `--json` and metadata files still omit the body.
+- Malformed browser output is discarded to keep cookie data out of fetched content. URL credentials are masked in JSON output and metadata files.
+- Subdomains can try their `m.` address when the desktop page only returns a frameset shell.
+- PDF parsers load only when PDF extraction is needed.
+
 ## Install
 
 **Claude Code** (interactive):
@@ -61,7 +68,7 @@ claude plugin update aioffice-searchpro@aioffice-searchpro-marketplace
 claude plugin list
 ```
 
-Confirm that the list reports `aioffice-searchpro` version `1.6.1` or newer, then restart Claude Code. An open session can also reload plugins with `/reload-plugins`.
+Confirm that the list reports `aioffice-searchpro` version `1.7.0` or newer, then restart Claude Code. An open session can also reload plugins with `/reload-plugins`.
 
 To check an install, run doctor against the installed copy. No second clone needed:
 

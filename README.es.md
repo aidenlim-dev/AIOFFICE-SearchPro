@@ -25,6 +25,13 @@ Un lector de páginas públicas resistente al bloqueo, para Claude Code. Sin cla
 
 ---
 
+## Novedades de v1.7.0
+
+- `--json-content` devuelve metadatos, trace y texto delimitado como datos externos con una sola consulta. Funciona con `--output`; `--json` y los archivos de metadatos siguen omitiendo el cuerpo.
+- La salida malformada del navegador se descarta para evitar que las cookies lleguen al contenido. Las credenciales de las URL se ocultan en JSON y en los archivos de metadatos.
+- Los subdominios pueden probar su dirección `m.` cuando la página de escritorio solo devuelve un marco vacío.
+- Los analizadores PDF se cargan únicamente cuando se necesita extraer un PDF.
+
 ## ⚡ Instalación
 
 Para el curso / instalación directa desde este repositorio de GitHub:
