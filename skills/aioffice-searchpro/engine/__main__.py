@@ -3,12 +3,13 @@
 
 Usage:
     python3 -m engine URL [--selector CSS] [--device auto|desktop|mobile]
-                          [--timeout N] [--max-attempts N] [--json] [--trace]
+                          [--timeout N] [--max-attempts N] [--json | --json-content] [--trace]
                           [--output PATH] [--metadata PATH]
 
 Examples:
     python3 -m engine "https://example.com/" --selector "h1"
     python3 -m engine "https://example.com/" --json
+    python3 -m engine "https://example.com/" --json-content
     python3 -m engine "https://example.com/" --json --output page.html --metadata page.fetch.json
     python3 -m engine "https://example.com/" --device mobile --trace
 
@@ -61,6 +62,8 @@ def build_parser() -> argparse.ArgumentParser:
                    help="Skip the Phase 0 official-API router (generic grid only).")
     p.add_argument("--json", action="store_true",
                    help="Emit FetchResult as JSON to stdout (content omitted).")
+    p.add_argument("--json-content", action="store_true",
+                   help="Emit metadata, trace and wrapped untrusted text from one fetch; URL fields are masked.")
     p.add_argument("--output", "--save-content", "-o", dest="output", metavar="PATH",
                    help="Write the exact fetched raw content to PATH from this same fetch attempt.")
     p.add_argument("--metadata", metavar="PATH",
@@ -154,7 +157,7 @@ def main(argv: list[str] | None = None) -> int:
         print(
             "\n════════════════════════════════════════════════════════════════\n"
             "⚠️  R7 triggered — consider API-first route instead of HTML grid.\n"
-            "   See summary below (or re-run with --trace for full attempt log).\n"
+            "   See summary below; use --trace on the initial fetch for the full attempt log.\n"
             "════════════════════════════════════════════════════════════════",
             file=sys.stderr,
         )
@@ -190,7 +193,7 @@ def main(argv: list[str] | None = None) -> int:
             )
 
         metadata_text = None
-        if args.json or args.metadata:
+        if args.json or args.json_content or args.metadata:
             payload = _metadata_payload(
                 result,
                 content_path=content_path,
@@ -204,12 +207,17 @@ def main(argv: list[str] | None = None) -> int:
                 f"[engine] saved metadata to {metadata_path} ({metadata_bytes} bytes)",
                 file=sys.stderr,
             )
+
+        json_text = metadata_text
+        if args.json_content:
+            payload["untrusted_text"] = result.to_untrusted_text()
+            json_text = json.dumps(payload, ensure_ascii=False, indent=2)
     except Exception as e:
         print(f"engine output error: {type(e).__name__}: {e}", file=sys.stderr)
         return 2
 
-    if args.json:
-        print(metadata_text)
+    if args.json or args.json_content:
+        print(json_text)
     else:
         print(result.to_untrusted_text(), end="")
         if result.prompt_injection_risk in ("medium", "high"):

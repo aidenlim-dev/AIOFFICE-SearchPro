@@ -41,6 +41,7 @@ from .content_safety import ContentSafetyReport, analyze_untrusted_content, wrap
 from .validators import Verdict, validate, TERMINAL_NONSUCCESS
 from .waf_detector import detect, load_profile, _load_profiles, last_load_error
 from .url_transforms import iter_transformed
+from .url_masking import mask_url
 
 
 _OK_VALUES = (Verdict.STRONG_OK.value, Verdict.WEAK_OK.value)
@@ -87,7 +88,10 @@ class Attempt:
     error: Optional[str] = None
 
     def to_dict(self) -> dict:
-        return asdict(self)
+        payload = asdict(self)
+        payload["url"] = mask_url(self.url)
+        payload["referer"] = mask_url(self.referer)
+        return payload
 
 
 @dataclass
@@ -155,7 +159,7 @@ class FetchResult:
     def to_dict(self) -> dict:
         return {
             "ok": self.ok,
-            "final_url": self.final_url,
+            "final_url": mask_url(self.final_url),
             "verdict": self.verdict,
             "profile_used": self.profile_used,
             "trace": [a.to_dict() for a in self.trace],
@@ -192,10 +196,7 @@ import io as _io
 import json as _json
 import re as _re
 
-try:
-    from pypdf import PdfReader as _PdfReader
-except ImportError:
-    _PdfReader = None
+_PdfReader = None
 
 # Optional: HTML→markdown (M1). When present, a raw-HTML success is converted
 # to structure-preserving markdown (tables→pipe tables, <pre>/<code>→fences,
@@ -220,10 +221,26 @@ _MAINCONTENT_MIN_CHARS = 200     # reject a near-empty extraction, keep raw
 # multi-column layouts and tables than pypdf. Tried first; falls back to pypdf.
 # pymupdf / pymupdf4llm are AGPL and must NOT be used here (would relicense the
 # MIT plugin).
-try:
-    import pdfplumber as _pdfplumber
-except ImportError:
-    _pdfplumber = None
+_pdfplumber = None
+_pdf_extractors_loaded = False
+
+
+def _load_pdf_extractors() -> None:
+    """Load optional PDF dependencies once, only when a bounded PDF needs them."""
+    global _PdfReader, _pdfplumber, _pdf_extractors_loaded
+    if _pdf_extractors_loaded:
+        return
+    try:
+        from pypdf import PdfReader as reader
+        _PdfReader = reader
+    except ImportError:
+        _PdfReader = None
+    try:
+        import pdfplumber as plumber
+        _pdfplumber = plumber
+    except ImportError:
+        _pdfplumber = None
+    _pdf_extractors_loaded = True
 
 _JSONLD_MIN_CHARS = 100          # an articleBody shorter than this is a teaser
 _INNER_TEXT_MIN_CHARS = 200      # innerText shorter than this never wins
@@ -368,6 +385,7 @@ def _extract_pdf(body: bytes, url: str) -> tuple[str, str, float, str]:
     the extracted text is capped at _RESCUE_MAX_TEXT."""
     if len(body) > _PDF_MAX_BYTES:
         return "", "", 0.0, "pdf_too_large"
+    _load_pdf_extractors()
     if _pdfplumber is None and _PdfReader is None:
         return "", "", 0.0, "pdf_no_extractor"
 
@@ -649,12 +667,12 @@ def _plan_for_profile(
     # device_class shaping (fixes desktop/mobile drift)
     if device_class == "mobile":
         groups = [[t for t in g if _is_mobile_tls(t)] for g in groups]
-        for extra in ("mobile_subdomain", "am_prefix"):
+        for extra in ("mobile_subdomain", "am_prefix", "m_prefix_subdomain"):
             if extra not in transform_order:
                 transform_order.append(extra)
     elif device_class == "desktop":
         groups = [[t for t in g if not _is_mobile_tls(t)] for g in groups]
-        transform_order = [t for t in transform_order if t not in ("mobile_subdomain", "am_prefix")] or ["original"]
+        transform_order = [t for t in transform_order if t not in ("mobile_subdomain", "am_prefix", "m_prefix_subdomain")] or ["original"]
 
     # deprioritize (not delete) avoid targets within each family group
     def _reorder(g: list[str]) -> list[str]:

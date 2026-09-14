@@ -56,6 +56,7 @@ class _patched:
     def __init__(self, **kw):
         self.kw = kw; self.saved = {}
     def __enter__(self):
+        fc._load_pdf_extractors()
         for k, v in self.kw.items():
             self.saved[k] = getattr(fc, k); setattr(fc, k, v)
         return self
@@ -68,6 +69,7 @@ _TEXT_PDF = _build_text_pdf([f"Line number {i} of the document body." for i in r
 
 
 def t_pdfplumber_extracts_even_without_pypdf() -> None:
+    fc._load_pdf_extractors()
     if fc._pdfplumber is None:
         print("  ⚠ skipped: pdfplumber not installed"); return
     with _patched(_PdfReader=None):  # force pdfplumber path
@@ -78,6 +80,7 @@ def t_pdfplumber_extracts_even_without_pypdf() -> None:
 
 
 def t_pypdf_fallback_when_pdfplumber_absent() -> None:
+    fc._load_pdf_extractors()
     if fc._PdfReader is None:
         print("  ⚠ skipped: pypdf not installed"); return
     with _patched(_pdfplumber=None):  # force pypdf fallback
