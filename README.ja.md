@@ -25,6 +25,11 @@ Claude Code 向けの、ブロックに強い公開ページリーダー。API �
 
 ---
 
+## v1.8.0 の変更
+
+- X の長文と Articles を第三者サービス FxTwitter で補完します。元の JSON 形式と投稿者情報を保持します。
+- 単一投稿の取得とキーワード検索に出典と欠落の可能性を表示します。`INSANE_SEARCH_FXTWITTER=0`（`false`、`off`、`no` も可）で追加リクエストを無効にできます。
+
 ## v1.7.0 の変更
 
 - `--json-content` は1回の取得でメタデータ、trace、外部データの境界で囲んだ本文を返します。`--output` と併用でき、既存の `--json` とメタデータファイルには本文を含めません。
@@ -104,7 +109,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "http
 > *"X で AIOFFICE-SearchPro に関する投稿を検索して。"*
 > *"この YouTube 動画を要約して。"*
 
-**期待される動作：** Claude が各サイトの公開ルート——Reddit のフィード、X の oEmbed、YouTube の字幕——にログインも API キーもなしで到達し、使えるテキストを返します。プラグインがなければ同じ依頼に *"アクセスできません"* が返るところを。
+**期待される動作：** Claude は Reddit のフィード、X の無料 Brave/Yahoo 検索と tweet-result 検証、YouTube の字幕から、ログインや API キーなしで本文を取得します。任意の xAI 検索には既存の認証情報が必要です。
 
 ## 🌐 対応サイト
 
@@ -148,7 +153,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "http
 
 各フェーズは、前のフェーズが失敗するかブロック信号を検知したときだけ実行されます：
 
-- **Phase 0** —— 汎用チェーンが自力で見つけられない公式公開エンドポイント（プラットフォーム API、フィード）
+- **Phase 0** -- 汎用チェーンが自力で見つけられない公式公開エンドポイント（プラットフォーム API、フィード） X の長文は第三者の FxTwitter で補完できます。
 - **Phase 1** —— 軽量プローブ：公開 API リーダー、シンジケーションゲートウェイ、モバイル / `.json` / `/rss` の URL バリアント
 - **Phase 2** —— TLS なりすまし（curl_cffi：safari → chrome → firefox）+ 完全なブラウザ ID
 - **Phase 3** —— 本物のヘッドレスブラウザ。サイトが内部で使う公開 JSON API も表面化させる

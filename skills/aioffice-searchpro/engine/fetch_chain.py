@@ -938,11 +938,18 @@ def _fetch_core(
                     reasons=[a["note"]] if a.get("note") else [],
                 ))
             if p0["ok"]:
+                meta = {key: p0[key] for key in (
+                    "source_kind", "source_service", "content_format",
+                    "truncated_possible", "truncation_reason",
+                ) if key in p0}
+                source_label = "third-party" if p0.get("source_kind") == "third_party" else "official"
                 return FetchResult(
                     ok=True, content=p0["content"], final_url=p0["final_url"],
                     verdict=Verdict.STRONG_OK.value,
                     profile_used=f"phase0:{p0['platform']}", trace=trace,
-                    summary=f"Phase 0 official route: {p0['platform']}:{p0['route']}",
+                    summary=f"Phase 0 {source_label} route: {p0['platform']}:{p0['route']}"
+                            + ("; truncated_possible" if meta.get("truncated_possible") else ""),
+                    extraction_meta=meta,
                     stop_reason="success",
                 )
             # Recognised platform but every official route failed → fall through

@@ -15,6 +15,10 @@ class XPost:
     likes: int
     replies: int
     discovered_by: tuple[str, ...]
+    source_kind: str = "official"
+    source_service: str = "x"
+    truncated_possible: bool = False
+    truncation_reason: str = ""
 
     def to_dict(self) -> dict[str, object]:
         return asdict(self)

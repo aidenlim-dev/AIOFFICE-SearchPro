@@ -25,6 +25,11 @@
 
 ---
 
+## v1.8.0 更新
+
+- X 长文和 Articles 可通过第三方 FxTwitter 补全文本，保留原有 JSON 格式和作者信息。
+- 单条读取和关键词搜索都会报告来源及可能截断。设置 `INSANE_SEARCH_FXTWITTER=0`（也支持 `false`、`off`、`no`）可关闭额外请求。
+
 ## v1.7.0 更新
 
 - `--json-content` 一次抓取即可返回元数据、trace 和带外部数据边界的正文。可与 `--output` 同时使用，现有 `--json` 和元数据文件仍不包含正文。
@@ -104,7 +109,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "http
 > *"在 X 上搜索关于 AIOFFICE-SearchPro 的帖子。"*
 > *"总结这个 YouTube 视频。"*
 
-**预期效果：** Claude 通过各站点的公开路径——Reddit 的订阅源、X 的 oEmbed、YouTube 的字幕——在无需登录、无需 API 密钥的情况下取回可用文本；而没有该插件时，同样的请求只会得到 *"我无法访问"*。
+**预期效果：** Claude 使用 Reddit 订阅源、X 的免费 Brave/Yahoo 关键词发现加 tweet-result 验证、YouTube 字幕取得可用文本，无需登录或 API 密钥。可选的 xAI 搜索需要已有凭据。
 
 ## 🌐 支持的平台
 
@@ -148,7 +153,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\setup\run-engine.ps1 "http
 
 每个阶段仅在上一阶段失败或检测到拦截信号时才执行：
 
-- **Phase 0** —— 通用链路无法自行发现的官方公开端点（平台 API、订阅源）
+- **Phase 0** -- 通用链路无法自行发现的官方公开端点（平台 API、订阅源） X 长文可由第三方 FxTwitter 补充。
 - **Phase 1** —— 轻量探测：公开 API 阅读器、聚合网关、移动版 / `.json` / `/rss` URL 变体
 - **Phase 2** —— TLS 指纹伪装（curl_cffi：safari → chrome → firefox）+ 完整浏览器身份
 - **Phase 3** —— 真实无头浏览器，同时暴露站点内部使用的公开 JSON API

@@ -73,7 +73,7 @@ if match:
 
 ## 개별 트윗 조회 — oEmbed API
 
-특정 트윗 URL을 알 때 전문 가져오기.
+특정 트윗 URL을 알 때 공개 임베드 본문을 가져온다. 장문과 아티클은 잘릴 수 있다.
 
 ### 엔드포인트
 
@@ -93,7 +93,7 @@ curl -sL "https://publish.twitter.com/oembed?url=https://x.com/{user}/status/{tw
 |------|------|
 | `author_name` | 작성자 표시 이름 |
 | `author_url` | 작성자 프로필 URL |
-| `html` | 트윗 전문이 포함된 HTML blockquote |
+| `html` | 공개 임베드 본문 HTML blockquote. 장문은 잘릴 수 있음 |
 | `url` | 트윗 원본 URL |
 
 ## 개별 트윗 조회 — tweet-result (가장 안정적, 권장)
@@ -116,12 +116,31 @@ print(d['user']['name'], '@'+d['user']['screen_name']); print(d['text']); print(
 
 | 필드 | 설명 |
 |------|------|
-| `text` | 트윗 전문 (plain text) |
+| `text` | 트윗 본문 문자열. 장문과 아티클은 잘릴 수 있음 |
 | `user.name` / `user.screen_name` | 작성자 이름 / 핸들 |
 | `favorite_count` / `conversation_count` | 좋아요 / 댓글 수 |
 | `created_at` | 작성 시각 |
 
 > `token` 파라미터는 임의 값(`a`)이어도 동작한다. `id`는 `/status/{id}` 경로에서 추출.
+
+### 장문과 아티클: 선택적 FxTwitter 보완
+
+엔진은 `note_tweet`/`article`, 270자 이상, t.co 링크만 있는 본문을 신호로
+`https://api.fxtwitter.com/{handle}/status/{tweet_id}`를 조회한다. 이 서비스는
+**X 공식 API가 아닌 제3자**이며 공개 게시물 ID와 작성자 핸들이 전송된다.
+단건 조회와 키워드 검색의 본문 검증 모두 해당한다. 짧은 글에는 호출하지 않는다.
+
+`INSANE_SEARCH_FXTWITTER=0`으로 끌 수 있다. `false`, `off`, `no`도 지원한다.
+추가 요청은 최대 10초이며, 더 긴 본문만 채택한다. 원래 tweet-result JSON에서
+`text`만 보완하므로 작성자, 시각, 반응 수와 JSON 형식은 유지된다.
+
+- 확장 성공: `extraction_meta.source_kind=third_party`, `source_service=fxtwitter`, `content_format=json`.
+- 비활성화: 원래 본문 유지, `truncated_possible=true`, `truncation_reason=fxtwitter_disabled`.
+- 오류/빈 응답: 원래 본문 유지, `truncation_reason=fxtwitter_error`.
+- 정상 응답이 더 길지 않음: 원래 본문 유지, `truncation_reason=fxtwitter_not_longer`. 이 상태는 장애를 뜻하지 않으며 잘림 가능성만 알린다.
+
+키워드 검색의 각 게시물에도 출처와 잘림 필드가 전달된다. 아티클은 제목과
+비어 있지 않은 텍스트 문단만 합치며, 이미지/영상과 목록/링크 서식은 재현하지 않는다.
 
 ## 조합 패턴 (검색 → 상세)
 

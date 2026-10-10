@@ -25,6 +25,11 @@ Un lector de páginas públicas resistente al bloqueo, para Claude Code. Sin cla
 
 ---
 
+## Novedades de v1.8.0
+
+- Los textos largos y Articles de X pueden ampliarse con FxTwitter, un servicio de terceros. Se conserva el JSON original y los datos del autor.
+- La lectura y la búsqueda indican la fuente y la posible truncación. `INSANE_SEARCH_FXTWITTER=0` (también `false`, `off`, `no`) desactiva la petición adicional.
+
 ## Novedades de v1.7.0
 
 - `--json-content` devuelve metadatos, trace y texto delimitado como datos externos con una sola consulta. Funciona con `--output`; `--json` y los archivos de metadatos siguen omitiendo el cuerpo.
@@ -104,7 +109,7 @@ Solo pídelo con normalidad: AIOFFICE-SearchPro se activa cuando algo se bloquea
 > *"Busca en X publicaciones sobre AIOFFICE-SearchPro."*
 > *"Resume este vídeo de YouTube."*
 
-**Resultado esperado:** Claude llega a la ruta pública de cada sitio —el feed de Reddit, X vía oEmbed, los subtítulos de YouTube— sin inicio de sesión ni clave de API, y devuelve texto utilizable, allí donde la misma petición respondería *"no puedo acceder a eso"* sin el plugin.
+**Resultado esperado:** Claude obtiene texto desde feeds de Reddit, búsquedas gratuitas Brave/Yahoo con validación tweet-result para X y subtítulos de YouTube, sin login ni clave API. La búsqueda opcional de xAI requiere credenciales existentes.
 
 ## 🌐 Funciona en
 
@@ -148,7 +153,7 @@ La fila que marca la diferencia es lo único que el fetch por defecto no puede h
 
 Cada fase se ejecuta solo si la anterior falla o detecta una señal de bloqueo:
 
-- **Phase 0** — endpoints públicos oficiales (APIs de plataforma, feeds) que la cadena genérica no puede descubrir por sí sola
+- **Phase 0** - endpoints públicos oficiales (APIs de plataforma, feeds) que la cadena genérica no puede descubrir por sí sola. Los textos largos de X pueden ampliarse mediante FxTwitter, un tercero.
 - **Phase 1** — sondas ligeras: lectores de API públicas, pasarelas de sindicación, variantes de URL móvil / `.json` / `/rss`
 - **Phase 2** — suplantación TLS (curl_cffi: safari → chrome → firefox) con una identidad de navegador completa
 - **Phase 3** — un navegador headless real, que además saca a la luz las APIs JSON públicas que un sitio usa internamente

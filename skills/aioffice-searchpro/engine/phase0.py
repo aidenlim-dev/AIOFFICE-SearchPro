@@ -1,4 +1,4 @@
-"""Phase 0 — official public-API router (the SANCTIONED exception to No-Site-Name).
+"""Phase 0 public-route router (the sanctioned exception to No-Site-Name).
 
 Per SKILL.md R5, platforms that publish official no-auth public endpoints get a
 deterministic route tried BEFORE the generic WAF grid. This is the *enforced,
@@ -15,17 +15,20 @@ Contract:
       None              → url is not a recognised Phase-0 platform; caller runs
                           the generic grid as usual.
       {"platform","ok","route","content","final_url","attempts":[...]}
-                        → recognised platform. `ok` says whether an official
+                        → recognised platform. `ok` says whether a public
                           route succeeded. Even on ok=False the caller should
                           fall through to the grid, but `attempts` is recorded
                           so failure is never silent.
 
 Each attempt dict: {"route","platform","ok","status","bytes","note"}.
+X longform can use the optional third-party FxTwitter service. X tweet results
+retain their JSON format and report the selected source in metadata.
 """
 from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -113,6 +116,77 @@ def _reddit(url: str, timeout: int) -> dict:
 
 # --- x / twitter -------------------------------------------------------------
 _TWEET_ID_RE = re.compile(r"/status(?:es)?/(\d+)")
+_TCO_ONLY_RE = re.compile(r"^\s*https://t\.co/\S+\s*$")
+_X_HANDLE_RE = re.compile(r"[A-Za-z0-9_]{1,15}")
+_LONG_TEXT_CHARS = 270
+
+
+def _x_truncation_signal(tweet: dict) -> bool:
+    text = tweet.get("text")
+    return isinstance(text, str) and (
+        "note_tweet" in tweet or "article" in tweet
+        or len(text) >= _LONG_TEXT_CHARS or bool(_TCO_ONLY_RE.fullmatch(text))
+    )
+
+
+def _fxtwitter_full_text(payload: object) -> str:
+    if not isinstance(payload, dict) or not isinstance(payload.get("tweet"), dict):
+        return ""
+    tweet = payload["tweet"]
+    article = tweet.get("article")
+    if isinstance(article, dict):
+        content = article.get("content")
+        blocks = content.get("blocks") if isinstance(content, dict) else None
+        if isinstance(blocks, list):
+            paragraphs = [block["text"].strip() for block in blocks
+                          if isinstance(block, dict) and isinstance(block.get("text"), str)
+                          and block["text"].strip()]
+            if paragraphs:
+                title = article.get("title")
+                if isinstance(title, str) and title.strip():
+                    paragraphs.insert(0, title.strip())
+                return "\n\n".join(paragraphs)
+    text = tweet.get("text")
+    return text if isinstance(text, str) else ""
+
+
+def _x_fxtwitter(tid: str, tweet: dict, timeout: int, attempts: list[dict]) -> tuple[Optional[str], str]:
+    """Expand only when longer; failures must preserve the official response."""
+    try:
+        user = tweet.get("user")
+        handle = user.get("screen_name") if isinstance(user, dict) else None
+        if not isinstance(handle, str) or not _X_HANDLE_RE.fullmatch(handle):
+            handle = "i"
+        response = _cffi_get(f"https://api.fxtwitter.com/{handle}/status/{tid}",
+                             impersonate="chrome", timeout=min(timeout, 10))
+        full = _fxtwitter_full_text(response.json()) if response.status_code == 200 else ""
+        ok = bool(full.strip()) and len(full) > len(tweet["text"])
+        reason = "fxtwitter_not_longer" if full.strip() else "fxtwitter_error"
+        attempts.append(_attempt("x", "fxtwitter", ok, response.status_code, response.text,
+                                 f"chars={len(full)}" if ok else reason))
+        return (full, "") if ok else (None, reason)
+    except Exception as error:
+        attempts.append(_attempt("x", "fxtwitter", False, 0, "", type(error).__name__))
+        return None, "fxtwitter_error"
+
+
+def _x_expand(tweet: dict, result: dict, tid: str, timeout: int) -> dict:
+    # Keep the known-good tweet-result even if the optional expansion is malformed.
+    try:
+        if not _x_truncation_signal(tweet):
+            return result
+        if os.environ.get("INSANE_SEARCH_FXTWITTER", "1").strip().lower() in {"0", "false", "off", "no"}:
+            full, reason = None, "fxtwitter_disabled"
+        else:
+            full, reason = _x_fxtwitter(tid, tweet, timeout, result["attempts"])
+        if full is not None:
+            result.update(route="fxtwitter", content=json.dumps({**tweet, "text": full}, ensure_ascii=False),
+                          source_kind="third_party", source_service="fxtwitter")
+        else:
+            result.update(truncated_possible=True, truncation_reason=reason)
+    except Exception:
+        result.update(truncated_possible=True, truncation_reason="fxtwitter_error")
+    return result
 
 
 def _x(url: str, timeout: int) -> dict:
@@ -124,12 +198,14 @@ def _x(url: str, timeout: int) -> dict:
         try:
             x = _cffi_get(f"https://cdn.syndication.twimg.com/tweet-result?id={tid}&token=a", timeout=timeout)
             d = x.json() if x.status_code == 200 else {}
-            ok = bool(d.get("text"))
+            ok = isinstance(d, dict) and isinstance(d.get("text"), str) and bool(d["text"].strip())
             attempts.append(_attempt("x", "tweet-result", ok, x.status_code, x.text,
                                      "has-text" if ok else f"status={x.status_code}"))
             if ok:
-                return {"platform": "x", "ok": True, "route": "tweet-result",
-                        "content": x.text, "final_url": url, "attempts": attempts}
+                result = {"platform": "x", "ok": True, "route": "tweet-result",
+                          "content": x.text, "final_url": url, "attempts": attempts,
+                          "source_kind": "official", "source_service": "x", "content_format": "json"}
+                return _x_expand(d, result, tid, timeout)
         except Exception as e:
             attempts.append(_attempt("x", "tweet-result", False, 0, "", f"{type(e).__name__}"))
         try:

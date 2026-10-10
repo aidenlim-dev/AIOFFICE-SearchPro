@@ -25,6 +25,11 @@ When an ordinary fetch hits `403`, a WAF challenge, or a bot wall, your agent no
 
 It reads **public** pages. It stops at logins and paywalls and says so.
 
+## New in v1.8.0
+
+- X long posts and Articles can use an optional third-party FxTwitter request. The longer text keeps the original tweet JSON and author metadata.
+- Source and possible truncation are reported in fetch and keyword-search results. Set `INSANE_SEARCH_FXTWITTER=0` (also `false`, `off`, `no`) to disable the extra request.
+
 ## New in v1.7.0
 
 - `--json-content` returns metadata, trace and wrapped untrusted text from one fetch. It works with `--output`; `--json` and metadata files still omit the body.
@@ -68,7 +73,7 @@ claude plugin update aioffice-searchpro@aioffice-searchpro-marketplace
 claude plugin list
 ```
 
-Confirm that the list reports `aioffice-searchpro` version `1.7.0` or newer, then restart Claude Code. An open session can also reload plugins with `/reload-plugins`.
+Confirm that the list reports `aioffice-searchpro` version `1.8.0` or newer, then restart Claude Code. An open session can also reload plugins with `/reload-plugins`.
 
 To check an install, run doctor against the installed copy. No second clone needed:
 
@@ -128,7 +133,7 @@ Four tiers, each running only when the previous one fails or trips a blocking si
 
 | Tier | What it does |
 | :--- | :--- |
-| **Phase 0** | Official public routes a generic crawler can't guess - Reddit `.rss`, X `tweet-result`/oEmbed, YouTube via `yt-dlp`, Threads inline `video_versions` |
+| **Phase 0** | Official public routes a generic crawler can't guess - Reddit `.rss`, X `tweet-result`/oEmbed, YouTube via `yt-dlp`, Threads inline `video_versions`. Optional third-party FxTwitter expansion for X longform. |
 | **Phase 1** | Cheap probes: public API readers, syndication gateways, mobile / `.json` / `/rss` URL variants |
 | **Phase 2** | TLS impersonation via `curl_cffi`, ordered for fingerprint diversity, with a full browser identity (real TLS fingerprint, cookie warming, referer chain) |
 | **Phase 3** | A real browser. Protocol-stealth drivers (nodriver, patchright) for gates that fingerprint automation itself, plus network capture that surfaces the site's own internal JSON APIs |
