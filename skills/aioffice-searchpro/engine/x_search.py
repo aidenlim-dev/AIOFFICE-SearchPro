@@ -6,6 +6,7 @@ import json
 import os
 import re
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import replace
 from html import unescape
 from urllib.parse import quote_plus, unquote
 
@@ -101,15 +102,8 @@ def search_x(
 
     posts = _validate_urls(ordered_urls[:limit], timeout)
     enriched = tuple(
-        XPost(
-            url=post.url,
-            tweet_id=post.tweet_id,
-            author_name=post.author_name,
-            author_handle=post.author_handle,
-            text=post.text,
-            created_at=post.created_at,
-            likes=post.likes,
-            replies=post.replies,
+        replace(
+            post,
             discovered_by=tuple(source_by_url.get(post.url, post.discovered_by)),
         )
         for post in posts
@@ -202,13 +196,17 @@ def _validate_urls(urls: list[str], timeout: int) -> list[XPost]:
 
 def _validate_url(url: str, timeout: int) -> XPost | None:
     result = route(url, timeout=timeout)
-    if not result or not result.get("ok") or result.get("route") != "tweet-result":
+    if not result or not result.get("ok") or result.get("route") not in {"tweet-result", "fxtwitter"}:
         return None
     try:
         tweet = json.loads(result.get("content", ""))
     except (json.JSONDecodeError, TypeError):
         return None
-    user = tweet.get("user") or {}
+    if not isinstance(tweet, dict) or not isinstance(tweet.get("text"), str):
+        return None
+    user = tweet.get("user")
+    if not isinstance(user, dict):
+        user = {}
     return XPost(
         url=url,
         tweet_id=str(tweet.get("id_str") or url.rsplit("/", 1)[-1]),
@@ -219,6 +217,10 @@ def _validate_url(url: str, timeout: int) -> XPost | None:
         likes=int(tweet.get("favorite_count") or 0),
         replies=int(tweet.get("conversation_count") or 0),
         discovered_by=(),
+        source_kind=result.get("source_kind", "official"),
+        source_service=result.get("source_service", "x"),
+        truncated_possible=bool(result.get("truncated_possible")),
+        truncation_reason=result.get("truncation_reason", ""),
     )
 
 

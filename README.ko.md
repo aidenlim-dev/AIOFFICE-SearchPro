@@ -25,6 +25,11 @@
 
 **공개** 페이지를 읽는 도구다. 로그인과 페이월에서는 멈추고, 멈췄다고 말한다.
 
+## v1.8.0 변경 사항
+
+- X 장문과 아티클을 제3자 FxTwitter 조회로 보완한다. 더 긴 본문을 가져와도 기존 JSON 형식과 작성자 정보는 유지한다.
+- 단건 조회와 키워드 검색에 출처와 잘림 가능성을 표시한다. `INSANE_SEARCH_FXTWITTER=0` (`false`, `off`, `no`도 가능)으로 추가 조회를 끌 수 있다.
+
 ## v1.7.0 변경 사항
 
 - `--json-content`로 한 번의 수집에서 메타데이터, trace, 외부 데이터 경계로 감싼 본문을 함께 받는다. `--output`과 함께 사용할 수 있고, 기존 `--json`과 메타데이터 파일은 본문을 생략한다.
@@ -68,7 +73,7 @@ claude plugin update aioffice-searchpro@aioffice-searchpro-marketplace
 claude plugin list
 ```
 
-목록에서 `aioffice-searchpro`가 `1.7.0` 이상인지 확인한 뒤 Claude Code를 재시작한다. 열려 있는 세션에서는 `/reload-plugins`로 다시 불러올 수도 있다.
+목록에서 `aioffice-searchpro`가 `1.8.0` 이상인지 확인한 뒤 Claude Code를 재시작한다. 열려 있는 세션에서는 `/reload-plugins`로 다시 불러올 수도 있다.
 
 설치 확인은 설치된 사본에서 doctor를 돌리면 된다. 저장소를 다시 clone할 필요 없다:
 
@@ -128,7 +133,7 @@ bash setup/run-engine.sh "https://example.com/" --json --output page.md --metada
 
 | 티어 | 하는 일 |
 | :--- | :--- |
-| **Phase 0** | 일반 크롤러가 추측할 수 없는 공식 공개 경로. 레딧 `.rss`, X `tweet-result`/oEmbed, 유튜브 `yt-dlp`, Threads 인라인 `video_versions` |
+| **Phase 0** | 일반 크롤러가 추측할 수 없는 공식 공개 경로. 레딧 `.rss`, X `tweet-result`/oEmbed, 유튜브 `yt-dlp`, Threads 인라인 `video_versions`. X 장문은 선택적 제3자 FxTwitter 조회로 보완한다. |
 | **Phase 1** | 저렴한 탐색: 공개 API 리더, syndication 게이트웨이, 모바일 / `.json` / `/rss` URL 변형 |
 | **Phase 2** | `curl_cffi` TLS 지문 위장. 지문 다양성 순으로 정렬하고, 브라우저 신원 일체(실제 TLS 지문, 쿠키 워밍, 리퍼러 체인)를 갖춘다 |
 | **Phase 3** | 실제 브라우저. 자동화 자체를 지문화하는 게이트용 프로토콜 스텔스 드라이버(nodriver, patchright), 그리고 사이트가 내부적으로 쓰는 JSON API를 드러내는 네트워크 캡처 |

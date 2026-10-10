@@ -62,7 +62,7 @@ If the output is empty, just continue silently. (AskUserQuestion must NOT be in 
 
 **R4 — 힌트는 런타임에만**: 사이트 고유 정보(성공 셀렉터, 우선 Referer)는 CLI 인자 또는 `user_hint`로만 전달, 저장소에 고정 금지.
 
-**R5 — Phase 0 공식 API 우선**: X/Reddit/YouTube/HN/arXiv 등 **공식 공개 엔드포인트**가 있는 플랫폼은 Phase 0 테이블을 먼저 확인하고 해당 API를 쓴다. 이건 편향이 아니라 합의된 접근 경로.
+**R5 - Phase 0 공식 API 우선**: X/Reddit/YouTube/HN/arXiv 등 **공식 공개 엔드포인트**가 있는 플랫폼은 Phase 0 테이블을 먼저 확인하고 해당 API를 쓴다. X 장문은 아래에 명시한 선택적 제3자 FxTwitter 경로로 보완할 수 있다.
 
 **R6 — 실패 선언은 "전수 시도" 후에만 (engine이 강제하는 실패 게이트)**: engine은 실패 시 `ok=false`와 함께 **아직 안 해본 경로**(`untried_routes`)와 `must_invoke_playwright_mcp` 플래그를 반환한다. 아래가 **모두** 충족되기 전엔 "뚫을 수 없음" 결론 **금지**:
 1. `grid_exhausted=true` — false면 `fetch(max_attempts=None)`(=CLI 기본, exhaustive)로 끝까지 재호출.
@@ -145,19 +145,28 @@ python3 -m engine.x_search "Claude Code" --limit 10
 - 무료 Brave/Yahoo discovery는 항상 병렬 실행된다.
 - xAI 자격정보가 있으면 xAI `x_search`를 병렬 추가한다.
 - 두 경로의 URL은 교차 병합되어 독립 관측이 결과에 남는다.
-- 모든 URL은 tweet-result로 재검증되며 검색 snippet, Grok 요약은 최종 근거로 쓰지 않는다.
+- 모든 URL은 tweet-result로 재검증되며 검색 snippet, Grok 요약은 최종 근거로 쓰지 않는다. 장문은 조건부 FxTwitter 조회로 보완하며 게시물별 출처와 잘림 여부를 유지한다.
 - `--free-only` 또는 `INSANE_SEARCH_XAI=off`면 유료 경로를 호출하지 않는다.
 - xAI가 없거나 실패해도 무료 결과가 있으면 성공하며 `degraded_reason`과 `discovery_errors`에 상태를 기록한다.
 
-## Phase 0 — 플랫폼 공식 API 인덱스
+### X 장문과 아티클 본문 보완
 
-> 플랫폼이 **공식 공개한** 전용 API/CLI만 여기에 둔다. 이건 편향이 아니라 합의된 엔드포인트 사용이다.
+- `note_tweet`/`article`, 270자 이상, t.co 링크만 있는 본문이면 FxTwitter를 최대 10초간 조회하고 더 긴 본문만 사용한다. 짧은 글에는 호출하지 않는다.
+- FxTwitter는 X 공식 API가 아닌 제3자 서비스다. 단건 조회와 키워드 검색 모두 공개 게시물 ID와 작성자 핸들을 `api.fxtwitter.com`에 보낼 수 있다.
+- `INSANE_SEARCH_FXTWITTER=0`으로 끌 수 있다. `false`, `off`, `no`도 동일하게 처리한다.
+- 성공해도 기존 tweet-result JSON 형식을 유지한다. `text`만 보완하고 작성자, 시각, 반응 수는 공식 응답 값을 보존한다. `extraction_meta.source_kind=third_party`, `source_service=fxtwitter`, `content_format=json`으로 출처와 형식을 표시한다. 키워드 검색은 게시물에 출처 필드를 담는다.
+- 전문을 보완하지 못하면 기존 본문과 `truncated_possible=true`를 반환한다. `truncation_reason`은 `fxtwitter_disabled`, `fxtwitter_error`, `fxtwitter_not_longer`를 구분한다. 더 길지 않은 응답은 서비스 장애를 뜻하지 않는다.
+- 아티클은 제목과 텍스트 문단을 반환하며 이미지, 영상, 목록 서식과 링크 구조의 완전한 재현은 보장하지 않는다.
+
+## Phase 0 - 플랫폼 공개 경로 인덱스
+
+> 공식 공개 API/CLI를 우선한다. X 장문의 FxTwitter 보완은 위에 명시한 제3자 경로다.
 
 ### 소셜/커뮤니티 전용 API
 
 | 플랫폼 | 방법 | 상세 |
 |--------|------|------|
-| X/Twitter | syndication (타임라인) + tweet-result/oEmbed (개별 트윗) + 키워드 검색: 무료 Brave/Yahoo + 선택적 xAI `x_search` → tweet-result | [twitter.md](references/twitter.md) |
+| X/Twitter | syndication (타임라인), tweet-result/oEmbed (개별 트윗), 조건부 FxTwitter (장문), 키워드 검색: 무료 Brave/Yahoo + 선택적 xAI `x_search` 후 본문 검증 | [twitter.md](references/twitter.md) |
 | Reddit | Atom/RSS 피드(`.rss`) — 비인증 `.json`은 WAF 차단(403), score·댓글수는 OAuth | [json-api.md](references/json-api.md) |
 | Threads | 영상 포스트 → 인라인 JSON `video_versions` 최근접 매칭 (engine Phase 0 자동 — yt-dlp 익스트랙터 없음, 서명 URL은 즉시 다운로드) | [media.md](references/media.md) |
 | Bluesky | AT Protocol (`public.api.bsky.app/xrpc/...`) | [public-api.md](references/public-api.md) |
@@ -406,7 +415,7 @@ curl -sL "https://hacker-news.firebaseio.com/v0/topstories.json?limitToFirst=10&
 ### 허용
 
 - `SKILL.md` / `references/*.md`의 **설명 텍스트**에 사이트 이름 예시 (독자 이해용)
-- `Phase 0` 공식 API 인덱스 (플랫폼이 공식 공개한 엔드포인트)
+- `Phase 0` 공개 경로 인덱스 (공식 엔드포인트와 명시된 제3자 장문 보완)
 - `observations/*.jsonl` 로그 (append-only 관측 데이터 — 코드 경로에 영향 없음)
 - 호출자가 제공하는 `success_selectors`, `user_hint` (현재 호출에만 유효)
 

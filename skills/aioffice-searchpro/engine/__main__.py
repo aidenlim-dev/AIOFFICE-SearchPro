@@ -59,7 +59,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--no-playwright", action="store_true",
                    help="Skip Playwright fallback (curl-only).")
     p.add_argument("--no-phase0", action="store_true",
-                   help="Skip the Phase 0 official-API router (generic grid only).")
+                   help="Skip the Phase 0 public-route router (generic grid only).")
     p.add_argument("--json", action="store_true",
                    help="Emit FetchResult as JSON to stdout (content omitted).")
     p.add_argument("--json-content", action="store_true",
