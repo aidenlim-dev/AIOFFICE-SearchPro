@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.8.1 - 2026-11-07
+
+업스트림 0.17.4의 Windows 콘솔 인코딩 수정을 로컬 구조에 맞춰 반영했다.
+
+- `python -m engine`과 `python -m engine.x_search`가 시작할 때 stdout과 stderr를 UTF-8로 바꾼다. cp949 같은 콘솔 코드 페이지에서 받아 온 본문을 출력하다 `UnicodeEncodeError`로 버리던 문제를 막는다.
+- 로컬 보강: 업스트림 수정은 `engine/__main__.py`만 다뤄 X 키워드 검색 CLI는 그대로 실패했다. 두 진입점에 모두 적용하고 cp949 회귀 테스트를 CI에 추가했다.
+- 스킵: 업스트림의 `npm.cmd` 수정은 로컬에 이미 있다. `routing.json`과 gptaku-core 의존성은 이 포크가 제거한 gptaku 훅 전용이고, plugin-check CI는 원저자 조직의 워크플로라 해당 없음.
+- Claude Code, Codex, marketplace, uv 버전을 1.8.1로 맞췄다.
+
 ## 1.8.0 - 2026-10-10
 
 업스트림 0.17.0의 X 장문과 아티클 본문 보완을 로컬 구조에 맞춰 반영했다.

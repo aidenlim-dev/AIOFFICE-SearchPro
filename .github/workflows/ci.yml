@@ -54,6 +54,7 @@ jobs:
           uv run python skills/aioffice-searchpro/engine/tests/test_m_prefix_subdomain.py
           uv run python skills/aioffice-searchpro/engine/tests/test_cli_result.py
           uv run python skills/aioffice-searchpro/engine/tests/test_lazy_pdf.py
+          uv run python skills/aioffice-searchpro/engine/tests/test_console_encoding.py
           uv run python skills/aioffice-searchpro/engine/tests/test_t2_rescue.py
           uv run python skills/aioffice-searchpro/engine/tests/test_t5_pdfplumber.py
           PYTHONPATH="$PWD/skills/aioffice-searchpro" uv run pytest -q skills/aioffice-searchpro/tests/test_x_search.py skills/aioffice-searchpro/engine/tests/test_x_fxtwitter.py

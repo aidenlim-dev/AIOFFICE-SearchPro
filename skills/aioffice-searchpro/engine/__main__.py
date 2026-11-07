@@ -109,7 +109,18 @@ def _metadata_payload(
     return payload
 
 
+def _utf8_stdio() -> None:
+    """Windows consoles default to a legacy codepage (e.g. cp949); without this
+    the final print raises UnicodeEncodeError and discards an already-fetched page."""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass
+
+
 def main(argv: list[str] | None = None) -> int:
+    _utf8_stdio()
     args = build_parser().parse_args(argv)
     if args.output and args.metadata:
         output_path = Path(args.output).expanduser().resolve(strict=False)

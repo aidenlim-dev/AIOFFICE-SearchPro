@@ -73,7 +73,7 @@ claude plugin update aioffice-searchpro@aioffice-searchpro-marketplace
 claude plugin list
 ```
 
-Confirm that the list reports `aioffice-searchpro` version `1.8.0` or newer, then restart Claude Code. An open session can also reload plugins with `/reload-plugins`.
+Confirm that the list reports `aioffice-searchpro` version `1.8.1` or newer, then restart Claude Code. An open session can also reload plugins with `/reload-plugins`.
 
 To check an install, run doctor against the installed copy. No second clone needed:
 

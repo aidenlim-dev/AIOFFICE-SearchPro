@@ -268,6 +268,10 @@ def _interleave_discoveries(discovered: list[tuple[str, list[str]]]) -> list[str
 def main() -> int:
     import argparse
 
+    from .__main__ import _utf8_stdio
+
+    _utf8_stdio()  # `python -m engine.x_search` bypasses engine/__main__.py's main()
+
     parser = argparse.ArgumentParser(description="Discover and validate public X posts by keyword.")
     parser.add_argument("query")
     parser.add_argument("--limit", type=int, default=10)
